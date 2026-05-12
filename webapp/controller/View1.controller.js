@@ -54,10 +54,6 @@ sap.ui.define([
 				profitCenters: [],
 				glGroups: [],
 				quarters: []
-				// quarters: [{
-				// 		key: "Q1",
-				// 		text: "Q1 - Period 1 to 3"
-				// 	}] // Initial selection
 			}), "filters");
 
 			this.getView().setModel(new JSONModel({
@@ -126,6 +122,18 @@ sap.ui.define([
 			this._applyFilters(false);
 		},
 
+		/**
+		 * Formatter to display selected keys in MultiInput as a comma-separated string
+		 */
+		formatTokenKeys: function(aSelectedItems) {
+			if (!aSelectedItems || aSelectedItems.length === 0) {
+				return "";
+			}
+			return aSelectedItems.map(function(oItem) {
+				return oItem.key;
+			}).join(", ");
+		},
+
 		onAfterRendering: function() {
 			this._configureCharts();
 			this._wireScrollAutoCollapse();
@@ -146,10 +154,6 @@ sap.ui.define([
 				profitCenters: [],
 				glGroups: [],
 				quarters: []
-				// quarters: [{
-				// 	key: "Q1",
-				// 	text: "Q1 - Period 1 to 3"
-				// }]
 			});
 			this._clearSearch();
 			this._applyFilters(true);
@@ -669,14 +673,6 @@ sap.ui.define([
 				oUiModel.setProperty("/fiscalYearState", "None");
 			}
 
-			// if (!oFilters.quarters || oFilters.quarters.length === 0) {
-			// 	oUiModel.setProperty("/quarterState", "Error");
-			// 	aMissing.push("Quarter");
-			// 	bOk = false;
-			// } else {
-			// 	oUiModel.setProperty("/quarterState", "None");
-			// }
-
 			if (!bOk) {
 				MessageBox.error("Please fill mandatory field(s): " + aMissing.join(", ") + ".");
 			}
@@ -686,7 +682,6 @@ sap.ui.define([
 		_syncPeriodVisibility: function(aPeriods) {
 			var oUiModel = this.getView().getModel("ui");
 			for (var i = 1; i <= 12; i++) {
-				// If no quarters selected, show no periods, otherwise show matching
 				oUiModel.setProperty("/p" + i + "Visible", aPeriods.indexOf(i) !== -1);
 			}
 		},
@@ -993,6 +988,32 @@ sap.ui.define([
 				budget: iBudget,
 				actual: iActual
 			};
+		},
+		/**
+		 * Synchronizes the data model when the MultiInput is cleared via the UI icon
+		 */
+		onTokenUpdate: function(oEvent) {
+			var sType = oEvent.getParameter("type");
+
+			// Check if the user is trying to remove tokens (clearing the field)
+			if (sType === "removed") {
+				var oSource = oEvent.getSource();
+				var sId = oSource.getId();
+				var oFiltersModel = this.getView().getModel("filters");
+
+				// Determine which field needs to be cleared based on the Control ID
+				if (sId.includes("quarterInput")) {
+					oFiltersModel.setProperty("/quarters", []);
+				} else if (sId.includes("profitCentreInput")) {
+					oFiltersModel.setProperty("/profitCenters", []);
+				} else if (sId.includes("glGroupInput")) {
+					oFiltersModel.setProperty("/glGroups", []);
+				}
+
+				// Trigger the filter logic so KPIs and tables update immediately
+				this._applyFilters(true);
+			}
 		}
+
 	});
 });

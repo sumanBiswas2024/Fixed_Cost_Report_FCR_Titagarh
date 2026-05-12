@@ -40,30 +40,18 @@
 									<!--</VBox>-->
 									<VBox class="fcrField fcrFieldQtr">
 										<Label text="Quarter" required="false"/>
-										<MultiInput id="quarterInput" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onQuarterValueHelp" tokens="{filters>/quarters}"
-											placeholder="Choose quarters">
-											<tokens>
-												<Token key="{filters>key}" text="{filters>text}"/>
-											</tokens>
-										</MultiInput>
+										<MultiInput id="quarterInput" value="{path: 'filters>/quarters', formatter: '.formatTokenKeys'}" showValueHelp="true" valueHelpOnly="true"
+											tokenUpdate=".onTokenUpdate" valueHelpRequest=".onQuarterValueHelp" placeholder="Choose Quarters"/>
 									</VBox>
 									<VBox class="fcrField fcrFieldPc">
 										<Label text="Profit Centre"/>
-										<MultiInput id="profitCentreInput" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onProfitCentreValueHelp"
-											tokens="{filters>/profitCenters}" placeholder="Choose PC">
-											<tokens>
-												<Token key="{filters>key}" text="{filters>text}"/>
-											</tokens>
-										</MultiInput>
+										<MultiInput id="profitCentreInput" value="{path: 'filters>/profitCenters', formatter: '.formatTokenKeys'}" showValueHelp="true"
+											valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onProfitCentreValueHelp" placeholder="Choose PC"/>
 									</VBox>
 									<VBox class="fcrField fcrFieldGlg">
 										<Label text="GL Group"/>
-										<MultiInput id="glGroupInput" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onGlGroupValueHelp" tokens="{filters>/glGroups}"
-											placeholder="Choose GL">
-											<tokens>
-												<Token key="{filters>key}" text="{filters>text}"/>
-											</tokens>
-										</MultiInput>
+										<MultiInput id="glGroupInput" value="{path: 'filters>/glGroups', formatter: '.formatTokenKeys'}" showValueHelp="true" valueHelpOnly="true"
+											tokenUpdate=".onTokenUpdate" valueHelpRequest=".onGlGroupValueHelp" placeholder="Choose GL"/>
 									</VBox>
 									<HBox class="fcrActionsContainer" alignItems="Center">
 										<Button icon="sap-icon://reset" tooltip="Reset" press=".onReset" class="fcrBtnReset"/>
