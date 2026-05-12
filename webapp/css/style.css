@@ -92,6 +92,24 @@
 	align-items: flex-end;
 }
 
+.fcrParamHeader {
+	padding: 0.25rem 0.25rem 0;
+}
+
+.fcrParamSelected {
+	color: #5d6b73;
+	font-size: 0.85rem;
+	margin: 0 0.25rem 0.25rem;
+}
+
+.fcrToolbarSearch {
+	margin-right: 0.25rem;
+}
+
+.fcrToolbarExport {
+	margin-right: 0.5rem;
+}
+
 .fcrField {
 	gap: 0.35rem;
 }
@@ -307,6 +325,23 @@
 
 .fcrSummaryWrap {
 	gap: 1rem;
+}
+
+.fcrOutPanel {
+	border: 1px solid #e1e7ea;
+	border-radius: 0.35rem;
+	overflow: hidden;
+	background: #ffffff;
+}
+
+.fcrOutPanel .sapMPanelWrappingDiv,
+.fcrOutPanel .sapMPanelWrappingDivTb {
+	background: #fbfcfd;
+	border-bottom: 1px solid #e1e7ea;
+}
+
+.fcrOutPanel .sapMPanelContent {
+	padding: 0.75rem;
 }
 
 .fcrTopLayout {
