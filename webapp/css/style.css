@@ -40,13 +40,53 @@
 	margin-top: 0.5rem;
 }
 
-.fcrFilterPanel {
-	background: #ffffff;
-	box-shadow: 0 0.2rem 0.75rem rgba(29, 45, 53, 0.07);
+.fcrParamWrap {
+	position: sticky;
+	top: 0;
+	z-index: 5;
+	background: transparent;
 }
 
-.fcrFilterPanel .sapMPanelContent {
-	padding: 1rem 1rem 0.85rem;
+.fcrParamToggle {
+	width: 100%;
+	height: 2.25rem;
+	margin: 0;
+	padding: 0;
+	border-radius: 0;
+	background: transparent;
+}
+
+.fcrParamToggle .sapMBtnInner {
+	width: 3.1rem;
+	height: 2.25rem;
+	margin: 0 auto;
+	border-radius: 999px;
+	background: #ffffff;
+	border: 1px solid #d9e0e3;
+	box-shadow: 0 0.15rem 0.8rem rgba(29, 45, 53, 0.08);
+}
+
+.fcrParamGrid {
+	background: #ffffff;
+	box-shadow: 0 0.25rem 1rem rgba(29, 45, 53, 0.08);
+	padding: 0.9rem 1rem 0.85rem;
+	box-sizing: border-box;
+}
+
+.fcrParamRow {
+	width: 100%;
+	gap: 0.75rem;
+}
+
+.fcrFieldCc { width: 10rem; }
+.fcrFieldFy { width: 10rem; }
+.fcrFieldQtr { width: 14rem; }
+.fcrFieldAct { width: 12.5rem; }
+.fcrFieldPc { flex: 1 1 18rem; min-width: 18rem; }
+.fcrFieldGlg { flex: 1 1 18rem; min-width: 18rem; }
+
+.fcrKpiGrid {
+	margin-top: 0.2rem;
 }
 
 .fcrField {
@@ -61,18 +101,14 @@
 	gap: 0.5rem;
 }
 
-.fcrKpiStrip {
-	gap: 0.75rem;
-}
-
 .fcrKpi {
-	min-width: 11.5rem;
-	flex: 1 1 11.5rem;
-	padding: 0.9rem 1rem;
+	min-height: 5.4rem;
+	padding: 0.95rem 1.05rem;
 	box-sizing: border-box;
-	background: #ffffff;
-	border-top: 0.2rem solid #d0a215;
-	box-shadow: 0 0.2rem 0.75rem rgba(29, 45, 53, 0.07);
+	border-radius: 0.35rem;
+	background: linear-gradient(180deg, #ffffff 0%, #fbfcfd 100%);
+	border: 1px solid #e1e7ea;
+	box-shadow: 0 0.35rem 1.2rem rgba(29, 45, 53, 0.10);
 }
 
 .fcrKpi .sapMText {
@@ -88,6 +124,11 @@
 	font-size: 1.35rem;
 	font-weight: 600;
 }
+
+.fcrKpiA { border-left: 0.25rem solid #0b7285; }
+.fcrKpiB { border-left: 0.25rem solid #f08c00; }
+.fcrKpiV { border-left: 0.25rem solid #c2255c; }
+.fcrKpiP { border-left: 0.25rem solid #2f9e44; }
 
 .fcrTabs {
 	background: #ffffff;
@@ -113,6 +154,10 @@
 	background: #eef3f5;
 }
 
+.fcrSummaryWrap {
+	gap: 0.75rem;
+}
+
 .fcrTopLayout {
 	gap: 1rem;
 	align-items: stretch;
@@ -129,7 +174,12 @@
 	padding: 0.5rem 0.75rem 0.75rem;
 	box-sizing: border-box;
 	border: 1px solid #d9e0e3;
-	background: #fbfcfc;
+	background: linear-gradient(180deg, #fbfcfc 0%, #ffffff 100%);
+}
+
+.fcrFullChart {
+	width: 100%;
+	min-width: 100%;
 }
 
 .sapUiSizeCompact .fcrPage .sapMInputBaseInner,
@@ -150,12 +200,14 @@
 		font-size: 1.45rem;
 	}
 
-	.fcrKpi {
-		min-width: 100%;
-	}
-
 	.fcrTopTable,
-	.fcrChartPanel {
+	.fcrChartPanel,
+	.fcrFieldCc,
+	.fcrFieldFy,
+	.fcrFieldQtr,
+	.fcrFieldAct,
+	.fcrFieldPc,
+	.fcrFieldGlg {
 		min-width: 100%;
 	}
 }

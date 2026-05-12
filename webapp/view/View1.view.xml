@@ -23,18 +23,32 @@
 							<ObjectStatus text="{ui>/lastRunText}" state="Success" icon="sap-icon://sys-enter-2" class="fcrRunStatus"/>
 						</HBox>
 
-						<Panel backgroundDesign="Transparent" class="fcrFilterPanel">
-							<content>
-								<layout:Grid defaultSpan="XL2 L3 M6 S12" hSpacing="1" vSpacing="1" class="fcrFilterGrid">
-									<VBox class="fcrField">
+						<VBox class="fcrParamWrap">
+							<Button
+								id="paramToggleBtn"
+								class="fcrParamToggle"
+								type="Transparent"
+								press=".onToggleParams"
+								icon="{= ${ui>/paramsExpanded} ? 'sap-icon://slim-arrow-up' : 'sap-icon://slim-arrow-down' }"
+								tooltip="{= ${ui>/paramsExpanded} ? 'Collapse parameters' : 'Expand parameters' }"/>
+
+							<layout:Grid
+								id="paramGrid"
+								visible="{ui>/paramsExpanded}"
+								defaultSpan="XL12 L12 M12 S12"
+								hSpacing="1"
+								vSpacing="0"
+								class="fcrParamGrid">
+								<HBox wrap="Wrap" class="fcrParamRow" alignItems="End">
+									<VBox class="fcrField fcrFieldCc">
 										<Label text="Company Code" required="true"/>
 										<Input value="{filters>/companyCode}" maxLength="4" placeholder="1000"/>
 									</VBox>
-									<VBox class="fcrField">
+									<VBox class="fcrField fcrFieldFy">
 										<Label text="Fiscal Year" required="true"/>
-										<Input value="{filters>/fiscalYear}" maxLength="4" placeholder="2026"/>
+										<DatePicker value="{filters>/fiscalYear}" valueFormat="yyyy" displayFormat="yyyy" placeholder="YYYY" change=".onFiscalYearChange"/>
 									</VBox>
-									<VBox class="fcrField">
+									<VBox class="fcrField fcrFieldPc">
 										<Label text="Profit Centre"/>
 										<MultiInput id="profitCentreInput" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onProfitCentreValueHelp" tokens="{filters>/profitCenters}" placeholder="Choose profit centres">
 											<tokens>
@@ -42,7 +56,7 @@
 											</tokens>
 										</MultiInput>
 									</VBox>
-									<VBox class="fcrField">
+									<VBox class="fcrField fcrFieldGlg">
 										<Label text="GL Group"/>
 										<MultiInput id="glGroupInput" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onGlGroupValueHelp" tokens="{filters>/glGroups}" placeholder="Choose GL groups">
 											<tokens>
@@ -50,45 +64,41 @@
 											</tokens>
 										</MultiInput>
 									</VBox>
-									<VBox class="fcrField">
+									<VBox class="fcrField fcrFieldQtr">
 										<Label text="Quarter"/>
 										<Select selectedKey="{filters>/quarter}" width="100%" change=".onQuarterChange" items="{lookups>/quarters}">
 											<core:Item key="{lookups>key}" text="{lookups>text}"/>
 										</Select>
 									</VBox>
-									<VBox class="fcrActionBox">
-										<Label text="Actions"/>
+									<VBox class="fcrActionBox fcrFieldAct">
+										<Label text=" "/>
 										<HBox class="fcrActionRow">
 											<Button icon="sap-icon://refresh" tooltip="Reset" press=".onReset"/>
 											<Button text="Run" icon="sap-icon://filter" type="Emphasized" press=".onSearch"/>
 										</HBox>
 									</VBox>
-								</layout:Grid>
-							</content>
-						</Panel>
+								</HBox>
+							</layout:Grid>
+						</VBox>
 
-						<HBox class="fcrKpiStrip" wrap="Wrap">
-							<VBox class="fcrKpi">
+						<layout:Grid defaultSpan="XL3 L3 M6 S12" hSpacing="1" vSpacing="1" class="fcrKpiGrid">
+							<VBox class="fcrKpi fcrKpiA">
 								<Text text="Actual Fixed Cost"/>
 								<ObjectNumber number="{ui>/totalActual}" unit="INR" state="Information"/>
 							</VBox>
-							<VBox class="fcrKpi">
+							<VBox class="fcrKpi fcrKpiB">
 								<Text text="Budget"/>
 								<ObjectNumber number="{ui>/totalBudget}" unit="INR"/>
 							</VBox>
-							<VBox class="fcrKpi">
+							<VBox class="fcrKpi fcrKpiV">
 								<Text text="Variance"/>
 								<ObjectNumber number="{ui>/totalVariance}" unit="INR" state="{ui>/varianceState}"/>
 							</VBox>
-							<VBox class="fcrKpi">
+							<VBox class="fcrKpi fcrKpiP">
 								<Text text="Variance %"/>
 								<ObjectNumber number="{ui>/variancePct}" unit="%" state="{ui>/varianceState}"/>
 							</VBox>
-							<VBox class="fcrKpi">
-								<Text text="Records"/>
-								<ObjectNumber number="{ui>/recordCount}"/>
-							</VBox>
-						</HBox>
+						</layout:Grid>
 
 						<IconTabBar selectedKey="{ui>/selectedTab}" class="fcrTabs" expandable="false">
 							<items>
@@ -100,13 +110,25 @@
 											<SegmentedButton selectedKey="{ui>/allViewMode}">
 												<items>
 													<SegmentedButtonItem key="DETAIL" text="Details" icon="sap-icon://detail-view"/>
-													<SegmentedButtonItem key="SUMMARY" text="Summary" icon="sap-icon://sum"/>
+													<SegmentedButtonItem key="SUMMARY" text="Summary" icon="sap-icon://vertical-bar-chart"/>
 												</items>
 											</SegmentedButton>
 										</Toolbar>
 
 										<table:Table rows="{fcr>/allDetailRows}" visible="{= ${ui>/allViewMode} === 'DETAIL' }" visibleRowCount="9" selectionMode="None" enableColumnReordering="true" class="fcrUiTable">
 											<table:columns>
+												<table:Column width="7rem" sortProperty="fiscalYear" hAlign="Center">
+													<table:label><Label text="Fiscal Year"/></table:label>
+													<table:template><Text text="{fcr>fiscalYear}"/></table:template>
+												</table:Column>
+												<table:Column width="8rem" sortProperty="monthText">
+													<table:label><Label text="Month"/></table:label>
+													<table:template><Text text="{fcr>monthText}"/></table:template>
+												</table:Column>
+												<table:Column width="8rem" sortProperty="glGroup" filterProperty="glGroup">
+													<table:label><Label text="GL Group"/></table:label>
+													<table:template><ObjectStatus text="{fcr>glGroup}" state="Information"/></table:template>
+												</table:Column>
 												<table:Column width="7rem" sortProperty="glAccount" filterProperty="glAccount">
 													<table:label><Label text="GL Account"/></table:label>
 													<table:template><Text text="{fcr>glAccount}"/></table:template>
@@ -115,17 +137,9 @@
 													<table:label><Label text="GL Description"/></table:label>
 													<table:template><Text text="{fcr>glName}"/></table:template>
 												</table:Column>
-												<table:Column width="8rem" sortProperty="glGroup" filterProperty="glGroup">
-													<table:label><Label text="GL Group"/></table:label>
-													<table:template><ObjectStatus text="{fcr>glGroup}" state="Information"/></table:template>
-												</table:Column>
 												<table:Column width="8rem" sortProperty="profitCenter" filterProperty="profitCenter">
 													<table:label><Label text="Profit Centre"/></table:label>
 													<table:template><Text text="{fcr>profitCenter}"/></table:template>
-												</table:Column>
-												<table:Column width="7rem" sortProperty="period" hAlign="Center">
-													<table:label><Label text="Period"/></table:label>
-													<table:template><Text text="{fcr>period}"/></table:template>
 												</table:Column>
 												<table:Column width="8rem" sortProperty="budget" hAlign="End">
 													<table:label><Label text="Budget"/></table:label>
@@ -139,45 +153,59 @@
 													<table:label><Label text="Variance"/></table:label>
 													<table:template><ObjectNumber number="{fcr>varianceText}" state="{fcr>varianceState}"/></table:template>
 												</table:Column>
-												<table:Column width="7rem" sortProperty="variancePct" hAlign="End">
-													<table:label><Label text="Var %"/></table:label>
-													<table:template><ObjectNumber number="{fcr>variancePctText}" state="{fcr>varianceState}"/></table:template>
-												</table:Column>
 											</table:columns>
 										</table:Table>
 
-										<table:Table rows="{fcr>/allSummaryRows}" visible="{= ${ui>/allViewMode} === 'SUMMARY' }" visibleRowCount="7" selectionMode="None" enableColumnReordering="true" class="fcrUiTable">
-											<table:columns>
-												<table:Column width="9rem" sortProperty="glGroup" filterProperty="glGroup">
-													<table:label><Label text="GL Group"/></table:label>
-													<table:template><ObjectStatus text="{fcr>glGroup}" state="Information"/></table:template>
-												</table:Column>
-												<table:Column width="16rem" sortProperty="groupName" filterProperty="groupName">
-													<table:label><Label text="Group Description"/></table:label>
-													<table:template><Text text="{fcr>groupName}"/></table:template>
-												</table:Column>
-												<table:Column width="8rem" sortProperty="lineCount" hAlign="End">
-													<table:label><Label text="Lines"/></table:label>
-													<table:template><ObjectNumber number="{fcr>lineCount}"/></table:template>
-												</table:Column>
-												<table:Column width="10rem" sortProperty="budget" hAlign="End">
-													<table:label><Label text="Budget"/></table:label>
-													<table:template><ObjectNumber number="{fcr>budgetText}"/></table:template>
-												</table:Column>
-												<table:Column width="10rem" sortProperty="actual" hAlign="End">
-													<table:label><Label text="Actual"/></table:label>
-													<table:template><ObjectNumber number="{fcr>actualText}"/></table:template>
-												</table:Column>
-												<table:Column width="10rem" sortProperty="variance" hAlign="End">
-													<table:label><Label text="Variance"/></table:label>
-													<table:template><ObjectNumber number="{fcr>varianceText}" state="{fcr>varianceState}"/></table:template>
-												</table:Column>
-												<table:Column width="8rem" sortProperty="variancePct" hAlign="End">
-													<table:label><Label text="Var %"/></table:label>
-													<table:template><ObjectNumber number="{fcr>variancePctText}" state="{fcr>varianceState}"/></table:template>
-												</table:Column>
-											</table:columns>
-										</table:Table>
+										<VBox visible="{= ${ui>/allViewMode} === 'SUMMARY' }" class="fcrSummaryWrap">
+											<table:Table rows="{fcr>/allSummaryRows}" visibleRowCount="7" selectionMode="None" enableColumnReordering="true" class="fcrUiTable">
+												<table:columns>
+													<table:Column width="7rem" sortProperty="fiscalYear" hAlign="Center">
+														<table:label><Label text="Fiscal Year"/></table:label>
+														<table:template><Text text="{fcr>fiscalYear}"/></table:template>
+													</table:Column>
+													<table:Column width="8rem" sortProperty="monthText">
+														<table:label><Label text="Month"/></table:label>
+														<table:template><Text text="{fcr>monthText}"/></table:template>
+													</table:Column>
+													<table:Column width="8rem" sortProperty="glGroup">
+														<table:label><Label text="GL Group"/></table:label>
+														<table:template><ObjectStatus text="{fcr>glGroup}" state="Information"/></table:template>
+													</table:Column>
+													<table:Column width="16rem" sortProperty="groupName">
+														<table:label><Label text="Group Description"/></table:label>
+														<table:template><Text text="{fcr>groupName}"/></table:template>
+													</table:Column>
+													<table:Column width="10rem" sortProperty="variance" hAlign="End">
+														<table:label><Label text="Variance"/></table:label>
+														<table:template><ObjectNumber number="{fcr>varianceText}" state="{fcr>varianceState}"/></table:template>
+													</table:Column>
+												</table:columns>
+											</table:Table>
+
+											<Toolbar design="Transparent">
+												<Title text="All Summary by GL Group, Fiscal Year and Month" level="H4"/>
+												<ToolbarSpacer/>
+												<ObjectStatus text="Variance" state="Information"/>
+											</Toolbar>
+											<VBox class="fcrChartPanel fcrFullChart">
+											<viz:VizFrame id="allSummaryChart" width="100%" height="360px" vizType="column">
+												<viz:dataset>
+													<viz.data:FlattenedDataset data="{fcr>/allSummaryChart}">
+														<viz.data:dimensions>
+															<viz.data:DimensionDefinition name="GL Group / FY / Month" value="{fcr>name}"/>
+														</viz.data:dimensions>
+														<viz.data:measures>
+															<viz.data:MeasureDefinition name="Variance" value="{fcr>variance}"/>
+														</viz.data:measures>
+													</viz.data:FlattenedDataset>
+												</viz:dataset>
+												<viz:feeds>
+													<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Variance"/>
+													<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="GL Group / FY / Month"/>
+												</viz:feeds>
+											</viz:VizFrame>
+											</VBox>
+										</VBox>
 									</VBox>
 								</IconTabFilter>
 
@@ -186,92 +214,101 @@
 										<Toolbar design="Transparent" class="fcrTableToolbar">
 											<Title text="Top 5 Variance Analysis" level="H3"/>
 											<ToolbarSpacer/>
-											<SegmentedButton selectedKey="{ui>/topViewMode}" selectionChange=".onTopViewModeChange">
+											<SegmentedButton selectedKey="{ui>/topViewMode}">
 												<items>
 													<SegmentedButtonItem key="DETAIL" text="Details" icon="sap-icon://detail-view"/>
-													<SegmentedButtonItem key="SUMMARY" text="Summary" icon="sap-icon://sum"/>
+													<SegmentedButtonItem key="SUMMARY" text="Summary" icon="sap-icon://vertical-bar-chart"/>
 												</items>
 											</SegmentedButton>
 										</Toolbar>
 
-										<HBox class="fcrTopLayout" wrap="Wrap">
-											<VBox class="fcrTopTable">
-												<table:Table rows="{fcr>/topDetailRows}" visible="{= ${ui>/topViewMode} === 'DETAIL' }" visibleRowCount="5" selectionMode="None" enableColumnReordering="true" class="fcrUiTable">
-													<table:columns>
-														<table:Column width="7rem" sortProperty="glAccount">
-															<table:label><Label text="GL Account"/></table:label>
-															<table:template><Text text="{fcr>glAccount}"/></table:template>
-														</table:Column>
-														<table:Column width="12rem" sortProperty="glName">
-															<table:label><Label text="GL Description"/></table:label>
-															<table:template><Text text="{fcr>glName}"/></table:template>
-														</table:Column>
-														<table:Column width="8rem" sortProperty="profitCenter">
-															<table:label><Label text="Profit Centre"/></table:label>
-															<table:template><Text text="{fcr>profitCenter}"/></table:template>
-														</table:Column>
-														<table:Column width="8rem" sortProperty="actual" hAlign="End">
-															<table:label><Label text="Actual"/></table:label>
-															<table:template><ObjectNumber number="{fcr>actualText}"/></table:template>
-														</table:Column>
-														<table:Column width="8rem" sortProperty="variance" hAlign="End">
-															<table:label><Label text="Variance"/></table:label>
-															<table:template><ObjectNumber number="{fcr>varianceText}" state="{fcr>varianceState}"/></table:template>
-														</table:Column>
-													</table:columns>
-												</table:Table>
+										<table:Table rows="{fcr>/topDetailRows}" visible="{= ${ui>/topViewMode} === 'DETAIL' }" visibleRowCount="5" selectionMode="None" enableColumnReordering="true" class="fcrUiTable">
+											<table:columns>
+												<table:Column width="7rem" sortProperty="fiscalYear" hAlign="Center">
+													<table:label><Label text="Fiscal Year"/></table:label>
+													<table:template><Text text="{fcr>fiscalYear}"/></table:template>
+												</table:Column>
+												<table:Column width="8rem" sortProperty="monthText">
+													<table:label><Label text="Month"/></table:label>
+													<table:template><Text text="{fcr>monthText}"/></table:template>
+												</table:Column>
+												<table:Column width="8rem" sortProperty="glGroup">
+													<table:label><Label text="GL Group"/></table:label>
+													<table:template><ObjectStatus text="{fcr>glGroup}" state="Information"/></table:template>
+												</table:Column>
+												<table:Column width="7rem" sortProperty="glAccount">
+													<table:label><Label text="GL Account"/></table:label>
+													<table:template><Text text="{fcr>glAccount}"/></table:template>
+												</table:Column>
+												<table:Column width="12rem" sortProperty="glName">
+													<table:label><Label text="GL Description"/></table:label>
+													<table:template><Text text="{fcr>glName}"/></table:template>
+												</table:Column>
+												<table:Column width="8rem" sortProperty="profitCenter">
+													<table:label><Label text="Profit Centre"/></table:label>
+													<table:template><Text text="{fcr>profitCenter}"/></table:template>
+												</table:Column>
+												<table:Column width="8rem" sortProperty="actual" hAlign="End">
+													<table:label><Label text="Actual"/></table:label>
+													<table:template><ObjectNumber number="{fcr>actualText}"/></table:template>
+												</table:Column>
+												<table:Column width="8rem" sortProperty="variance" hAlign="End">
+													<table:label><Label text="Variance"/></table:label>
+													<table:template><ObjectNumber number="{fcr>varianceText}" state="{fcr>varianceState}"/></table:template>
+												</table:Column>
+											</table:columns>
+										</table:Table>
 
-												<table:Table rows="{fcr>/topSummaryRows}" visible="{= ${ui>/topViewMode} === 'SUMMARY' }" visibleRowCount="5" selectionMode="None" enableColumnReordering="true" class="fcrUiTable">
-													<table:columns>
-														<table:Column width="9rem" sortProperty="glGroup">
-															<table:label><Label text="GL Group"/></table:label>
-															<table:template><ObjectStatus text="{fcr>glGroup}" state="Information"/></table:template>
-														</table:Column>
-														<table:Column width="15rem" sortProperty="groupName">
-															<table:label><Label text="Group Description"/></table:label>
-															<table:template><Text text="{fcr>groupName}"/></table:template>
-														</table:Column>
-														<table:Column width="8rem" sortProperty="actual" hAlign="End">
-															<table:label><Label text="Actual"/></table:label>
-															<table:template><ObjectNumber number="{fcr>actualText}"/></table:template>
-														</table:Column>
-														<table:Column width="8rem" sortProperty="variance" hAlign="End">
-															<table:label><Label text="Variance"/></table:label>
-															<table:template><ObjectNumber number="{fcr>varianceText}" state="{fcr>varianceState}"/></table:template>
-														</table:Column>
-														<table:Column width="7rem" sortProperty="variancePct" hAlign="End">
-															<table:label><Label text="Var %"/></table:label>
-															<table:template><ObjectNumber number="{fcr>variancePctText}" state="{fcr>varianceState}"/></table:template>
-														</table:Column>
-													</table:columns>
-												</table:Table>
-											</VBox>
+										<VBox visible="{= ${ui>/topViewMode} === 'SUMMARY' }" class="fcrSummaryWrap">
+											<table:Table rows="{fcr>/topSummaryRows}" visibleRowCount="5" selectionMode="None" enableColumnReordering="true" class="fcrUiTable">
+												<table:columns>
+													<table:Column width="7rem" sortProperty="fiscalYear" hAlign="Center">
+														<table:label><Label text="Fiscal Year"/></table:label>
+														<table:template><Text text="{fcr>fiscalYear}"/></table:template>
+													</table:Column>
+													<table:Column width="8rem" sortProperty="monthText">
+														<table:label><Label text="Month"/></table:label>
+														<table:template><Text text="{fcr>monthText}"/></table:template>
+													</table:Column>
+													<table:Column width="8rem" sortProperty="glGroup">
+														<table:label><Label text="GL Group"/></table:label>
+														<table:template><ObjectStatus text="{fcr>glGroup}" state="Information"/></table:template>
+													</table:Column>
+													<table:Column width="15rem" sortProperty="groupName">
+														<table:label><Label text="Group Description"/></table:label>
+														<table:template><Text text="{fcr>groupName}"/></table:template>
+													</table:Column>
+													<table:Column width="10rem" sortProperty="variance" hAlign="End">
+														<table:label><Label text="Variance"/></table:label>
+														<table:template><ObjectNumber number="{fcr>varianceText}" state="{fcr>varianceState}"/></table:template>
+													</table:Column>
+												</table:columns>
+											</table:Table>
 
-											<VBox class="fcrChartPanel">
-												<Toolbar design="Transparent">
-													<Title text="{ui>/chartTitle}" level="H4"/>
-													<ToolbarSpacer/>
-													<ObjectStatus text="{ui>/chartSubtitle}" state="Information"/>
-												</Toolbar>
-												<viz:VizFrame id="topVarianceChart" width="100%" height="360px" vizType="column">
-													<viz:dataset>
-														<viz.data:FlattenedDataset data="{fcr>/topChart}">
-															<viz.data:dimensions>
-																<viz.data:DimensionDefinition name="Name" value="{fcr>name}"/>
-															</viz.data:dimensions>
-															<viz.data:measures>
-																<viz.data:MeasureDefinition name="Actual" value="{fcr>actual}"/>
-																<viz.data:MeasureDefinition name="Budget" value="{fcr>budget}"/>
-															</viz.data:measures>
-														</viz.data:FlattenedDataset>
-													</viz:dataset>
-													<viz:feeds>
-														<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Actual,Budget"/>
-														<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Name"/>
-													</viz:feeds>
-												</viz:VizFrame>
+											<Toolbar design="Transparent">
+												<Title text="Top 5 Summary by GL Group, Fiscal Year and Month" level="H4"/>
+												<ToolbarSpacer/>
+												<ObjectStatus text="Variance" state="Information"/>
+											</Toolbar>
+											<VBox class="fcrChartPanel fcrFullChart">
+											<viz:VizFrame id="topSummaryChart" width="100%" height="360px" vizType="column">
+												<viz:dataset>
+													<viz.data:FlattenedDataset data="{fcr>/topSummaryChart}">
+														<viz.data:dimensions>
+															<viz.data:DimensionDefinition name="GL Group / FY / Month" value="{fcr>name}"/>
+														</viz.data:dimensions>
+														<viz.data:measures>
+															<viz.data:MeasureDefinition name="Variance" value="{fcr>variance}"/>
+														</viz.data:measures>
+													</viz.data:FlattenedDataset>
+												</viz:dataset>
+												<viz:feeds>
+													<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Variance"/>
+													<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="GL Group / FY / Month"/>
+												</viz:feeds>
+											</viz:VizFrame>
 											</VBox>
-										</HBox>
+										</VBox>
 									</VBox>
 								</IconTabFilter>
 							</items>
