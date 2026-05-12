@@ -110,7 +110,7 @@
 							</VBox>
 						</layout:Grid>
 
-						<IconTabBar selectedKey="{ui>/selectedTab}" class="fcrTabs" expandable="false">
+						<IconTabBar selectedKey="{ui>/selectedTab}" class="fcrTabs" expandable="false" select=".onTabSelect">
 							<items>
 								<IconTabFilter key="all" text="All" icon="sap-icon://table-view">
 									<VBox class="fcrTabContent">
@@ -119,7 +119,7 @@
 											<ToolbarSpacer/>
 											<SearchField width="22rem" placeholder="Search (GL, text, group, year...)" liveChange=".onAllSearch" value="{ui>/allSearch}" class="fcrToolbarSearch"/>
 											<Button icon="sap-icon://excel-attachment" tooltip="Export" press=".onExport" class="fcrToolbarExport"/>
-											<SegmentedButton selectedKey="{ui>/allViewMode}">
+											<SegmentedButton selectedKey="{ui>/allViewMode}" selectionChange=".onViewModeChange">
 												<items>
 													<SegmentedButtonItem key="DETAIL" text="Details" icon="sap-icon://detail-view"/>
 													<SegmentedButtonItem key="SUMMARY" text="Summary" icon="sap-icon://vertical-bar-chart"/>
@@ -326,7 +326,7 @@
 											<ToolbarSpacer/>
 											<SearchField width="22rem" placeholder="Search (GL, text, group, year...)" liveChange=".onTopSearch" value="{ui>/topSearch}" class="fcrToolbarSearch"/>
 											<Button icon="sap-icon://excel-attachment" tooltip="Export" press=".onExport" class="fcrToolbarExport"/>
-											<SegmentedButton selectedKey="{ui>/topViewMode}">
+											<SegmentedButton selectedKey="{ui>/topViewMode}" selectionChange=".onViewModeChange">
 												<items>
 													<SegmentedButtonItem key="DETAIL" text="Details" icon="sap-icon://detail-view"/>
 													<SegmentedButtonItem key="SUMMARY" text="Summary" icon="sap-icon://vertical-bar-chart"/>

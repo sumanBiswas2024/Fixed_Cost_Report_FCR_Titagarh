@@ -12,7 +12,8 @@ sap.ui.define([
 	"sap/m/MessageToast",
 	"sap/m/MessageBox",
 	"sap/ui/core/util/File"
-], function(Controller, JSONModel, NumberFormat, Dialog, List, StandardListItem, Button, SearchField, Filter, FilterOperator, MessageToast, MessageBox, File) {
+], function(Controller, JSONModel, NumberFormat, Dialog, List, StandardListItem, Button, SearchField, Filter, FilterOperator,
+	MessageToast, MessageBox, File) {
 	"use strict";
 
 	return Controller.extend("Z_Fixed_Cost_Report_FCR.controller.View1", {
@@ -58,12 +59,19 @@ sap.ui.define([
 			this.getView().setModel(new JSONModel({
 				profitCenters: this._createProfitCenters(),
 				glGroups: this._createGlGroups(),
-				quarters: [
-					{ key: "Q1", text: "Q1 - Period 1 to 3" },
-					{ key: "Q2", text: "Q2 - Period 4 to 6" },
-					{ key: "Q3", text: "Q3 - Period 7 to 9" },
-					{ key: "Q4", text: "Q4 - Period 10 to 12" }
-				]
+				quarters: [{
+					key: "Q1",
+					text: "Q1 - Period 1 to 3"
+				}, {
+					key: "Q2",
+					text: "Q2 - Period 4 to 6"
+				}, {
+					key: "Q3",
+					text: "Q3 - Period 7 to 9"
+				}, {
+					key: "Q4",
+					text: "Q4 - Period 10 to 12"
+				}]
 			}), "lookups");
 
 			this.getView().setModel(new JSONModel({
@@ -173,13 +181,34 @@ sap.ui.define([
 
 			var sCsv = this._toCsv(aRows, oTarget.columns);
 			var oFilters = this.getView().getModel("filters").getData();
-			var sName = "FCR_" + (oFilters.companyCode || "CC") + "_FY" + (oFilters.fiscalYear || "YYYY") + "_" + (oFilters.quarter || "Q") + "_" + oTarget.name;
+			var sName = "FCR_" + (oFilters.companyCode || "CC") + "_FY" + (oFilters.fiscalYear || "YYYY") + "_" + (oFilters.quarter || "Q") +
+				"_" + oTarget.name;
 			File.save(sCsv, sName, "csv", "text/csv");
 		},
 
 		onToggleParams: function() {
 			var oUiModel = this.getView().getModel("ui");
 			oUiModel.setProperty("/paramsExpanded", !oUiModel.getProperty("/paramsExpanded"));
+		},
+
+		onTabSelect: function() {
+			// We use a 0ms timeout to push the KPI update to the end of the execution queue.
+			// This allows the IconTabBar to finish its smooth transition animation first.
+			setTimeout(function() {
+				if (!this.bIsDestroyed) {
+					this._updateKpisFromActive();
+				}
+			}.bind(this), 0);
+		},
+
+		onViewModeChange: function() {
+			// This prevents the "flash" when toggling between Detail and Summary views
+			// by letting the Panel visibility settle before updating the KPI model.
+			setTimeout(function() {
+				if (!this.bIsDestroyed) {
+					this._updateKpisFromActive();
+				}
+			}.bind(this), 0);
 		},
 
 		onAllSearch: function(oEvent) {
@@ -477,7 +506,9 @@ sap.ui.define([
 				}
 			};
 
-			oScroll.addEventListener("scroll", this._fnScrollHandler, { passive: true });
+			oScroll.addEventListener("scroll", this._fnScrollHandler, {
+				passive: true
+			});
 		},
 
 		_paletteForChart: function(sChartId) {
@@ -515,7 +546,18 @@ sap.ui.define([
 						glGroupText: this._mGroupNames[oRow.glGroup] || oRow.glGroup,
 						fiscalYear: oRow.fiscalYear,
 						total: 0,
-						p1: 0, p2: 0, p3: 0, p4: 0, p5: 0, p6: 0, p7: 0, p8: 0, p9: 0, p10: 0, p11: 0, p12: 0
+						p1: 0,
+						p2: 0,
+						p3: 0,
+						p4: 0,
+						p5: 0,
+						p6: 0,
+						p7: 0,
+						p8: 0,
+						p9: 0,
+						p10: 0,
+						p11: 0,
+						p12: 0
 					};
 				}
 				var iPeriod = oRow.period;
@@ -543,7 +585,18 @@ sap.ui.define([
 						groupName: this._mGroupNames[oRow.glGroup] || oRow.glGroup,
 						fiscalYear: oRow.fiscalYear,
 						total: 0,
-						p1: 0, p2: 0, p3: 0, p4: 0, p5: 0, p6: 0, p7: 0, p8: 0, p9: 0, p10: 0, p11: 0, p12: 0
+						p1: 0,
+						p2: 0,
+						p3: 0,
+						p4: 0,
+						p5: 0,
+						p6: 0,
+						p7: 0,
+						p8: 0,
+						p9: 0,
+						p10: 0,
+						p11: 0,
+						p12: 0
 					};
 				}
 				var iPeriod = oRow.period;
@@ -649,11 +702,16 @@ sap.ui.define([
 		},
 
 		_updateSelectedValuesText: function(oFilters) {
-			var aPc = (oFilters.profitCenters || []).map(function(o) { return o.key; });
-			var aGlg = (oFilters.glGroups || []).map(function(o) { return o.key; });
+			var aPc = (oFilters.profitCenters || []).map(function(o) {
+				return o.key;
+			});
+			var aGlg = (oFilters.glGroups || []).map(function(o) {
+				return o.key;
+			});
 			var sPc = aPc.length ? aPc.join(", ") : "All";
 			var sGlg = aGlg.length ? aGlg.join(", ") : "All";
-			var sText = "Company Code: " + (oFilters.companyCode || "-") + ", Fiscal Year: " + (oFilters.fiscalYear || "-") + ", Quarter: " + (oFilters.quarter || "-") +
+			var sText = "Company Code: " + (oFilters.companyCode || "-") + ", Fiscal Year: " + (oFilters.fiscalYear || "-") + ", Quarter: " + (
+					oFilters.quarter || "-") +
 				", Profit Centre: " + sPc + ", GL Group: " + sGlg;
 			this.getView().getModel("ui").setProperty("/selectedValuesText", sText);
 		},
@@ -697,7 +755,10 @@ sap.ui.define([
 				new Filter("fiscalYear", FilterOperator.Contains, s)
 			];
 
-			var aAppFilters = [new Filter({ filters: a, and: false })];
+			var aAppFilters = [new Filter({
+				filters: a,
+				and: false
+			})];
 			aTargets.forEach(function(oTable) {
 				fnApply(oTable, aAppFilters);
 			});
@@ -797,7 +858,13 @@ sap.ui.define([
 			var sId = sTab + (sMode === "SUMMARY" ? "SummaryTable" : "DetailTable");
 			var sPath = "/" + sTab + (sMode === "SUMMARY" ? "SummaryRows" : "DetailRows");
 			var aCols = this._csvColumnsForMode(sMode);
-			return { table: this.byId(sId), modelName: "fcr", path: sPath, name: sTab + "_" + sMode, columns: aCols };
+			return {
+				table: this.byId(sId),
+				modelName: "fcr",
+				path: sPath,
+				name: sTab + "_" + sMode,
+				columns: aCols
+			};
 		},
 
 		_getFilteredTableObjects: function(oTable, sModelName, sPath) {
@@ -821,17 +888,38 @@ sap.ui.define([
 
 			var a = [];
 			if (sMode === "DETAIL") {
-				a.push({ key: "glAccount", label: "G/L Acct" });
-				a.push({ key: "glName", label: "G/L Acct Long Text" });
-				a.push({ key: "glGroupText", label: "G/L Group" });
+				a.push({
+					key: "glAccount",
+					label: "G/L Acct"
+				});
+				a.push({
+					key: "glName",
+					label: "G/L Acct Long Text"
+				});
+				a.push({
+					key: "glGroupText",
+					label: "G/L Group"
+				});
 			} else {
-				a.push({ key: "glGroup", label: "G/L Group" });
-				a.push({ key: "groupName", label: "G/L Group Text" });
+				a.push({
+					key: "glGroup",
+					label: "G/L Group"
+				});
+				a.push({
+					key: "groupName",
+					label: "G/L Group Text"
+				});
 			}
-			a.push({ key: "total", label: "Total" });
+			a.push({
+				key: "total",
+				label: "Total"
+			});
 
 			aPeriods.forEach(function(iP) {
-				a.push({ key: "p" + iP, label: this._aPeriodMonthNames[iP] });
+				a.push({
+					key: "p" + iP,
+					label: this._aPeriodMonthNames[iP]
+				});
 			}.bind(this));
 
 			return a;
@@ -839,9 +927,13 @@ sap.ui.define([
 
 		_toCsv: function(aRows, aCols) {
 			var aLines = [];
-			aLines.push(aCols.map(function(c) { return this._csvCell(c.label); }.bind(this)).join(","));
+			aLines.push(aCols.map(function(c) {
+				return this._csvCell(c.label);
+			}.bind(this)).join(","));
 			aRows.forEach(function(oRow) {
-				aLines.push(aCols.map(function(c) { return this._csvCell(oRow[c.key]); }.bind(this)).join(","));
+				aLines.push(aCols.map(function(c) {
+					return this._csvCell(oRow[c.key]);
+				}.bind(this)).join(","));
 			}.bind(this));
 			return aLines.join("\r\n");
 		},
@@ -855,13 +947,22 @@ sap.ui.define([
 		},
 
 		_createProfitCenters: function() {
-			return [
-				{ key: "PC100", text: "Rail Coach Assembly" },
-				{ key: "PC200", text: "Foundry Operations" },
-				{ key: "PC300", text: "Maintenance Workshop" },
-				{ key: "PC400", text: "Corporate Services" },
-				{ key: "PC500", text: "Paint Shop" }
-			];
+			return [{
+				key: "PC100",
+				text: "Rail Coach Assembly"
+			}, {
+				key: "PC200",
+				text: "Foundry Operations"
+			}, {
+				key: "PC300",
+				text: "Maintenance Workshop"
+			}, {
+				key: "PC400",
+				text: "Corporate Services"
+			}, {
+				key: "PC500",
+				text: "Paint Shop"
+			}];
 		},
 
 		_createGlGroups: function() {
