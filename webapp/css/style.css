@@ -83,6 +83,7 @@
 	padding: 1rem 1.25rem 1.1rem;
 	box-sizing: border-box;
 	background: #ffffff;
+	overflow-x: auto;
 }
 
 .fcrParamRow {
@@ -137,16 +138,17 @@
 
 .fcrFieldPc {
 	flex: 1 1 18rem;
-	min-width: 18rem;
+	min-width: 0;
 }
 
 .fcrFieldGlg {
 	flex: 1 1 18rem;
-	min-width: 18rem;
+	min-width: 0;
 }
 
 .fcrFieldAct {
 	flex-shrink: 0;
+	margin-left: auto;
 }
 
 .fcrActionBox {
@@ -490,6 +492,10 @@
 }
 
 @media (max-width: 720px) {
+
+	.fcrParamRow {
+		flex-wrap: wrap;
+	}
 
 	.fcrPage {
 		padding: 1rem;

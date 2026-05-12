@@ -186,12 +186,14 @@ sap.ui.define([
 			var sQuery = oEvent.getSource().getValue() || "";
 			this.getView().getModel("ui").setProperty("/allSearch", sQuery);
 			this._applyUniversalSearch("all", sQuery);
+			this._updateKpisFromActive();
 		},
 
 		onTopSearch: function(oEvent) {
 			var sQuery = oEvent.getSource().getValue() || "";
 			this.getView().getModel("ui").setProperty("/topSearch", sQuery);
 			this._applyUniversalSearch("top", sQuery);
+			this._updateKpisFromActive();
 		},
 
 		onProfitCentreValueHelp: function() {
@@ -351,6 +353,7 @@ sap.ui.define([
 			this._applyUniversalSearch("all", this.getView().getModel("ui").getProperty("/allSearch") || "");
 			this._applyUniversalSearch("top", this.getView().getModel("ui").getProperty("/topSearch") || "");
 			this._refreshChartStyling();
+			this._updateKpisFromActive();
 		},
 
 		_updateTotalsFromPivot: function(aRows, bMarkRun) {
@@ -421,7 +424,7 @@ sap.ui.define([
 							visible: true
 						},
 						drawingEffect: "glossy",
-						colorPalette: this._randomPalette(18),
+						colorPalette: this._paletteForChart(sChartId),
 						animation: {
 							dataLoading: true
 						}
@@ -477,13 +480,27 @@ sap.ui.define([
 			oScroll.addEventListener("scroll", this._fnScrollHandler, { passive: true });
 		},
 
-		_randomPalette: function(iCount) {
+		_paletteForChart: function(sChartId) {
+			var oFcr = this.getView().getModel("fcr");
+			var sPath = sChartId === "topSummaryChart" ? "/topSummaryChart" : "/allSummaryChart";
+			var aData = oFcr.getProperty(sPath) || [];
 			var a = [];
-			for (var i = 0; i < iCount; i++) {
-				var hue = Math.floor(Math.random() * 360);
-				a.push("hsl(" + hue + ", 78%, 48%)");
+			for (var i = 0; i < aData.length; i++) {
+				a.push(this._colorForKey(aData[i].name));
 			}
 			return a;
+		},
+
+		_colorForKey: function(sKey) {
+			// Stable pseudo-random color per bar key (so colors don't change on refresh).
+			var s = String(sKey || "");
+			var hash = 0;
+			for (var i = 0; i < s.length; i++) {
+				hash = ((hash << 5) - hash) + s.charCodeAt(i);
+				hash |= 0;
+			}
+			var hue = Math.abs(hash) % 360;
+			return "hsl(" + hue + ", 78%, 48%)";
 		},
 
 		_buildDetailPivotRows: function(aRows) {
@@ -685,6 +702,7 @@ sap.ui.define([
 				fnApply(oTable, aAppFilters);
 			});
 			this._syncChartsFromTables();
+			this._updateKpisFromActive();
 		},
 
 		_syncChartsFromTables: function() {
@@ -705,20 +723,71 @@ sap.ui.define([
 			this._refreshChartStyling();
 		},
 
+		_updateKpisFromActive: function() {
+			var oUi = this.getView().getModel("ui");
+			var sTab = oUi.getProperty("/selectedTab") || "all";
+			var sMode = sTab === "all" ? oUi.getProperty("/allViewMode") : oUi.getProperty("/topViewMode");
+			var sTableId = sTab + (sMode === "SUMMARY" ? "SummaryTable" : "DetailTable");
+			var oTable = this.byId(sTableId);
+			if (!oTable) {
+				return;
+			}
+
+			var sPath = "/" + sTab + (sMode === "SUMMARY" ? "SummaryRows" : "DetailRows");
+			var aRows = this._getFilteredTableObjects(oTable, "fcr", sPath);
+
+			var iTotal = 0;
+			var iMax = 0;
+			for (var i = 0; i < aRows.length; i++) {
+				var v = aRows[i].total || 0;
+				iTotal += v;
+				iMax = Math.max(iMax, Math.abs(v));
+			}
+
+			oUi.setProperty("/totalActual", this._formatAmount(iTotal));
+			oUi.setProperty("/totalBudget", this._formatAmount(0));
+			oUi.setProperty("/totalVariance", this._formatAmount(iMax));
+			oUi.setProperty("/variancePct", this._formatPercent(0));
+			oUi.setProperty("/varianceState", this._varianceState(iMax));
+			oUi.setProperty("/recordCount", this._formatAmount(aRows.length));
+		},
+
 		_refreshChartStyling: function() {
-			// Re-apply random palette after each refresh/search so the bars look "alive".
 			["allSummaryChart", "topSummaryChart"].forEach(function(sChartId) {
 				var oVizFrame = this.byId(sChartId);
 				if (!oVizFrame) {
 					return;
 				}
+				var aRules = this._dataPointRulesForChart(sChartId);
 				oVizFrame.setVizProperties({
 					plotArea: {
 						drawingEffect: "glossy",
-						colorPalette: this._randomPalette(18)
+						colorPalette: this._paletteForChart(sChartId),
+						dataPointStyle: {
+							rules: aRules
+						}
 					}
 				});
 			}.bind(this));
+		},
+
+		_dataPointRulesForChart: function(sChartId) {
+			var oFcr = this.getView().getModel("fcr");
+			var sPath = sChartId === "topSummaryChart" ? "/topSummaryChart" : "/allSummaryChart";
+			var aData = oFcr.getProperty(sPath) || [];
+			var aRules = [];
+			for (var i = 0; i < aData.length; i++) {
+				var sName = aData[i].name;
+				aRules.push({
+					dataContext: {
+						"GL Account": sName
+					},
+					properties: {
+						color: this._colorForKey(sName)
+					}
+				});
+			}
+			return aRules;
 		},
 
 		_getActiveTable: function() {

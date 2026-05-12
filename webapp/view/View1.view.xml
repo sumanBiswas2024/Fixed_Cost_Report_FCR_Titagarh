@@ -37,7 +37,7 @@
 							<!--<Text text="{ui>/selectedValuesText}" class="fcrParamSelected"/>-->
 
 							<VBox id="paramGrid" visible="{ui>/paramsExpanded}" class="fcrParamGrid">
-								<HBox class="fcrParamRow" alignItems="End" justifyContent="Start" wrap="Wrap">
+								<HBox class="fcrParamRow" alignItems="End" justifyContent="Start" wrap="NoWrap">
 									<VBox class="fcrField fcrFieldCc">
 										<Label text="Company Code" required="true"/>
 										<Input value="{filters>/companyCode}" maxLength="4" placeholder="1000" valueState="{ui>/companyCodeState}" valueStateText="{ui>/companyCodeStateText}"/>
@@ -207,7 +207,7 @@
 											</content>
 										</Panel>
 
-										<Panel headerText="Summary Output" expandable="true" expanded="true" class="fcrOutPanel" visible="{= ${ui>/allViewMode} === 'SUMMARY' }">
+										<Panel headerText="Summary Output" expandable="false" expanded="true" class="fcrOutPanel" visible="{= ${ui>/allViewMode} === 'SUMMARY' }">
 											<content>
 												<VBox class="fcrSummaryWrap">
 													<Panel headerText="Summary Table" expandable="true" expanded="true" class="fcrSubPanel">
@@ -414,7 +414,7 @@
 											</content>
 										</Panel>
 
-										<Panel headerText="Summary Output" expandable="true" expanded="true" class="fcrOutPanel" visible="{= ${ui>/topViewMode} === 'SUMMARY' }">
+										<Panel headerText="Summary Output" expandable="false" expanded="true" class="fcrOutPanel" visible="{= ${ui>/topViewMode} === 'SUMMARY' }">
 											<content>
 												<VBox class="fcrSummaryWrap">
 													<Panel headerText="Summary Table" expandable="true" expanded="true" class="fcrSubPanel">
