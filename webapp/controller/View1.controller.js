@@ -43,7 +43,7 @@ sap.ui.define([
 				DEP: "Depreciation",
 				SEC: "Security and Facility"
 			};
-			// Fiscal year variant: Period 1 starts in April
+
 			this._aPeriodMonthNames = ["", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar"];
 
 			this._aBaseRows = this._createBaseRows();
@@ -53,7 +53,11 @@ sap.ui.define([
 				fiscalYear: "2026",
 				profitCenters: [],
 				glGroups: [],
-				quarter: "Q1"
+				quarters: []
+				// quarters: [{
+				// 		key: "Q1",
+				// 		text: "Q1 - Period 1 to 3"
+				// 	}] // Initial selection
 			}), "filters");
 
 			this.getView().setModel(new JSONModel({
@@ -141,15 +145,18 @@ sap.ui.define([
 				fiscalYear: "2026",
 				profitCenters: [],
 				glGroups: [],
-				quarter: "Q1"
+				quarters: []
+				// quarters: [{
+				// 	key: "Q1",
+				// 	text: "Q1 - Period 1 to 3"
+				// }]
 			});
 			this._clearSearch();
 			this._applyFilters(true);
 		},
 
-		onQuarterChange: function() {
-			this._syncPeriodVisibility();
-			this._applyFilters(true);
+		onQuarterValueHelp: function() {
+			this._openMultiSelectValueHelp("Quarter", "quarters", "quarters");
 		},
 
 		onFiscalYearChange: function(oEvent) {
@@ -181,8 +188,7 @@ sap.ui.define([
 
 			var sCsv = this._toCsv(aRows, oTarget.columns);
 			var oFilters = this.getView().getModel("filters").getData();
-			var sName = "FCR_" + (oFilters.companyCode || "CC") + "_FY" + (oFilters.fiscalYear || "YYYY") + "_" + (oFilters.quarter || "Q") +
-				"_" + oTarget.name;
+			var sName = "FCR_" + (oFilters.companyCode || "CC") + "_FY" + (oFilters.fiscalYear || "YYYY") + "_" + oTarget.name;
 			File.save(sCsv, sName, "csv", "text/csv");
 		},
 
@@ -192,8 +198,6 @@ sap.ui.define([
 		},
 
 		onTabSelect: function() {
-			// We use a 0ms timeout to push the KPI update to the end of the execution queue.
-			// This allows the IconTabBar to finish its smooth transition animation first.
 			setTimeout(function() {
 				if (!this.bIsDestroyed) {
 					this._updateKpisFromActive();
@@ -202,8 +206,6 @@ sap.ui.define([
 		},
 
 		onViewModeChange: function() {
-			// This prevents the "flash" when toggling between Detail and Summary views
-			// by letting the Panel visibility settle before updating the KPI model.
 			setTimeout(function() {
 				if (!this.bIsDestroyed) {
 					this._updateKpisFromActive();
@@ -278,7 +280,6 @@ sap.ui.define([
 					var sValue = oEvent.getParameter("newValue");
 					var oBinding = oList.getBinding("items");
 					var aFilters = [];
-
 					if (sValue) {
 						aFilters.push(new Filter({
 							filters: [
@@ -288,7 +289,6 @@ sap.ui.define([
 							and: false
 						}));
 					}
-
 					oBinding.filter(aFilters);
 				}
 			});
@@ -342,7 +342,16 @@ sap.ui.define([
 
 		_applyFilters: function(bMarkRun) {
 			var oFilters = this.getView().getModel("filters").getData();
-			var aPeriods = this._mQuarterPeriods[oFilters.quarter] || [];
+
+			// Handle Quarters Multi-Selection
+			var aSelectedQuarters = (oFilters.quarters || []).map(function(o) {
+				return o.key;
+			});
+			var aPeriods = [];
+			aSelectedQuarters.forEach(function(sQ) {
+				aPeriods = aPeriods.concat(this._mQuarterPeriods[sQ] || []);
+			}.bind(this));
+
 			var aProfitCenters = (oFilters.profitCenters || []).map(function(oItem) {
 				return oItem.key;
 			});
@@ -350,13 +359,13 @@ sap.ui.define([
 				return oItem.key;
 			});
 
-			this._syncPeriodVisibility();
+			this._syncPeriodVisibility(aPeriods);
 			this._updateSelectedValuesText(oFilters);
 
 			var aRows = this._aBaseRows.filter(function(oRow) {
 				var bCompany = !oFilters.companyCode || oRow.companyCode === oFilters.companyCode;
 				var bYear = !oFilters.fiscalYear || oRow.fiscalYear === oFilters.fiscalYear;
-				var bPeriod = aPeriods.indexOf(oRow.period) !== -1;
+				var bPeriod = !aPeriods.length || aPeriods.indexOf(oRow.period) !== -1;
 				var bProfitCenter = !aProfitCenters.length || aProfitCenters.indexOf(oRow.profitCenter) !== -1;
 				var bGlGroup = !aGlGroups.length || aGlGroups.indexOf(oRow.glGroup) !== -1;
 
@@ -410,13 +419,14 @@ sap.ui.define([
 		},
 
 		_updatePeriodText: function(oFilters, aPeriods) {
-			var sPeriodText = aPeriods.length ? "Periods " + aPeriods[0] + " to " + aPeriods[aPeriods.length - 1] : "No period";
+			var sPeriodText = aPeriods.length ? "Periods " + Math.min.apply(null, aPeriods) + " to " + Math.max.apply(null, aPeriods) :
+				"All periods";
 			var sProfitText = oFilters.profitCenters.length ? oFilters.profitCenters.length + " profit centres" : "All profit centres";
 			var sGlText = oFilters.glGroups.length ? oFilters.glGroups.length + " GL groups" : "All GL groups";
 
 			this.getView().getModel("ui").setProperty("/periodText",
 				"Company " + (oFilters.companyCode || "-") + " | FY " + (oFilters.fiscalYear || "-") + " | " +
-				(oFilters.quarter || "-") + " " + sPeriodText + " | " + sProfitText + " | " + sGlText);
+				sPeriodText + " | " + sProfitText + " | " + sGlText);
 		},
 
 		_createChartRows: function(aRows, iLimit) {
@@ -436,11 +446,9 @@ sap.ui.define([
 		_configureCharts: function() {
 			["allSummaryChart", "topSummaryChart"].forEach(function(sChartId) {
 				var oVizFrame = this.byId(sChartId);
-
 				if (!oVizFrame || oVizFrame.data("configured")) {
 					return;
 				}
-
 				oVizFrame.setVizProperties({
 					title: {
 						visible: false
@@ -484,28 +492,23 @@ sap.ui.define([
 			if (!oDomRef) {
 				return;
 			}
-
 			var oScroll = oDomRef.querySelector(".sapMPageEnableScrolling");
 			if (!oScroll) {
 				return;
 			}
-
 			if (this._fnScrollHandler) {
 				oScroll.removeEventListener("scroll", this._fnScrollHandler);
 			}
-
 			this._fnScrollHandler = function() {
 				var oUiModel = oView.getModel("ui");
 				var bExpanded = !!oUiModel.getProperty("/paramsExpanded");
 				var iTop = oScroll.scrollTop || 0;
-
 				if (iTop > 90 && bExpanded) {
 					oUiModel.setProperty("/paramsExpanded", false);
 				} else if (iTop <= 10 && !bExpanded) {
 					oUiModel.setProperty("/paramsExpanded", true);
 				}
 			};
-
 			oScroll.addEventListener("scroll", this._fnScrollHandler, {
 				passive: true
 			});
@@ -523,7 +526,6 @@ sap.ui.define([
 		},
 
 		_colorForKey: function(sKey) {
-			// Stable pseudo-random color per bar key (so colors don't change on refresh).
 			var s = String(sKey || "");
 			var hash = 0;
 			for (var i = 0; i < s.length; i++) {
@@ -651,52 +653,40 @@ sap.ui.define([
 			var bOk = true;
 			var aMissing = [];
 
-			var sCc = (oFilters.companyCode || "").trim();
-			var sFy = (oFilters.fiscalYear || "").trim();
-			var sQ = (oFilters.quarter || "").trim();
-
-			if (!sCc) {
+			if (!(oFilters.companyCode || "").trim()) {
 				oUiModel.setProperty("/companyCodeState", "Error");
-				oUiModel.setProperty("/companyCodeStateText", "Company Code is mandatory");
 				aMissing.push("Company Code");
 				bOk = false;
 			} else {
 				oUiModel.setProperty("/companyCodeState", "None");
-				oUiModel.setProperty("/companyCodeStateText", "");
 			}
 
-			if (!/^[0-9]{4}$/.test(sFy)) {
+			if (!/^[0-9]{4}$/.test((oFilters.fiscalYear || "").trim())) {
 				oUiModel.setProperty("/fiscalYearState", "Error");
-				oUiModel.setProperty("/fiscalYearStateText", "Fiscal Year is mandatory (YYYY)");
 				aMissing.push("Fiscal Year");
 				bOk = false;
 			} else {
 				oUiModel.setProperty("/fiscalYearState", "None");
-				oUiModel.setProperty("/fiscalYearStateText", "");
 			}
 
-			if (!sQ) {
-				oUiModel.setProperty("/quarterState", "Error");
-				oUiModel.setProperty("/quarterStateText", "Quarter is mandatory");
-				aMissing.push("Quarter");
-				bOk = false;
-			} else {
-				oUiModel.setProperty("/quarterState", "None");
-				oUiModel.setProperty("/quarterStateText", "");
-			}
+			// if (!oFilters.quarters || oFilters.quarters.length === 0) {
+			// 	oUiModel.setProperty("/quarterState", "Error");
+			// 	aMissing.push("Quarter");
+			// 	bOk = false;
+			// } else {
+			// 	oUiModel.setProperty("/quarterState", "None");
+			// }
 
 			if (!bOk) {
 				MessageBox.error("Please fill mandatory field(s): " + aMissing.join(", ") + ".");
 			}
-
 			return bOk;
 		},
 
-		_syncPeriodVisibility: function() {
-			var oFilters = this.getView().getModel("filters").getData();
-			var aPeriods = this._mQuarterPeriods[oFilters.quarter] || [];
+		_syncPeriodVisibility: function(aPeriods) {
 			var oUiModel = this.getView().getModel("ui");
 			for (var i = 1; i <= 12; i++) {
+				// If no quarters selected, show no periods, otherwise show matching
 				oUiModel.setProperty("/p" + i + "Visible", aPeriods.indexOf(i) !== -1);
 			}
 		},
@@ -708,11 +698,11 @@ sap.ui.define([
 			var aGlg = (oFilters.glGroups || []).map(function(o) {
 				return o.key;
 			});
-			var sPc = aPc.length ? aPc.join(", ") : "All";
-			var sGlg = aGlg.length ? aGlg.join(", ") : "All";
-			var sText = "Company Code: " + (oFilters.companyCode || "-") + ", Fiscal Year: " + (oFilters.fiscalYear || "-") + ", Quarter: " + (
-					oFilters.quarter || "-") +
-				", Profit Centre: " + sPc + ", GL Group: " + sGlg;
+			var aQ = (oFilters.quarters || []).map(function(o) {
+				return o.key;
+			});
+			var sText = "CC: " + (oFilters.companyCode || "-") + " | FY: " + (oFilters.fiscalYear || "-") +
+				" | Q: " + (aQ.join(", ") || "-") + " | PC: " + (aPc.join(", ") || "All") + " | GL: " + (aGlg.join(", ") || "All");
 			this.getView().getModel("ui").setProperty("/selectedValuesText", sText);
 		},
 
@@ -726,10 +716,7 @@ sap.ui.define([
 
 		_applyUniversalSearch: function(sTab, sQuery) {
 			var s = (sQuery || "").trim();
-			var aTargets = [
-				this.byId(sTab + "DetailTable"),
-				this.byId(sTab + "SummaryTable")
-			].filter(Boolean);
+			var aTargets = [this.byId(sTab + "DetailTable"), this.byId(sTab + "SummaryTable")].filter(Boolean);
 
 			var fnApply = function(oTable, aFilters) {
 				var oBinding = oTable.getBinding("rows");
@@ -768,19 +755,16 @@ sap.ui.define([
 
 		_syncChartsFromTables: function() {
 			var oFcr = this.getView().getModel("fcr");
-
 			var oAllDetail = this.byId("allDetailTable");
 			if (oAllDetail && oAllDetail.getBinding("rows")) {
 				var aAll = this._getFilteredTableObjects(oAllDetail, "fcr", "/allDetailRows");
 				oFcr.setProperty("/allSummaryChart", this._createChartRows(aAll, 12));
 			}
-
 			var oTopDetail = this.byId("topDetailTable");
 			if (oTopDetail && oTopDetail.getBinding("rows")) {
 				var aTop = this._getFilteredTableObjects(oTopDetail, "fcr", "/topDetailRows");
 				oFcr.setProperty("/topSummaryChart", this._createChartRows(aTop, 5));
 			}
-
 			this._refreshChartStyling();
 		},
 
@@ -793,10 +777,8 @@ sap.ui.define([
 			if (!oTable) {
 				return;
 			}
-
 			var sPath = "/" + sTab + (sMode === "SUMMARY" ? "SummaryRows" : "DetailRows");
 			var aRows = this._getFilteredTableObjects(oTable, "fcr", sPath);
-
 			var iTotal = 0;
 			var iMax = 0;
 			for (var i = 0; i < aRows.length; i++) {
@@ -804,7 +786,6 @@ sap.ui.define([
 				iTotal += v;
 				iMax = Math.max(iMax, Math.abs(v));
 			}
-
 			oUi.setProperty("/totalActual", this._formatAmount(iTotal));
 			oUi.setProperty("/totalBudget", this._formatAmount(0));
 			oUi.setProperty("/totalVariance", this._formatAmount(iMax));
@@ -885,7 +866,6 @@ sap.ui.define([
 					aPeriods.push(i);
 				}
 			}
-
 			var a = [];
 			if (sMode === "DETAIL") {
 				a.push({
@@ -914,14 +894,12 @@ sap.ui.define([
 				key: "total",
 				label: "Total"
 			});
-
 			aPeriods.forEach(function(iP) {
 				a.push({
 					key: "p" + iP,
 					label: this._aPeriodMonthNames[iP]
 				});
 			}.bind(this));
-
 			return a;
 		},
 

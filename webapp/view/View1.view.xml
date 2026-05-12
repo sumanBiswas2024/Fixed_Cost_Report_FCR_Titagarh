@@ -32,11 +32,20 @@
 										<DatePicker value="{filters>/fiscalYear}" valueFormat="yyyy" displayFormat="yyyy" change=".onFiscalYearChange"
 											valueState="{ui>/fiscalYearState}"/>
 									</VBox>
+									<!--<VBox class="fcrField fcrFieldQtr">-->
+									<!--	<Label text="Quarter" required="true"/>-->
+									<!--	<Select selectedKey="{filters>/quarter}" width="100%" change=".onQuarterChange" items="{lookups>/quarters}">-->
+									<!--		<core:Item key="{lookups>key}" text="{lookups>text}"/>-->
+									<!--	</Select>-->
+									<!--</VBox>-->
 									<VBox class="fcrField fcrFieldQtr">
-										<Label text="Quarter" required="true"/>
-										<Select selectedKey="{filters>/quarter}" width="100%" change=".onQuarterChange" items="{lookups>/quarters}">
-											<core:Item key="{lookups>key}" text="{lookups>text}"/>
-										</Select>
+										<Label text="Quarter" required="false"/>
+										<MultiInput id="quarterInput" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onQuarterValueHelp" tokens="{filters>/quarters}"
+											placeholder="Choose quarters">
+											<tokens>
+												<Token key="{filters>key}" text="{filters>text}"/>
+											</tokens>
+										</MultiInput>
 									</VBox>
 									<VBox class="fcrField fcrFieldPc">
 										<Label text="Profit Centre"/>
