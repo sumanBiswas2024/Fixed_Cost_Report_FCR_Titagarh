@@ -36,7 +36,7 @@
 }
 
 /* =========================================================
-   PARAMETER SECTION: FIXING THE "DOUBLE BOX"
+   PARAMETER SECTION
 ========================================================= */
 .fcrParamWrap {
     background: #ffffff;
@@ -71,14 +71,13 @@
 .fcrPage .sapMInputBaseInner,
 .fcrPage .sapMSlt,
 .fcrPage .sapMMultiInputBorder {
-    border-radius: 8px !important; /* Unified rounding */
+    border-radius: 8px !important;
     height: 2.2rem !important;
     border: 1px solid #cbd5e1 !important;
-    box-shadow: none !important; /* Removes internal SAP shadow */
+    box-shadow: none !important;
     background-color: #ffffff !important;
 }
 
-/* Ensure the MultiInput inner container doesn't show a second border */
 .fcrPage .sapMMultiInputBorder .sapMInputBaseInner {
     border: none !important;
     background: transparent !important;
@@ -90,12 +89,11 @@
     color: #475569;
 }
 
-/* Optimized Widths */
 .fcrFieldCc, .fcrFieldFy { width: 7.5rem !important; }
 .fcrFieldQtr { width: 10rem !important; }
 .fcrFieldPc, .fcrFieldGlg { flex: 1; min-width: 10rem; }
 
-/* Actions Container */
+/* Upper Buttons */
 .fcrActionsContainer {
     gap: 0.4rem;
     padding-bottom: 1px;
@@ -149,19 +147,168 @@
 .fcrKpiP { border-left: 3px solid #059669; }
 
 /* =========================================================
-   TABS & TABLES
+   REQUIREMENT 1: 50/50 SPLIT TABS WITH HORIZONTAL TEXT
 ========================================================= */
 .fcrTabs {
     border-radius: 0.5rem;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #cbd5e1;
     overflow: hidden;
+    background: #ffffff;
 }
 
+/* Aggressively override SAP UI5 wrapper divs to force flex layout */
+.fcrTabs .sapMITBHead,
+.fcrTabs .sapMITBScrollContainer,
+.fcrTabs .sapMITBHeadDiv {
+    display: flex !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Force each tab to take exactly 50% and align content horizontally */
+.fcrTabs .sapMITBItem {
+    flex: 1 1 50% !important;
+    width: 50% !important;
+    max-width: 100% !important;
+    display: flex !important;
+    flex-direction: row !important; /* Places text BESIDE icon */
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: 3.5rem !important;
+    
+    /* Inactive Tab Styling (Distinct Background) */
+    background: #f1f5f9 !important; 
+    border-bottom: 1px solid #cbd5e1 !important;
+    border-right: 5px solid #0284c7 !important; /* Stronger visible middle border */
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+}
+
+.fcrTabs .sapMITBItem:last-child {
+    border-right: none !important;
+}
+
+/* Active Tab Styling */
+
+/*.fcrTabs .sapMITBFilter.sapMITBSelected .sapMITBTab {*/
+/*    background: #e0f2fe !important;*/
+/*    border-bottom: 3px solid #0284c7 !important;*/
+/*}*/
+
+
+.fcrTabs .sapMITBText {
+    margin: 0 0 0 0.5rem !important; /* Space between icon and text */
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+    color: #475569 !important;
+}
+
+/* Active Text & Icon Color */
+.fcrTabs .sapMITBItem.sapMITBFilterSelected .sapMITBFilterIcon,
+.fcrTabs .sapMITBItem.sapMITBFilterSelected .sapMITBText {
+    color: #8AD8FF !important;
+}
+
+.fcrTabs .sapMITBItem.sapMITBSelected{
+	border-bottom: 5px solid #0284c7 !important;
+}
+
+.fcrTabs .sapMITBItem:hover {
+    background: #e2e8f0 !important;
+}
+.fcrTabs .sapMITBItem.sapMITBFilterSelected:hover {
+    background: #ffffff !important;
+}
+
+/* =========================================================
+   REQUIREMENT 2: PREMIUM COMPACT LOWER TOOLBAR
+========================================================= */
 .fcrTabContent {
     padding: 0.5rem 0.75rem 0.75rem;
 }
 
+.fcrTableToolbar {
+    height: 3rem !important;
+    padding: 0 0.25rem !important;
+}
+
+.fcrTableToolbar .sapMTitle {
+    font-weight: 700;
+    color: #1e293b;
+}
+
+/* The "Space Bar" Search Field - Pill Shape */
+.fcrToolbarSearch .sapMSF {
+    height: 2rem !important;
+    border-radius: 20px !important;
+    background: #f8fafc !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.02) !important;
+    transition: all 0.2s ease;
+}
+
+.fcrToolbarSearch .sapMSF:focus-within {
+    background: #ffffff !important;
+    border-color: #0ea5e9 !important;
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1) !important;
+}
+
+/* Premium Segmented Button (Details/Summary toggle) */
+.fcrTableToolbar .sapMSegB {
+    background: #e2e8f0 !important;
+    border-radius: 8px !important;
+    padding: 3px !important;
+    border: none !important;
+}
+
+.fcrTableToolbar .sapMSegBBtn {
+    border: none !important;
+}
+
+.fcrTableToolbar .sapMSegBBtnInner {
+    border-radius: 6px !important;
+    height: 1.8rem !important;
+    line-height: 1.8rem !important;
+    color: #64748b !important;
+    background: transparent !important;
+    border: none !important;
+    text-shadow: none !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease !important;
+}
+
+.fcrTableToolbar .sapMSegBBtnSel .sapMSegBBtnInner {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    font-weight: 600 !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+}
+
+/* Export Button */
+.fcrToolbarExport .sapMBtnInner {
+    height: 2.1rem !important;
+    border-radius: 8px !important;
+    border: 1px solid #cbd5e1 !important;
+}
+
+/* =========================================================
+   TABLES & PANELS
+========================================================= */
 .fcrUiTable {
     border: 1px solid #e2e8f0 !important;
     border-radius: 8px;
+}
+
+.fcrOutPanel {
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+}
+
+.fcrOutPanel .sapMPanelWrappingDivTb {
+    background: #f8fafc !important;
+    border-bottom: 1px solid #e2e8f0 !important;
 }

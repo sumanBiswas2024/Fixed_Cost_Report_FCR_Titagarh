@@ -32,12 +32,6 @@
 										<DatePicker value="{filters>/fiscalYear}" valueFormat="yyyy" displayFormat="yyyy" change=".onFiscalYearChange"
 											valueState="{ui>/fiscalYearState}"/>
 									</VBox>
-									<!--<VBox class="fcrField fcrFieldQtr">-->
-									<!--	<Label text="Quarter" required="true"/>-->
-									<!--	<Select selectedKey="{filters>/quarter}" width="100%" change=".onQuarterChange" items="{lookups>/quarters}">-->
-									<!--		<core:Item key="{lookups>key}" text="{lookups>text}"/>-->
-									<!--	</Select>-->
-									<!--</VBox>-->
 									<VBox class="fcrField fcrFieldQtr">
 										<Label text="Quarter" required="false"/>
 										<MultiInput id="quarterInput" value="{path: 'filters>/quarters', formatter: '.formatTokenKeys'}" showValueHelp="true" valueHelpOnly="true"
@@ -80,7 +74,7 @@
 						</layout:Grid>
 						<IconTabBar selectedKey="{ui>/selectedTab}" class="fcrTabs" expandable="false" select=".onTabSelect">
 							<items>
-								<IconTabFilter key="all" text="All" icon="sap-icon://table-view">
+								<IconTabFilter key="all" text="All" icon="sap-icon://table-view" iconColor="Positive">
 									<VBox class="fcrTabContent">
 										<Toolbar design="Transparent" class="fcrTableToolbar">
 											<Title text="All Fixed Cost" level="H3"/>
@@ -272,7 +266,7 @@
 										</Panel>
 									</VBox>
 								</IconTabFilter>
-								<IconTabFilter key="top" text="Top 5 GL" icon="sap-icon://vertical-bar-chart">
+								<IconTabFilter key="top" text="Top 5 GL" icon="sap-icon://vertical-bar-chart" iconColor="Critical">
 									<VBox class="fcrTabContent">
 										<Toolbar design="Transparent" class="fcrTableToolbar">
 											<Title text="Top 5 GL (by Total)" level="H3"/>
