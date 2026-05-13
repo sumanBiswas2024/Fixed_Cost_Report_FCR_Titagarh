@@ -1,6 +1,6 @@
 <mvc:View controllerName="Z_Fixed_Cost_Report_FCR.controller.View1" xmlns:mvc="sap.ui.core.mvc" xmlns:core="sap.ui.core"
 	xmlns:layout="sap.ui.layout" xmlns:table="sap.ui.table" xmlns:viz="sap.viz.ui5.controls" xmlns:viz.data="sap.viz.ui5.data"
-	xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds" xmlns="sap.m" displayBlock="true">
+	xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds" xmlns:suite="sap.suite.ui.commons" xmlns="sap.m" displayBlock="true">
 	<App class="fcrApp">
 		<pages>
 			<Page showHeader="false" enableScrolling="true" class="fcrPageShell">
@@ -74,9 +74,15 @@
 						</layout:Grid>
 						<IconTabBar selectedKey="{ui>/selectedTab}" class="fcrTabs" expandable="false" select=".onTabSelect">
 							<items>
+								<!-- ========================================================= -->
+								<!-- ALL TAB -->
+								<!-- ========================================================= -->
 								<IconTabFilter key="all" text="All" icon="sap-icon://table-view" iconColor="Positive">
 									<VBox class="fcrTabContent">
-										<Toolbar design="Transparent">
+										<!-- ========================================================= -->
+										<!-- TOOLBAR -->
+										<!-- ========================================================= -->
+										<Toolbar design="Transparent" class="fcrTableToolbar">
 											<Title text="All Fixed Cost" level="H3"/>
 											<ToolbarSpacer/>
 											<SearchField width="22rem" placeholder="Search (GL, text, group, year...)" liveChange=".onAllSearch" value="{ui>/allSearch}"
@@ -89,160 +95,103 @@
 												</items>
 											</SegmentedButton>
 										</Toolbar>
+										<!-- ========================================================= -->
+										<!-- DETAIL VIEW -->
+										<!-- ========================================================= -->
 										<Panel headerText="Details Output" expandable="true" expanded="true" class="fcrOutPanel" visible="{= ${ui>/allViewMode} === 'DETAIL' }">
 											<content>
 												<table:Table id="allDetailTable" rows="{fcr>/allDetailRows}" visibleRowCount="12" selectionMode="None" enableColumnReordering="true"
 													enableCellFilter="true" class="fcrUiTable">
 													<table:columns>
 														<table:Column width="7rem" sortProperty="glAccount" filterProperty="glAccount">
-															<table:label><Label text="G/L Acct"/></table:label>
-															<table:template><Text text="{fcr>glAccount}"/></table:template>
+															<table:label>
+																<Label text="G/L Acct"/>
+															</table:label>
+															<table:template>
+																<Text text="{fcr>glAccount}"/>
+															</table:template>
 														</table:Column>
 														<table:Column width="14rem" sortProperty="glName" filterProperty="glName">
-															<table:label><Label text="G/L Acct Long Text"/></table:label>
-															<table:template><Text text="{fcr>glName}"/></table:template>
+															<table:label>
+																<Label text="G/L Acct Long Text"/>
+															</table:label>
+															<table:template>
+																<Text text="{fcr>glName}"/>
+															</table:template>
 														</table:Column>
 														<table:Column width="18rem" sortProperty="glGroupText" filterProperty="glGroupText">
-															<table:label><Label text="G/L Group"/></table:label>
-															<table:template><Text text="{fcr>glGroupText}"/></table:template>
+															<table:label>
+																<Label text="G/L Group"/>
+															</table:label>
+															<table:template>
+																<Text text="{fcr>glGroupText}"/>
+															</table:template>
 														</table:Column>
 														<table:Column width="10rem" sortProperty="total" hAlign="End">
-															<table:label><Label text="Total"/></table:label>
-															<table:template><ObjectNumber number="{fcr>totalText}" state="{fcr>totalState}"/></table:template>
-														</table:Column>
-														<table:Column width="9rem" sortProperty="p1" hAlign="End" visible="{ui>/p1Visible}">
-															<table:label><Label text="Apr"/></table:label>
-															<table:template><ObjectNumber number="{fcr>p1Text}"/></table:template>
-														</table:Column>
-														<table:Column width="9rem" sortProperty="p2" hAlign="End" visible="{ui>/p2Visible}">
-															<table:label><Label text="May"/></table:label>
-															<table:template><ObjectNumber number="{fcr>p2Text}"/></table:template>
-														</table:Column>
-														<table:Column width="9rem" sortProperty="p3" hAlign="End" visible="{ui>/p3Visible}">
-															<table:label><Label text="Jun"/></table:label>
-															<table:template><ObjectNumber number="{fcr>p3Text}"/></table:template>
-														</table:Column>
-														<table:Column width="9rem" sortProperty="p4" hAlign="End" visible="{ui>/p4Visible}">
-															<table:label><Label text="Jul"/></table:label>
-															<table:template><ObjectNumber number="{fcr>p4Text}"/></table:template>
-														</table:Column>
-														<table:Column width="9rem" sortProperty="p5" hAlign="End" visible="{ui>/p5Visible}">
-															<table:label><Label text="Aug"/></table:label>
-															<table:template><ObjectNumber number="{fcr>p5Text}"/></table:template>
-														</table:Column>
-														<table:Column width="9rem" sortProperty="p6" hAlign="End" visible="{ui>/p6Visible}">
-															<table:label><Label text="Sep"/></table:label>
-															<table:template><ObjectNumber number="{fcr>p6Text}"/></table:template>
-														</table:Column>
-														<table:Column width="9rem" sortProperty="p7" hAlign="End" visible="{ui>/p7Visible}">
-															<table:label><Label text="Oct"/></table:label>
-															<table:template><ObjectNumber number="{fcr>p7Text}"/></table:template>
-														</table:Column>
-														<table:Column width="9rem" sortProperty="p8" hAlign="End" visible="{ui>/p8Visible}">
-															<table:label><Label text="Nov"/></table:label>
-															<table:template><ObjectNumber number="{fcr>p8Text}"/></table:template>
-														</table:Column>
-														<table:Column width="9rem" sortProperty="p9" hAlign="End" visible="{ui>/p9Visible}">
-															<table:label><Label text="Dec"/></table:label>
-															<table:template><ObjectNumber number="{fcr>p9Text}"/></table:template>
-														</table:Column>
-														<table:Column width="9rem" sortProperty="p10" hAlign="End" visible="{ui>/p10Visible}">
-															<table:label><Label text="Jan"/></table:label>
-															<table:template><ObjectNumber number="{fcr>p10Text}"/></table:template>
-														</table:Column>
-														<table:Column width="9rem" sortProperty="p11" hAlign="End" visible="{ui>/p11Visible}">
-															<table:label><Label text="Feb"/></table:label>
-															<table:template><ObjectNumber number="{fcr>p11Text}"/></table:template>
-														</table:Column>
-														<table:Column width="9rem" sortProperty="p12" hAlign="End" visible="{ui>/p12Visible}">
-															<table:label><Label text="Mar"/></table:label>
-															<table:template><ObjectNumber number="{fcr>p12Text}"/></table:template>
+															<table:label>
+																<Label text="Total"/>
+															</table:label>
+															<table:template>
+																<ObjectNumber number="{fcr>totalText}" state="{fcr>totalState}"/>
+															</table:template>
 														</table:Column>
 													</table:columns>
 												</table:Table>
 											</content>
 										</Panel>
+										<!-- ========================================================= -->
+										<!-- SUMMARY VIEW -->
+										<!-- ========================================================= -->
 										<Panel headerText="Summary Output" expandable="false" expanded="true" class="fcrOutPanel" visible="{= ${ui>/allViewMode} === 'SUMMARY' }">
 											<content>
-												<VBox class="fcrSummaryWrap">
-													<Panel headerText="Summary Table" expandable="true" expanded="true" class="fcrSubPanel">
-														<content>
-															<table:Table id="allSummaryTable" rows="{fcr>/allSummaryRows}" visibleRowCount="8" selectionMode="None" enableColumnReordering="true"
-																enableCellFilter="true" class="fcrUiTable">
-																<table:columns>
-																	<table:Column width="10rem" sortProperty="glGroup" filterProperty="glGroup">
-																		<table:label><Label text="G/L Group"/></table:label>
-																		<table:template><Text text="{fcr>glGroup}"/></table:template>
-																	</table:Column>
-																	<table:Column width="20rem" sortProperty="groupName" filterProperty="groupName">
-																		<table:label><Label text="G/L Group Text"/></table:label>
-																		<table:template><Text text="{fcr>groupName}"/></table:template>
-																	</table:Column>
-																	<table:Column width="10rem" sortProperty="total" hAlign="End">
-																		<table:label><Label text="Total"/></table:label>
-																		<table:template><ObjectNumber number="{fcr>totalText}" state="{fcr>totalState}"/></table:template>
-																	</table:Column>
-																	<table:Column width="9rem" sortProperty="p1" hAlign="End" visible="{ui>/p1Visible}">
-																		<table:label><Label text="Apr"/></table:label>
-																		<table:template><ObjectNumber number="{fcr>p1Text}"/></table:template>
-																	</table:Column>
-																	<table:Column width="9rem" sortProperty="p2" hAlign="End" visible="{ui>/p2Visible}">
-																		<table:label><Label text="May"/></table:label>
-																		<table:template><ObjectNumber number="{fcr>p2Text}"/></table:template>
-																	</table:Column>
-																	<table:Column width="9rem" sortProperty="p3" hAlign="End" visible="{ui>/p3Visible}">
-																		<table:label><Label text="Jun"/></table:label>
-																		<table:template><ObjectNumber number="{fcr>p3Text}"/></table:template>
-																	</table:Column>
-																	<table:Column width="9rem" sortProperty="p4" hAlign="End" visible="{ui>/p4Visible}">
-																		<table:label><Label text="Jul"/></table:label>
-																		<table:template><ObjectNumber number="{fcr>p4Text}"/></table:template>
-																	</table:Column>
-																	<table:Column width="9rem" sortProperty="p5" hAlign="End" visible="{ui>/p5Visible}">
-																		<table:label><Label text="Aug"/></table:label>
-																		<table:template><ObjectNumber number="{fcr>p5Text}"/></table:template>
-																	</table:Column>
-																	<table:Column width="9rem" sortProperty="p6" hAlign="End" visible="{ui>/p6Visible}">
-																		<table:label><Label text="Sep"/></table:label>
-																		<table:template><ObjectNumber number="{fcr>p6Text}"/></table:template>
-																	</table:Column>
-																	<table:Column width="9rem" sortProperty="p7" hAlign="End" visible="{ui>/p7Visible}">
-																		<table:label><Label text="Oct"/></table:label>
-																		<table:template><ObjectNumber number="{fcr>p7Text}"/></table:template>
-																	</table:Column>
-																	<table:Column width="9rem" sortProperty="p8" hAlign="End" visible="{ui>/p8Visible}">
-																		<table:label><Label text="Nov"/></table:label>
-																		<table:template><ObjectNumber number="{fcr>p8Text}"/></table:template>
-																	</table:Column>
-																	<table:Column width="9rem" sortProperty="p9" hAlign="End" visible="{ui>/p9Visible}">
-																		<table:label><Label text="Dec"/></table:label>
-																		<table:template><ObjectNumber number="{fcr>p9Text}"/></table:template>
-																	</table:Column>
-																	<table:Column width="9rem" sortProperty="p10" hAlign="End" visible="{ui>/p10Visible}">
-																		<table:label><Label text="Jan"/></table:label>
-																		<table:template><ObjectNumber number="{fcr>p10Text}"/></table:template>
-																	</table:Column>
-																	<table:Column width="9rem" sortProperty="p11" hAlign="End" visible="{ui>/p11Visible}">
-																		<table:label><Label text="Feb"/></table:label>
-																		<table:template><ObjectNumber number="{fcr>p11Text}"/></table:template>
-																	</table:Column>
-																	<table:Column width="9rem" sortProperty="p12" hAlign="End" visible="{ui>/p12Visible}">
-																		<table:label><Label text="Mar"/></table:label>
-																		<table:template><ObjectNumber number="{fcr>p12Text}"/></table:template>
-																	</table:Column>
-																</table:columns>
-															</table:Table>
-														</content>
-													</Panel>
-													<Panel headerText="Chart" expandable="true" expanded="true" class="fcrSubPanel">
-														<content>
-															<Toolbar design="Transparent">
-																<Title text="GL Account Total" level="H4"/>
-																<ToolbarSpacer/>
-																<ObjectStatus text="Total" state="Information"/>
-															</Toolbar>
-															<VBox class="fcrChartPanel fcrFullChart">
-																<viz:VizFrame id="allSummaryChart" width="100%" height="360px" vizType="column">
+												<suite:ChartContainer id="allSummaryChartContainer" showFullScreen="true" showPersonalization="false" autoAdjustHeight="false"
+													showLegendButton="false" title="All Fixed Cost Summary" class="fcrChartContainer">
+													<suite:content>
+														<!-- ========================================================= -->
+														<!-- TABLE VIEW -->
+														<!-- ========================================================= -->
+														<suite:ChartContainerContent icon="sap-icon://table-chart" title="Table View">
+															<suite:content>
+																<table:Table id="allSummaryTable" rows="{fcr>/allSummaryRows}" visibleRowCount="8" selectionMode="None" enableColumnReordering="true"
+																	enableCellFilter="true" class="fcrUiTable">
+																	<table:columns>
+																		<table:Column width="10rem" sortProperty="glGroup" filterProperty="glGroup">
+																			<table:label>
+																				<Label text="G/L Group"/>
+																			</table:label>
+																			<table:template>
+																				<Text text="{fcr>glGroup}"/>
+																			</table:template>
+																		</table:Column>
+																		<table:Column width="20rem" sortProperty="groupName" filterProperty="groupName">
+																			<table:label>
+																				<Label text="G/L Group Text"/>
+																			</table:label>
+																			<table:template>
+																				<Text text="{fcr>groupName}"/>
+																			</table:template>
+																		</table:Column>
+																		<table:Column width="10rem" sortProperty="total" hAlign="End">
+																			<table:label>
+																				<Label text="Total"/>
+																			</table:label>
+																			<table:template>
+																				<ObjectNumber number="{fcr>totalText}" state="{fcr>totalState}"/>
+																			</table:template>
+																		</table:Column>
+																	</table:columns>
+																</table:Table>
+															</suite:content>
+														</suite:ChartContainerContent>
+														<!-- ========================================================= -->
+														<!-- CHART VIEW -->
+														<!-- ========================================================= -->
+														<suite:ChartContainerContent icon="sap-icon://bar-chart" title="Chart View">
+															<suite:content>
+																<viz:VizFrame id="allSummaryChart" width="100%" height="420px" vizType="column" uiConfig="{applicationSet:'fiori'}">
+																	<viz:dependents>
+																		<viz:Popover id="allSummaryPopover"/>
+																	</viz:dependents>
 																	<viz:dataset>
 																		<viz.data:FlattenedDataset data="{fcr>/allSummaryChart}">
 																			<viz.data:dimensions>
@@ -258,17 +207,23 @@
 																		<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="GL Account"/>
 																	</viz:feeds>
 																</viz:VizFrame>
-															</VBox>
-														</content>
-													</Panel>
-												</VBox>
+															</suite:content>
+														</suite:ChartContainerContent>
+													</suite:content>
+												</suite:ChartContainer>
 											</content>
 										</Panel>
 									</VBox>
 								</IconTabFilter>
+								<!-- ========================================================= -->
+								<!-- TOP 5 TAB -->
+								<!-- ========================================================= -->
 								<IconTabFilter key="top" text="Top 5 GL" icon="sap-icon://vertical-bar-chart" iconColor="Critical">
 									<VBox class="fcrTabContent">
-										<Toolbar design="Transparent" >
+										<!-- ========================================================= -->
+										<!-- TOOLBAR -->
+										<!-- ========================================================= -->
+										<Toolbar design="Transparent" class="fcrTableToolbar">
 											<Title text="Top 5 GL (by Total)" level="H3"/>
 											<ToolbarSpacer/>
 											<SearchField width="22rem" placeholder="Search (GL, text, group, year...)" liveChange=".onTopSearch" value="{ui>/topSearch}"
@@ -281,160 +236,75 @@
 												</items>
 											</SegmentedButton>
 										</Toolbar>
+										<!-- ========================================================= -->
+										<!-- DETAIL VIEW -->
+										<!-- ========================================================= -->
 										<Panel headerText="Details Output" expandable="true" expanded="true" class="fcrOutPanel" visible="{= ${ui>/topViewMode} === 'DETAIL' }">
 											<content>
 												<table:Table id="topDetailTable" rows="{fcr>/topDetailRows}" visibleRowCount="8" selectionMode="None" enableColumnReordering="true"
 													enableCellFilter="true" class="fcrUiTable">
 													<table:columns>
-														<table:Column width="7rem" sortProperty="glAccount" filterProperty="glAccount">
+														<table:Column width="7rem">
 															<table:label><Label text="G/L Acct"/></table:label>
 															<table:template><Text text="{fcr>glAccount}"/></table:template>
 														</table:Column>
-														<table:Column width="14rem" sortProperty="glName" filterProperty="glName">
+														<table:Column width="14rem">
 															<table:label><Label text="G/L Acct Long Text"/></table:label>
 															<table:template><Text text="{fcr>glName}"/></table:template>
 														</table:Column>
-														<table:Column width="18rem" sortProperty="glGroupText" filterProperty="glGroupText">
+														<table:Column width="18rem">
 															<table:label><Label text="G/L Group"/></table:label>
 															<table:template><Text text="{fcr>glGroupText}"/></table:template>
 														</table:Column>
-														<table:Column width="10rem" sortProperty="total" hAlign="End">
+														<table:Column width="10rem" hAlign="End">
 															<table:label><Label text="Total"/></table:label>
-															<table:template><ObjectNumber number="{fcr>totalText}" state="{fcr>totalState}"/></table:template>
-														</table:Column>
-														<table:Column width="9rem" sortProperty="p1" hAlign="End" visible="{ui>/p1Visible}">
-															<table:label><Label text="Apr"/></table:label>
-															<table:template><ObjectNumber number="{fcr>p1Text}"/></table:template>
-														</table:Column>
-														<table:Column width="9rem" sortProperty="p2" hAlign="End" visible="{ui>/p2Visible}">
-															<table:label><Label text="May"/></table:label>
-															<table:template><ObjectNumber number="{fcr>p2Text}"/></table:template>
-														</table:Column>
-														<table:Column width="9rem" sortProperty="p3" hAlign="End" visible="{ui>/p3Visible}">
-															<table:label><Label text="Jun"/></table:label>
-															<table:template><ObjectNumber number="{fcr>p3Text}"/></table:template>
-														</table:Column>
-														<table:Column width="9rem" sortProperty="p4" hAlign="End" visible="{ui>/p4Visible}">
-															<table:label><Label text="Jul"/></table:label>
-															<table:template><ObjectNumber number="{fcr>p4Text}"/></table:template>
-														</table:Column>
-														<table:Column width="9rem" sortProperty="p5" hAlign="End" visible="{ui>/p5Visible}">
-															<table:label><Label text="Aug"/></table:label>
-															<table:template><ObjectNumber number="{fcr>p5Text}"/></table:template>
-														</table:Column>
-														<table:Column width="9rem" sortProperty="p6" hAlign="End" visible="{ui>/p6Visible}">
-															<table:label><Label text="Sep"/></table:label>
-															<table:template><ObjectNumber number="{fcr>p6Text}"/></table:template>
-														</table:Column>
-														<table:Column width="9rem" sortProperty="p7" hAlign="End" visible="{ui>/p7Visible}">
-															<table:label><Label text="Oct"/></table:label>
-															<table:template><ObjectNumber number="{fcr>p7Text}"/></table:template>
-														</table:Column>
-														<table:Column width="9rem" sortProperty="p8" hAlign="End" visible="{ui>/p8Visible}">
-															<table:label><Label text="Nov"/></table:label>
-															<table:template><ObjectNumber number="{fcr>p8Text}"/></table:template>
-														</table:Column>
-														<table:Column width="9rem" sortProperty="p9" hAlign="End" visible="{ui>/p9Visible}">
-															<table:label><Label text="Dec"/></table:label>
-															<table:template><ObjectNumber number="{fcr>p9Text}"/></table:template>
-														</table:Column>
-														<table:Column width="9rem" sortProperty="p10" hAlign="End" visible="{ui>/p10Visible}">
-															<table:label><Label text="Jan"/></table:label>
-															<table:template><ObjectNumber number="{fcr>p10Text}"/></table:template>
-														</table:Column>
-														<table:Column width="9rem" sortProperty="p11" hAlign="End" visible="{ui>/p11Visible}">
-															<table:label><Label text="Feb"/></table:label>
-															<table:template><ObjectNumber number="{fcr>p11Text}"/></table:template>
-														</table:Column>
-														<table:Column width="9rem" sortProperty="p12" hAlign="End" visible="{ui>/p12Visible}">
-															<table:label><Label text="Mar"/></table:label>
-															<table:template><ObjectNumber number="{fcr>p12Text}"/></table:template>
+															<table:template>
+																<ObjectNumber number="{fcr>totalText}" state="{fcr>totalState}"/>
+															</table:template>
 														</table:Column>
 													</table:columns>
 												</table:Table>
 											</content>
 										</Panel>
+										<!-- ========================================================= -->
+										<!-- SUMMARY VIEW -->
+										<!-- ========================================================= -->
 										<Panel headerText="Summary Output" expandable="false" expanded="true" class="fcrOutPanel" visible="{= ${ui>/topViewMode} === 'SUMMARY' }">
 											<content>
-												<VBox class="fcrSummaryWrap">
-													<Panel headerText="Summary Table" expandable="true" expanded="true" class="fcrSubPanel">
-														<content>
-															<table:Table id="topSummaryTable" rows="{fcr>/topSummaryRows}" visibleRowCount="6" selectionMode="None" enableColumnReordering="true"
-																enableCellFilter="true" class="fcrUiTable">
-																<table:columns>
-																	<table:Column width="10rem" sortProperty="glGroup" filterProperty="glGroup">
-																		<table:label><Label text="G/L Group"/></table:label>
-																		<table:template><Text text="{fcr>glGroup}"/></table:template>
-																	</table:Column>
-																	<table:Column width="20rem" sortProperty="groupName" filterProperty="groupName">
-																		<table:label><Label text="G/L Group Text"/></table:label>
-																		<table:template><Text text="{fcr>groupName}"/></table:template>
-																	</table:Column>
-																	<table:Column width="10rem" sortProperty="total" hAlign="End">
-																		<table:label><Label text="Total"/></table:label>
-																		<table:template><ObjectNumber number="{fcr>totalText}" state="{fcr>totalState}"/></table:template>
-																	</table:Column>
-																	<table:Column width="9rem" sortProperty="p1" hAlign="End" visible="{ui>/p1Visible}">
-																		<table:label><Label text="Apr"/></table:label>
-																		<table:template><ObjectNumber number="{fcr>p1Text}"/></table:template>
-																	</table:Column>
-																	<table:Column width="9rem" sortProperty="p2" hAlign="End" visible="{ui>/p2Visible}">
-																		<table:label><Label text="May"/></table:label>
-																		<table:template><ObjectNumber number="{fcr>p2Text}"/></table:template>
-																	</table:Column>
-																	<table:Column width="9rem" sortProperty="p3" hAlign="End" visible="{ui>/p3Visible}">
-																		<table:label><Label text="Jun"/></table:label>
-																		<table:template><ObjectNumber number="{fcr>p3Text}"/></table:template>
-																	</table:Column>
-																	<table:Column width="9rem" sortProperty="p4" hAlign="End" visible="{ui>/p4Visible}">
-																		<table:label><Label text="Jul"/></table:label>
-																		<table:template><ObjectNumber number="{fcr>p4Text}"/></table:template>
-																	</table:Column>
-																	<table:Column width="9rem" sortProperty="p5" hAlign="End" visible="{ui>/p5Visible}">
-																		<table:label><Label text="Aug"/></table:label>
-																		<table:template><ObjectNumber number="{fcr>p5Text}"/></table:template>
-																	</table:Column>
-																	<table:Column width="9rem" sortProperty="p6" hAlign="End" visible="{ui>/p6Visible}">
-																		<table:label><Label text="Sep"/></table:label>
-																		<table:template><ObjectNumber number="{fcr>p6Text}"/></table:template>
-																	</table:Column>
-																	<table:Column width="9rem" sortProperty="p7" hAlign="End" visible="{ui>/p7Visible}">
-																		<table:label><Label text="Oct"/></table:label>
-																		<table:template><ObjectNumber number="{fcr>p7Text}"/></table:template>
-																	</table:Column>
-																	<table:Column width="9rem" sortProperty="p8" hAlign="End" visible="{ui>/p8Visible}">
-																		<table:label><Label text="Nov"/></table:label>
-																		<table:template><ObjectNumber number="{fcr>p8Text}"/></table:template>
-																	</table:Column>
-																	<table:Column width="9rem" sortProperty="p9" hAlign="End" visible="{ui>/p9Visible}">
-																		<table:label><Label text="Dec"/></table:label>
-																		<table:template><ObjectNumber number="{fcr>p9Text}"/></table:template>
-																	</table:Column>
-																	<table:Column width="9rem" sortProperty="p10" hAlign="End" visible="{ui>/p10Visible}">
-																		<table:label><Label text="Jan"/></table:label>
-																		<table:template><ObjectNumber number="{fcr>p10Text}"/></table:template>
-																	</table:Column>
-																	<table:Column width="9rem" sortProperty="p11" hAlign="End" visible="{ui>/p11Visible}">
-																		<table:label><Label text="Feb"/></table:label>
-																		<table:template><ObjectNumber number="{fcr>p11Text}"/></table:template>
-																	</table:Column>
-																	<table:Column width="9rem" sortProperty="p12" hAlign="End" visible="{ui>/p12Visible}">
-																		<table:label><Label text="Mar"/></table:label>
-																		<table:template><ObjectNumber number="{fcr>p12Text}"/></table:template>
-																	</table:Column>
-																</table:columns>
-															</table:Table>
-														</content>
-													</Panel>
-													<Panel headerText="Chart" expandable="true" expanded="true" class="fcrSubPanel">
-														<content>
-															<Toolbar design="Transparent">
-																<Title text="Top 5 GL Account Total" level="H4"/>
-																<ToolbarSpacer/>
-																<ObjectStatus text="Total" state="Information"/>
-															</Toolbar>
-															<VBox class="fcrChartPanel fcrFullChart">
-																<viz:VizFrame id="topSummaryChart" width="100%" height="360px" vizType="column">
+												<suite:ChartContainer id="topSummaryChartContainer" showFullScreen="true" showPersonalization="false" autoAdjustHeight="false"
+													showLegendButton="false" title="Top 5 GL Summary" class="fcrChartContainer">
+													<suite:content>
+														<!-- TABLE -->
+														<suite:ChartContainerContent icon="sap-icon://table-chart" title="Table View">
+															<suite:content>
+																<table:Table id="topSummaryTable" rows="{fcr>/topSummaryRows}" visibleRowCount="6" selectionMode="None" enableColumnReordering="true"
+																	enableCellFilter="true" class="fcrUiTable">
+																	<table:columns>
+																		<table:Column width="10rem">
+																			<table:label><Label text="G/L Group"/></table:label>
+																			<table:template><Text text="{fcr>glGroup}"/></table:template>
+																		</table:Column>
+																		<table:Column width="20rem">
+																			<table:label><Label text="G/L Group Text"/></table:label>
+																			<table:template><Text text="{fcr>groupName}"/></table:template>
+																		</table:Column>
+																		<table:Column width="10rem" hAlign="End">
+																			<table:label><Label text="Total"/></table:label>
+																			<table:template>
+																				<ObjectNumber number="{fcr>totalText}" state="{fcr>totalState}"/>
+																			</table:template>
+																		</table:Column>
+																	</table:columns>
+																</table:Table>
+															</suite:content>
+														</suite:ChartContainerContent>
+														<!-- CHART -->
+														<suite:ChartContainerContent icon="sap-icon://bar-chart" title="Chart View">
+															<suite:content>
+																<viz:VizFrame id="topSummaryChart" width="100%" height="420px" vizType="column" uiConfig="{applicationSet:'fiori'}">
+																	<viz:dependents>
+																		<viz:Popover id="topSummaryPopover"/>
+																	</viz:dependents>
 																	<viz:dataset>
 																		<viz.data:FlattenedDataset data="{fcr>/topSummaryChart}">
 																			<viz.data:dimensions>
@@ -450,10 +320,10 @@
 																		<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="GL Account"/>
 																	</viz:feeds>
 																</viz:VizFrame>
-															</VBox>
-														</content>
-													</Panel>
-												</VBox>
+															</suite:content>
+														</suite:ChartContainerContent>
+													</suite:content>
+												</suite:ChartContainer>
 											</content>
 										</Panel>
 									</VBox>
