@@ -76,13 +76,13 @@
 							<items>
 								<IconTabFilter key="all" text="All" icon="sap-icon://table-view" iconColor="Positive">
 									<VBox class="fcrTabContent">
-										<Toolbar design="Transparent" class="fcrTableToolbar">
+										<Toolbar design="Transparent">
 											<Title text="All Fixed Cost" level="H3"/>
 											<ToolbarSpacer/>
 											<SearchField width="22rem" placeholder="Search (GL, text, group, year...)" liveChange=".onAllSearch" value="{ui>/allSearch}"
 												class="fcrToolbarSearch"/>
 											<Button icon="sap-icon://excel-attachment" tooltip="Export" press=".onExport" class="fcrToolbarExport"/>
-											<SegmentedButton selectedKey="{ui>/allViewMode}" selectionChange=".onViewModeChange">
+											<SegmentedButton selectedKey="{ui>/allViewMode}" selectionChange=".onViewModeChange" class="fcrViewSwitch">
 												<items>
 													<SegmentedButtonItem key="DETAIL" text="Details" icon="sap-icon://detail-view"/>
 													<SegmentedButtonItem key="SUMMARY" text="Summary" icon="sap-icon://vertical-bar-chart"/>
@@ -268,13 +268,13 @@
 								</IconTabFilter>
 								<IconTabFilter key="top" text="Top 5 GL" icon="sap-icon://vertical-bar-chart" iconColor="Critical">
 									<VBox class="fcrTabContent">
-										<Toolbar design="Transparent" class="fcrTableToolbar">
+										<Toolbar design="Transparent" >
 											<Title text="Top 5 GL (by Total)" level="H3"/>
 											<ToolbarSpacer/>
 											<SearchField width="22rem" placeholder="Search (GL, text, group, year...)" liveChange=".onTopSearch" value="{ui>/topSearch}"
 												class="fcrToolbarSearch"/>
 											<Button icon="sap-icon://excel-attachment" tooltip="Export" press=".onExport" class="fcrToolbarExport"/>
-											<SegmentedButton selectedKey="{ui>/topViewMode}" selectionChange=".onViewModeChange">
+											<SegmentedButton selectedKey="{ui>/topViewMode}" selectionChange=".onViewModeChange" class="fcrViewSwitch">
 												<items>
 													<SegmentedButtonItem key="DETAIL" text="Details" icon="sap-icon://detail-view"/>
 													<SegmentedButtonItem key="SUMMARY" text="Summary" icon="sap-icon://vertical-bar-chart"/>

@@ -1,6 +1,7 @@
 /* =========================================================
    GLOBAL & LAYOUT REFINEMENTS
 ========================================================= */
+
 .fcrPageShell {
     background: #f4f7f9 !important;
 }
@@ -12,16 +13,18 @@
     gap: 0.75rem;
 }
 
+
 /* =========================================================
    HEADER SECTION: COMPACT
 ========================================================= */
+
 .fcrHeader {
     min-height: 4rem;
     padding: 0.75rem 1.25rem;
     background: #ffffff;
     border-left: 0.4rem solid #0284c7;
     border-radius: 0.5rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .fcrTitle {
@@ -35,14 +38,16 @@
     font-size: 0.8rem;
 }
 
+
 /* =========================================================
    PARAMETER SECTION
 ========================================================= */
+
 .fcrParamWrap {
     background: #ffffff;
     border-radius: 0.5rem;
     border: 1px solid #e2e8f0;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .fcrParamHeader {
@@ -67,7 +72,9 @@
     gap: 0.5rem !important;
 }
 
+
 /* Fix: Remove double borders and align corners */
+
 .fcrPage .sapMInputBaseInner,
 .fcrPage .sapMSlt,
 .fcrPage .sapMMultiInputBorder {
@@ -89,11 +96,24 @@
     color: #475569;
 }
 
-.fcrFieldCc, .fcrFieldFy { width: 7.5rem !important; }
-.fcrFieldQtr { width: 10rem !important; }
-.fcrFieldPc, .fcrFieldGlg { flex: 1; min-width: 10rem; }
+.fcrFieldCc,
+.fcrFieldFy {
+    width: 7.5rem !important;
+}
+
+.fcrFieldQtr {
+    width: 10rem !important;
+}
+
+.fcrFieldPc,
+.fcrFieldGlg {
+    flex: 1;
+    min-width: 10rem;
+}
+
 
 /* Upper Buttons */
+
 .fcrActionsContainer {
     gap: 0.4rem;
     padding-bottom: 1px;
@@ -108,15 +128,50 @@
     box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
 }
 
+
+/* =========================================================
+   HOVER EFFECT
+========================================================= */
+
+.fcrBtnRun:hover .sapMBtnInner {
+    background: #0369a1 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);
+}
+
+
+/* =========================================================
+   ACTIVE / PRESS EFFECT
+========================================================= */
+
+.fcrBtnRun:active .sapMBtnInner {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
+}
+
 .fcrBtnReset .sapMBtnInner {
     border-radius: 8px !important;
     border: 1px solid #cbd5e1 !important;
     background: #ffffff !important;
 }
 
+.fcrBtnReset:hover .sapMBtnInner {
+    background: #f8fafc !important;
+    border-color: #94a3b8 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(15, 23, 42, 0.08);
+}
+
+.fcrBtnReset:active .sapMBtnInner {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+
 /* =========================================================
    KPI CARDS: COMPACT
 ========================================================= */
+
 .fcrKpiGrid {
     margin-top: 0;
 }
@@ -141,14 +196,27 @@
     font-weight: 700;
 }
 
-.fcrKpiA { border-left: 3px solid #0284c7; }
-.fcrKpiB { border-left: 3px solid #f59e0b; }
-.fcrKpiV { border-left: 3px solid #dc2626; }
-.fcrKpiP { border-left: 3px solid #059669; }
+.fcrKpiA {
+    border-left: 3px solid #0284c7;
+}
+
+.fcrKpiB {
+    border-left: 3px solid #f59e0b;
+}
+
+.fcrKpiV {
+    border-left: 3px solid #dc2626;
+}
+
+.fcrKpiP {
+    border-left: 3px solid #059669;
+}
+
 
 /* =========================================================
    REQUIREMENT 1: 50/50 SPLIT TABS WITH HORIZONTAL TEXT
 ========================================================= */
+
 .fcrTabs {
     border-radius: 0.5rem;
     border: 1px solid #cbd5e1;
@@ -156,7 +224,9 @@
     background: #ffffff;
 }
 
+
 /* Aggressively override SAP UI5 wrapper divs to force flex layout */
+
 .fcrTabs .sapMITBHead,
 .fcrTabs .sapMITBScrollContainer,
 .fcrTabs .sapMITBHeadDiv {
@@ -166,23 +236,26 @@
     padding: 0 !important;
 }
 
+
 /* Force each tab to take exactly 50% and align content horizontally */
+
 .fcrTabs .sapMITBItem {
     flex: 1 1 50% !important;
     width: 50% !important;
     max-width: 100% !important;
     display: flex !important;
-    flex-direction: row !important; /* Places text BESIDE icon */
+    flex-direction: row !important;
+    /* Places text BESIDE icon */
     align-items: center !important;
     justify-content: center !important;
     margin: 0 !important;
     padding: 0 !important;
     height: 3.5rem !important;
-    
     /* Inactive Tab Styling (Distinct Background) */
-    background: #f1f5f9 !important; 
+    background: #f1f5f9 !important;
     border-bottom: 1px solid #cbd5e1 !important;
-    border-right: 5px solid #0284c7 !important; /* Stronger visible middle border */
+    border-right: 5px solid #0284c7 !important;
+    /* Stronger visible middle border */
     box-sizing: border-box;
     transition: all 0.2s ease;
 }
@@ -191,112 +264,148 @@
     border-right: none !important;
 }
 
-/* Active Tab Styling */
-
-/*.fcrTabs .sapMITBFilter.sapMITBSelected .sapMITBTab {*/
-/*    background: #e0f2fe !important;*/
-/*    border-bottom: 3px solid #0284c7 !important;*/
-/*}*/
-
-
 .fcrTabs .sapMITBText {
-    margin: 0 0 0 0.5rem !important; /* Space between icon and text */
+    margin: 0 0 0 0.5rem !important;
+    /* Space between icon and text */
     font-weight: 600 !important;
     font-size: 1rem !important;
     color: #475569 !important;
 }
 
+
 /* Active Text & Icon Color */
+
 .fcrTabs .sapMITBItem.sapMITBFilterSelected .sapMITBFilterIcon,
 .fcrTabs .sapMITBItem.sapMITBFilterSelected .sapMITBText {
     color: #8AD8FF !important;
 }
 
-.fcrTabs .sapMITBItem.sapMITBSelected{
-	border-bottom: 5px solid #0284c7 !important;
+.fcrTabs .sapMITBItem.sapMITBSelected {
+    border-bottom: 5px solid #0284c7 !important;
 }
 
 .fcrTabs .sapMITBItem:hover {
     background: #e2e8f0 !important;
 }
+
 .fcrTabs .sapMITBItem.sapMITBFilterSelected:hover {
     background: #ffffff !important;
 }
 
+
 /* =========================================================
    REQUIREMENT 2: PREMIUM COMPACT LOWER TOOLBAR
 ========================================================= */
+
 .fcrTabContent {
     padding: 0.5rem 0.75rem 0.75rem;
 }
 
-.fcrTableToolbar {
-    height: 3rem !important;
-    padding: 0 0.25rem !important;
-}
-
-.fcrTableToolbar .sapMTitle {
-    font-weight: 700;
-    color: #1e293b;
-}
-
-/* The "Space Bar" Search Field - Pill Shape */
-.fcrToolbarSearch .sapMSF {
-    height: 2rem !important;
-    border-radius: 20px !important;
-    background: #f8fafc !important;
-    border: 1px solid #cbd5e1 !important;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.02) !important;
-    transition: all 0.2s ease;
-}
-
-.fcrToolbarSearch .sapMSF:focus-within {
-    background: #ffffff !important;
-    border-color: #0ea5e9 !important;
-    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1) !important;
-}
-
-/* Premium Segmented Button (Details/Summary toggle) */
-.fcrTableToolbar .sapMSegB {
-    background: #e2e8f0 !important;
-    border-radius: 8px !important;
-    padding: 3px !important;
-    border: none !important;
-}
-
-.fcrTableToolbar .sapMSegBBtn {
-    border: none !important;
-}
-
-.fcrTableToolbar .sapMSegBBtnInner {
-    border-radius: 6px !important;
-    height: 1.8rem !important;
-    line-height: 1.8rem !important;
-    color: #64748b !important;
-    background: transparent !important;
-    border: none !important;
-    text-shadow: none !important;
-    font-weight: 500 !important;
-    transition: all 0.2s ease !important;
-}
-
-.fcrTableToolbar .sapMSegBBtnSel .sapMSegBBtnInner {
-    background: #ffffff !important;
-    color: #0f172a !important;
-    font-weight: 600 !important;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
-}
 
 /* Export Button */
+
 .fcrToolbarExport .sapMBtnInner {
-    height: 2.1rem !important;
+    /*background: #0284c7 !important;*/
+    color: #0284c7 important;
     border-radius: 8px !important;
-    border: 1px solid #cbd5e1 !important;
+    padding: 0 1rem;
+    border-color: #94a3b8 !important;
+    box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
 }
+
+.fcrToolbarExport .sapMBtnIcon {
+    color: #0284c7;
+}
+
+.fcrToolbarExport:hover .sapMBtnInner {
+    background: #f8fafc !important;
+    border-color: #94a3b8 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);
+}
+
+.fcrToolbarExport:active .sapMBtnInner {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
+}
+
+
+/* =========================================================
+   SEARCH FIELD
+========================================================= */
+
+.fcrToolbarSearch .sapMSFF {
+    border-color: #94a3b8 !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2) !important;
+    background: #ffffff !important;
+}
+
+
+/* Main wrapper */
+
+.fcrToolbarSearch .sapMSF {
+    border: none !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    background: transparent !important;
+}
+
+
+/* Input */
+
+.fcrToolbarSearch .sapMSFI {
+    border: none !important;
+    background: transparent !important;
+    height: 2.3rem !important;
+}
+
+
+/* Icon section */
+
+.fcrToolbarSearch .sapMSFB {
+    border: none !important;
+    background: transparent !important;
+}
+
+
+/* Hover */
+
+.fcrToolbarSearch:hover .sapMSFF {
+    background: #f8fafc !important;
+    border-color: #94a3b8 !important;
+    box-shadow: 0 4px 10px rgba(2, 132, 199, 0.25) !important;
+}
+
+
+/* =========================================================
+   SEGMENTED BUTTON SELECTED
+========================================================= */
+
+.fcrViewSwitch .sapMSegBBtn {
+    border-radius: 8px !important;
+}
+
+.fcrViewSwitch .sapMSegBBtnSel {
+    background: #0284c7 !important;
+    color: #ffffff !important;
+    border-radius: 8px !important;
+    padding: 0 1rem;
+    border: none !important;
+    box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
+}
+
+.fcrViewSwitch .sapMSegBBtn .sapMSegBBtnSel:hover .sapMSegBBtnInner {
+    background: #0369a1 !important;
+    color: #ffffff !important;
+}
+
 
 /* =========================================================
    TABLES & PANELS
 ========================================================= */
+
 .fcrUiTable {
     border: 1px solid #e2e8f0 !important;
     border-radius: 8px;
