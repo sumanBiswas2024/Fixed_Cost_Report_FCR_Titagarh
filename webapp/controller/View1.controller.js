@@ -53,7 +53,7 @@ sap.ui.define([
 				fiscalYear: "2026",
 				profitCenters: [],
 				glGroups: [],
-				quarters: []
+				quarters: [] // Stays empty to mean "All Quarters" or select by default
 			}), "filters");
 
 			this.getView().setModel(new JSONModel({
@@ -100,15 +100,15 @@ sap.ui.define([
 				p1Visible: true,
 				p2Visible: true,
 				p3Visible: true,
-				p4Visible: false,
-				p5Visible: false,
-				p6Visible: false,
-				p7Visible: false,
-				p8Visible: false,
-				p9Visible: false,
-				p10Visible: false,
-				p11Visible: false,
-				p12Visible: false,
+				p4Visible: true,
+				p5Visible: true,
+				p6Visible: true,
+				p7Visible: true,
+				p8Visible: true,
+				p9Visible: true,
+				p10Visible: true,
+				p11Visible: true,
+				p12Visible: true,
 				periodText: "",
 				lastRunText: "Ready to run",
 				totalActual: "0",
@@ -363,6 +363,7 @@ sap.ui.define([
 				return oItem.key;
 			});
 
+			// Fix: If no specific quarters are selected, keep columns active for all months (1 to 12)
 			this._syncPeriodVisibility(aPeriods);
 			this._updateSelectedValuesText(oFilters);
 
@@ -679,10 +680,17 @@ sap.ui.define([
 			return bOk;
 		},
 
+		// Fix: Synchronize monthly column visibilities correctly when aPeriods is empty
 		_syncPeriodVisibility: function(aPeriods) {
 			var oUiModel = this.getView().getModel("ui");
 			for (var i = 1; i <= 12; i++) {
-				oUiModel.setProperty("/p" + i + "Visible", aPeriods.indexOf(i) !== -1);
+				if (!aPeriods || aPeriods.length === 0) {
+					// If no specific quarter selected, all months remain visible
+					oUiModel.setProperty("/p" + i + "Visible", true);
+				} else {
+					// Otherwise, match exact quarter indices
+					oUiModel.setProperty("/p" + i + "Visible", aPeriods.indexOf(i) !== -1);
+				}
 			}
 		},
 
@@ -949,6 +957,7 @@ sap.ui.define([
 
 		_createBaseRows: function() {
 			return [
+				// --- Q1: Periods 1 to 3 (Apr, May, Jun) ---
 				this._row("PC100", "LAB", "500101", "Basic Wages", 1, 1420000, 1495000),
 				this._row("PC100", "POW", "510201", "Electricity Charges", 1, 880000, 960000),
 				this._row("PC100", "REP", "520301", "Mechanical Repairs", 2, 610000, 575000),
@@ -966,13 +975,37 @@ sap.ui.define([
 				this._row("PC500", "POW", "510203", "Compressed Air", 1, 520000, 595000),
 				this._row("PC500", "LAB", "500104", "Paint Shop Labour", 2, 680000, 642000),
 				this._row("PC500", "REP", "520304", "Booth Maintenance", 3, 455000, 530000),
+
+				// --- Q2: Periods 4 to 6 (Jul, Aug, Sep) ---
 				this._row("PC100", "LAB", "500101", "Basic Wages", 4, 1450000, 1510000),
+				this._row("PC100", "POW", "510201", "Electricity Charges", 4, 910000, 890000),
+				this._row("PC100", "REP", "520301", "Mechanical Repairs", 5, 630000, 650000),
 				this._row("PC200", "POW", "510202", "Fuel and Gas", 5, 1010000, 980000),
+				this._row("PC200", "LAB", "500102", "Contract Labour", 6, 1200000, 1150000),
 				this._row("PC300", "REP", "520303", "Preventive Maintenance", 6, 860000, 925000),
+				this._row("PC300", "ADM", "530101", "Office Administration", 4, 400000, 410000),
+				this._row("PC400", "SEC", "540102", "Facility Management", 5, 320000, 310000),
+				this._row("PC500", "LAB", "500104", "Paint Shop Labour", 6, 700000, 720000),
+
+				// --- Q3: Periods 7 to 9 (Oct, Nov, Dec) ---
 				this._row("PC400", "ADM", "530102", "Shared Service Cost", 7, 735000, 705000),
+				this._row("PC100", "LAB", "500101", "Basic Wages", 7, 1480000, 1460000),
+				this._row("PC100", "POW", "510201", "Electricity Charges", 8, 950000, 1020000),
 				this._row("PC500", "POW", "510203", "Compressed Air", 8, 540000, 622000),
+				this._row("PC200", "REP", "520302", "Foundry Maintenance", 9, 710000, 750000),
+				this._row("PC300", "LAB", "500103", "Overtime Wages", 9, 550000, 580000),
+				this._row("PC400", "DEP", "560102", "Building Depreciation", 7, 410000, 410000),
+				this._row("PC500", "REP", "520304", "Booth Maintenance", 8, 460000, 440000),
+
+				// --- Q4: Periods 10 to 12 (Jan, Feb, Mar) ---
 				this._row("PC100", "DEP", "560101", "Plant Depreciation", 10, 780000, 780000),
-				this._row("PC200", "SEC", "540101", "Security Services", 11, 250000, 268000)
+				this._row("PC100", "LAB", "500101", "Basic Wages", 11, 1500000, 1530000),
+				this._row("PC200", "SEC", "540101", "Security Services", 11, 250000, 268000),
+				this._row("PC200", "LAB", "500102", "Contract Labour", 10, 1250000, 1290000),
+				this._row("PC300", "REP", "520303", "Preventive Maintenance", 12, 880000, 860000),
+				this._row("PC400", "ADM", "530102", "Shared Service Cost", 12, 750000, 780000),
+				this._row("PC500", "POW", "510203", "Compressed Air", 10, 560000, 540000),
+				this._row("PC500", "LAB", "500104", "Paint Shop Labour", 12, 720000, 710000)
 			];
 		},
 
@@ -989,19 +1022,18 @@ sap.ui.define([
 				actual: iActual
 			};
 		},
+
 		/**
 		 * Synchronizes the data model when the MultiInput is cleared via the UI icon
 		 */
 		onTokenUpdate: function(oEvent) {
 			var sType = oEvent.getParameter("type");
 
-			// Check if the user is trying to remove tokens (clearing the field)
 			if (sType === "removed") {
 				var oSource = oEvent.getSource();
 				var sId = oSource.getId();
 				var oFiltersModel = this.getView().getModel("filters");
 
-				// Determine which field needs to be cleared based on the Control ID
 				if (sId.includes("quarterInput")) {
 					oFiltersModel.setProperty("/quarters", []);
 				} else if (sId.includes("profitCentreInput")) {
@@ -1010,10 +1042,8 @@ sap.ui.define([
 					oFiltersModel.setProperty("/glGroups", []);
 				}
 
-				// Trigger the filter logic so KPIs and tables update immediately
 				this._applyFilters(true);
 			}
 		}
-
 	});
 });
