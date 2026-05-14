@@ -135,8 +135,7 @@ sap.ui.define([
 		},
 
 		onAfterRendering: function() {
-			this._configureCharts();
-			this._wireScrollAutoCollapse();
+			 this._configureCharts();
 		},
 
 		onSearch: function() {
@@ -515,31 +514,71 @@ sap.ui.define([
 		},
 
 		_wireScrollAutoCollapse: function() {
+
 			var oView = this.getView();
+
 			var oDomRef = oView.getDomRef();
+
 			if (!oDomRef) {
 				return;
 			}
-			var oScroll = oDomRef.querySelector(".sapMPageEnableScrolling");
-			if (!oScroll) {
+
+			var oScrollContainer =
+				oDomRef.querySelector(".sapMPageEnableScrolling");
+
+			if (!oScrollContainer) {
 				return;
 			}
+
 			if (this._fnScrollHandler) {
-				oScroll.removeEventListener("scroll", this._fnScrollHandler);
+
+				oScrollContainer.removeEventListener(
+					"scroll",
+					this._fnScrollHandler
+				);
 			}
+
 			this._fnScrollHandler = function() {
-				var oUiModel = oView.getModel("ui");
-				var bExpanded = !!oUiModel.getProperty("/paramsExpanded");
-				var iTop = oScroll.scrollTop || 0;
-				if (iTop > 90 && bExpanded) {
-					oUiModel.setProperty("/paramsExpanded", false);
-				} else if (iTop <= 10 && !bExpanded) {
-					oUiModel.setProperty("/paramsExpanded", true);
+
+				var iTop = oScrollContainer.scrollTop;
+
+				var oParamSection =
+					this.byId("paramSection");
+
+				if (!oParamSection) {
+					return;
 				}
-			};
-			oScroll.addEventListener("scroll", this._fnScrollHandler, {
-				passive: true
-			});
+
+				var oParamDom =
+					oParamSection.getDomRef();
+
+				if (!oParamDom) {
+					return;
+				}
+
+				/* SCROLL DOWN => COLLAPSE */
+
+				if (iTop > 80) {
+
+					oParamDom.classList.add(
+						"fcrParamWrapCollapsed"
+					);
+
+				} else {
+
+					oParamDom.classList.remove(
+						"fcrParamWrapCollapsed"
+					);
+				}
+
+			}.bind(this);
+
+			oScrollContainer.addEventListener(
+				"scroll",
+				this._fnScrollHandler, {
+					passive: true
+				}
+			);
 		},
 
 		_paletteForChart: function(sChartId) {
@@ -818,6 +857,73 @@ sap.ui.define([
 			oUi.setProperty("/variancePct", this._formatPercent(0));
 			oUi.setProperty("/varianceState", this._varianceState(iMax));
 			oUi.setProperty("/recordCount", this._formatAmount(aRows.length));
+		},
+		_wireScrollAutoCollapse: function() {
+
+			var oView = this.getView();
+
+			var oDomRef = oView.getDomRef();
+
+			if (!oDomRef) {
+				return;
+			}
+
+			var oScrollContainer =
+				oDomRef.querySelector(".sapMPageEnableScrolling");
+
+			if (!oScrollContainer) {
+				return;
+			}
+
+			if (this._fnScrollHandler) {
+
+				oScrollContainer.removeEventListener(
+					"scroll",
+					this._fnScrollHandler
+				);
+			}
+
+			this._fnScrollHandler = function() {
+
+				var iTop = oScrollContainer.scrollTop;
+
+				var oParamSection =
+					this.byId("paramSection");
+
+				if (!oParamSection) {
+					return;
+				}
+
+				var oParamDom =
+					oParamSection.getDomRef();
+
+				if (!oParamDom) {
+					return;
+				}
+
+				/* SCROLL DOWN => COLLAPSE */
+
+				if (iTop > 80) {
+
+					oParamDom.classList.add(
+						"fcrParamWrapCollapsed"
+					);
+
+				} else {
+
+					oParamDom.classList.remove(
+						"fcrParamWrapCollapsed"
+					);
+				}
+
+			}.bind(this);
+
+			oScrollContainer.addEventListener(
+				"scroll",
+				this._fnScrollHandler, {
+					passive: true
+				}
+			);
 		},
 
 		_refreshChartStyling: function() {

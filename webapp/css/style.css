@@ -1,4 +1,313 @@
 /* =========================================================
+   PAGE
+========================================================= */
+
+.fcrPageShell {
+    background: linear-gradient(135deg, #f0f4f8 0%, #e8eef3 100%);
+}
+
+.fcrPage {
+    width: 100%;
+    padding: 1rem 1.25rem 2rem;
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   PARAMETER SECTION
+========================================================= */
+
+
+
+
+/* COLLAPSED */
+
+
+/* PARAMETER BAR */
+
+.fcrParamBar {
+    background: #ffffff;
+    border-radius: 0.85rem;
+    border: 1px solid #dbe3ea;
+    padding: 0.9rem 1rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.05);
+}
+
+
+/* FILTER ROW */
+
+.fcrFilterRow {
+    flex: 1;
+    gap: 0.75rem;
+}
+
+
+/* FIELD */
+
+.fcrField {
+    gap: 0.2rem;
+}
+
+.fcrField .sapMLabel {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #334155;
+}
+
+
+/* WIDTHS */
+
+.fcrFieldCc {
+    width: 9rem;
+}
+
+.fcrFieldFy {
+    width: 9rem;
+}
+
+.fcrFieldQtr {
+    width: 13rem;
+}
+
+.fcrFieldPc {
+    width: 16rem;
+}
+
+.fcrFieldGlg {
+    width: 16rem;
+}
+
+
+/* ACTIONS */
+
+.fcrActionArea {
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+
+/* COLLAPSE BUTTON */
+
+.fcrCollapseBtn .sapMBtnInner {
+    width: 2.25rem;
+    min-width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    border: 1px solid #d1d9e0;
+    background: #ffffff;
+    box-shadow: 0 0.1rem 0.4rem rgba(0, 0, 0, 0.08);
+}
+
+.fcrCollapseBtn .sapMBtnInner:hover {
+    background: #f8fafc;
+}
+
+
+/* =========================================================
+   STICKY KPI + TOOLBAR
+========================================================= */
+
+.fcrStickySection {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: #eef3f7;
+    padding-top: 0.25rem;
+    padding-bottom: 0.75rem;
+}
+
+
+/* IMPORTANT:
+   Prevent overlap with hidden parameter section
+*/
+
+
+/* KPI WRAP */
+
+.fcrKpiStickyWrap {
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+
+/* KPI CARD */
+
+.fcrKpi {
+    min-height: 5.5rem;
+    padding: 1rem 1.2rem;
+    border-radius: 0.8rem;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 0.2rem 0.7rem rgba(0, 0, 0, 0.05);
+    flex: 1;
+}
+
+
+/* KPI TITLE */
+
+.fcrKpi .sapMText {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+}
+
+
+/* KPI VALUE */
+
+.fcrKpi .sapMObjectNumberText {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   SEGMENT TOOLBAR
+========================================================= */
+
+.fcrSegmentToolbar {
+    background: #ffffff;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid #dbe3ea;
+    box-shadow: 0 0.15rem 0.6rem rgba(0, 0, 0, 0.04);
+}
+
+.fcrSegmentLeft {
+    gap: 0.75rem;
+}
+
+
+/* SEGMENT BUTTON */
+
+.fcrSegmentToolbar .sapMSegB {
+    border-radius: 0.55rem;
+    overflow: hidden;
+}
+
+.fcrSegmentToolbar .sapMSegBBtn .sapMBtnInner {
+    height: 2.3rem;
+}
+
+.fcrSegmentToolbar .sapMSegBBtnSel .sapMBtnInner {
+    background: linear-gradient( 135deg, #0284c7 0%, #0369a1 100%);
+    color: #ffffff;
+}
+
+
+/* =========================================================
+   CONTENT AREA
+========================================================= */
+
+.fcrContentSection {
+    position: relative;
+    z-index: 1;
+    margin-top: 0.5rem;
+}
+
+
+/* =========================================================
+   INPUTS
+========================================================= */
+
+.sapUiSizeCompact .fcrPage .sapMInputBaseInner,
+.sapUiSizeCompact .fcrPage .sapMSlt,
+.sapUiSizeCompact .fcrPage .sapMMultiInputBorder {
+    height: 2.2rem;
+    border-radius: 0.45rem;
+    border: 1px solid #cbd5e1;
+    transition: all 0.2s ease;
+}
+
+.sapUiSizeCompact .fcrPage .sapMInputBaseInner:hover,
+.sapUiSizeCompact .fcrPage .sapMSlt:hover,
+.sapUiSizeCompact .fcrPage .sapMMultiInputBorder:hover {
+    border-color: #94a3b8;
+}
+
+.sapUiSizeCompact .fcrPage .sapMInputBaseInner:focus,
+.sapUiSizeCompact .fcrPage .sapMSlt:focus {
+    border-color: #0284c7;
+    box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.12);
+}
+
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.fcrPage .sapMBtn {
+    border-radius: 0.5rem;
+}
+
+.fcrPage .sapMBtnEmphasized .sapMBtnInner {
+    background: linear-gradient( 135deg, #0284c7 0%, #0369a1 100%);
+    border: none;
+}
+
+
+/* =========================================================
+   TABLE / PANEL
+========================================================= */
+
+.fcrTabs,
+.fcrChartPanel,
+.sapUiTable {
+    background: #ffffff;
+    border-radius: 0.8rem;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    box-shadow: 0 0.15rem 0.5rem rgba(0, 0, 0, 0.03);
+}
+
+
+/* =========================================================
+   SCROLL FIX
+========================================================= */
+
+.sapMPageEnableScrolling {
+    scroll-behavior: smooth;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 900px) {
+    .fcrParamBar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .fcrFilterRow {
+        width: 100%;
+    }
+    .fcrActionArea {
+        width: 100%;
+        justify-content: flex-end;
+    }
+    .fcrFieldCc,
+    .fcrFieldFy,
+    .fcrFieldQtr,
+    .fcrFieldPc,
+    .fcrFieldGlg {
+        width: 100%;
+    }
+    .fcrSegmentToolbar {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    .fcrSegmentLeft {
+        width: 100%;
+    }
+}
+
+
+/* =========================================================
    GLOBAL & LAYOUT REFINEMENTS
 ========================================================= */
 
@@ -43,12 +352,41 @@
    PARAMETER SECTION
 ========================================================= */
 
+
+/*.fcrParamWrap {*/
+
+
+/*    background: #ffffff;*/
+
+
+/*    border-radius: 0.5rem;*/
+
+
+/*    border: 1px solid #e2e8f0;*/
+
+
+/*    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);*/
+
+
+/*}*/
+
 .fcrParamWrap {
+    position: relative;
+    z-index: 50;
     background: #ffffff;
     border-radius: 0.5rem;
     border: 1px solid #e2e8f0;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    transition: none;
 }
+/*.fcrParamWrap {*/
+/*    position: sticky;*/
+/*    top: 0;*/
+/*    z-index: 40;*/
+/*    background: #eef3f7;*/
+/*    padding-bottom: 0.5rem;*/
+/*    transition: transform 0.28s ease, opacity 0.28s ease;*/
+/*}*/
 
 .fcrParamHeader {
     min-height: 2.5rem;
@@ -427,9 +765,7 @@
     border-radius: 0.75rem;
     padding: 0.75rem 1rem;
     margin-bottom: 1rem;
-
     border: 1px solid #dbe3ea;
-
     box-shadow: 0 0.15rem 0.6rem rgba(0, 0, 0, 0.04);
 }
 
