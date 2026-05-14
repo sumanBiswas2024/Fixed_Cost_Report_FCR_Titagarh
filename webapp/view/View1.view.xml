@@ -72,174 +72,158 @@
 								<ObjectNumber number="{ui>/recordCount}"/>
 							</VBox>
 						</layout:Grid>
-						<IconTabBar selectedKey="{ui>/selectedTab}" class="fcrTabs" expandable="false" select=".onTabSelect">
-							<items>
-								<!-- ========================================================= -->
-								<!-- ALL TAB -->
-								<!-- ========================================================= -->
-								<IconTabFilter key="all" text="All" icon="sap-icon://table-view" iconColor="Positive">
-									<VBox class="fcrTabContent">
-										<!-- ========================================================= -->
-										<!-- TOOLBAR -->
-										<!-- ========================================================= -->
-										<Toolbar design="Transparent" class="fcrTableToolbar">
-											<Title text="All Fixed Cost" level="H3"/>
-											<ToolbarSpacer/>
-											<SearchField width="22rem" placeholder="Search (GL, text, group, year...)" liveChange=".onAllSearch" value="{ui>/allSearch}"
-												class="fcrToolbarSearch"/>
-											<Button icon="sap-icon://excel-attachment" tooltip="Export" press=".onExport" class="fcrToolbarExport"/>
-											<SegmentedButton selectedKey="{ui>/allViewMode}" selectionChange=".onViewModeChange" class="fcrViewSwitch">
-												<items>
-													<SegmentedButtonItem key="DETAIL" text="Details" icon="sap-icon://detail-view"/>
-													<SegmentedButtonItem key="SUMMARY" text="Summary" icon="sap-icon://vertical-bar-chart"/>
-												</items>
-											</SegmentedButton>
-										</Toolbar>
-										<!-- ========================================================= -->
-										<!-- DETAIL VIEW -->
-										<!-- ========================================================= -->
-										<Panel headerText="Details Output" expandable="true" expanded="true" class="fcrOutPanel" visible="{= ${ui>/allViewMode} === 'DETAIL' }">
-											<content>
-												<table:Table id="allDetailTable" rows="{fcr>/allDetailRows}" visibleRowCount="12" selectionMode="None" enableColumnReordering="true"
-													enableCellFilter="true" class="fcrUiTable">
-													<table:columns>
-														<table:Column width="7rem" sortProperty="glAccount" filterProperty="glAccount">
-															<table:label>
-																<Label text="G/L Acct"/>
-															</table:label>
-															<table:template>
-																<Text text="{fcr>glAccount}"/>
-															</table:template>
-														</table:Column>
-														<table:Column width="14rem" sortProperty="glName" filterProperty="glName">
-															<table:label>
-																<Label text="G/L Acct Long Text"/>
-															</table:label>
-															<table:template>
-																<Text text="{fcr>glName}"/>
-															</table:template>
-														</table:Column>
-														<table:Column width="18rem" sortProperty="glGroupText" filterProperty="glGroupText">
-															<table:label>
-																<Label text="G/L Group"/>
-															</table:label>
-															<table:template>
-																<Text text="{fcr>glGroupText}"/>
-															</table:template>
-														</table:Column>
-														<table:Column width="10rem" sortProperty="total" hAlign="End">
-															<table:label>
-																<Label text="Total"/>
-															</table:label>
-															<table:template>
-																<ObjectNumber number="{fcr>totalText}" state="{fcr>totalState}"/>
-															</table:template>
-														</table:Column>
-													</table:columns>
-												</table:Table>
-											</content>
-										</Panel>
-										<!-- ========================================================= -->
-										<!-- SUMMARY VIEW -->
-										<!-- ========================================================= -->
-										<Panel headerText="Summary Output" expandable="false" expanded="true" class="fcrOutPanel" visible="{= ${ui>/allViewMode} === 'SUMMARY' }">
-											<content>
-												<suite:ChartContainer id="allSummaryChartContainer" showFullScreen="true" showPersonalization="false" autoAdjustHeight="false"
-													showLegendButton="false" title="All Fixed Cost Summary" class="fcrChartContainer">
-													<suite:content>
-														<!-- ========================================================= -->
-														<!-- TABLE VIEW -->
-														<!-- ========================================================= -->
-														<suite:ChartContainerContent icon="sap-icon://table-chart" title="Table View">
-															<suite:content>
-																<table:Table id="allSummaryTable" rows="{fcr>/allSummaryRows}" visibleRowCount="8" selectionMode="None" enableColumnReordering="true"
-																	enableCellFilter="true" class="fcrUiTable">
-																	<table:columns>
-																		<table:Column width="10rem" sortProperty="glGroup" filterProperty="glGroup">
-																			<table:label>
-																				<Label text="G/L Group"/>
-																			</table:label>
-																			<table:template>
-																				<Text text="{fcr>glGroup}"/>
-																			</table:template>
-																		</table:Column>
-																		<table:Column width="20rem" sortProperty="groupName" filterProperty="groupName">
-																			<table:label>
-																				<Label text="G/L Group Text"/>
-																			</table:label>
-																			<table:template>
-																				<Text text="{fcr>groupName}"/>
-																			</table:template>
-																		</table:Column>
-																		<table:Column width="10rem" sortProperty="total" hAlign="End">
-																			<table:label>
-																				<Label text="Total"/>
-																			</table:label>
-																			<table:template>
-																				<ObjectNumber number="{fcr>totalText}" state="{fcr>totalState}"/>
-																			</table:template>
-																		</table:Column>
-																	</table:columns>
-																</table:Table>
-															</suite:content>
-														</suite:ChartContainerContent>
-														<!-- ========================================================= -->
-														<!-- CHART VIEW -->
-														<!-- ========================================================= -->
-														<suite:ChartContainerContent icon="sap-icon://bar-chart" title="Chart View">
-															<suite:content>
-																<viz:VizFrame id="allSummaryChart" width="100%" height="420px" vizType="column" uiConfig="{applicationSet:'fiori'}">
-																	<viz:dependents>
-																		<viz:Popover id="allSummaryPopover"/>
-																	</viz:dependents>
-																	<viz:dataset>
-																		<viz.data:FlattenedDataset data="{fcr>/allSummaryChart}">
-																			<viz.data:dimensions>
-																				<viz.data:DimensionDefinition name="GL Account" value="{fcr>name}"/>
-																			</viz.data:dimensions>
-																			<viz.data:measures>
-																				<viz.data:MeasureDefinition name="Total" value="{fcr>value}"/>
-																			</viz.data:measures>
-																		</viz.data:FlattenedDataset>
-																	</viz:dataset>
-																	<viz:feeds>
-																		<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Total"/>
-																		<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="GL Account"/>
-																	</viz:feeds>
-																</viz:VizFrame>
-															</suite:content>
-														</suite:ChartContainerContent>
-													</suite:content>
-												</suite:ChartContainer>
-											</content>
-										</Panel>
-									</VBox>
-								</IconTabFilter>
-								<!-- ========================================================= -->
-								<!-- TOP 5 TAB -->
-								<!-- ========================================================= -->
-								<IconTabFilter key="top" text="Top 5 GL" icon="sap-icon://vertical-bar-chart" iconColor="Critical">
-									<VBox class="fcrTabContent">
-										<!-- ========================================================= -->
-										<!-- TOOLBAR -->
-										<!-- ========================================================= -->
-										<Toolbar design="Transparent" class="fcrTableToolbar">
-											<Title text="Top 5 GL (by Total)" level="H3"/>
-											<ToolbarSpacer/>
-											<SearchField width="22rem" placeholder="Search (GL, text, group, year...)" liveChange=".onTopSearch" value="{ui>/topSearch}"
-												class="fcrToolbarSearch"/>
-											<Button icon="sap-icon://excel-attachment" tooltip="Export" press=".onExport" class="fcrToolbarExport"/>
-											<SegmentedButton selectedKey="{ui>/topViewMode}" selectionChange=".onViewModeChange" class="fcrViewSwitch">
-												<items>
-													<SegmentedButtonItem key="DETAIL" text="Details" icon="sap-icon://detail-view"/>
-													<SegmentedButtonItem key="SUMMARY" text="Summary" icon="sap-icon://vertical-bar-chart"/>
-												</items>
-											</SegmentedButton>
-										</Toolbar>
-										<!-- ========================================================= -->
-										<!-- DETAIL VIEW -->
-										<!-- ========================================================= -->
-										<Panel headerText="Details Output" expandable="true" expanded="true" class="fcrOutPanel" visible="{= ${ui>/topViewMode} === 'DETAIL' }">
+						<HBox justifyContent="SpaceBetween" alignItems="Center" class="fcrSegmentToolbar">
+							<!-- LEFT SIDE -->
+							<HBox alignItems="Center" class="fcrSegmentLeft">
+								<!-- ALL / TOP5 -->
+								<SegmentedButton selectedKey="{ui>/selectedTab}" selectionChange="onSegmentTabChange">
+									<items>
+										<SegmentedButtonItem key="all" text="All Details" icon="sap-icon://detail-view"/>
+										<SegmentedButtonItem key="top" text="Top 5 GL" icon="sap-icon://vertical-bar-chart"/>
+									</items>
+								</SegmentedButton>
+								<!-- DETAIL / SUMMARY -->
+								<SegmentedButton selectedKey="{= ${ui>/selectedTab} === 'all' ? ${ui>/allViewMode} : ${ui>/topViewMode} }"
+									selectionChange="onViewModeChange" class="sapUiSmallMarginBegin">
+									<items>
+										<SegmentedButtonItem key="DETAIL" text="Details" icon="sap-icon://table-view"/>
+										<SegmentedButtonItem key="SUMMARY" text="Summary" icon="sap-icon://business-objects-experience"/>
+									</items>
+								</SegmentedButton>
+							</HBox>
+							<!-- RIGHT SIDE -->
+							<HBox alignItems="Center">
+								<SearchField width="18rem" placeholder="Search..." liveChange="onUniversalSearch"/>
+								<Button icon="sap-icon://excel-attachment" tooltip="Export" class="sapUiTinyMarginBegin" press="onExport"/>
+							</HBox>
+						</HBox>
+					</VBox>
+					<!-- ALL DETAILS -->
+					<VBox visible="{= ${ui>/selectedTab} === 'all' }">
+						<!-- DETAIL TABLE -->
+						<VBox visible="{= ${ui>/allViewMode} === 'DETAIL' }">
+							<Panel headerText="All Details" expandable="true" expanded="true" class="fcrOutPanel" visible="{= ${ui>/allViewMode} === 'DETAIL' }">
+								<content>
+									<table:Table id="allDetailTable" rows="{fcr>/allDetailRows}" visibleRowCount="12" selectionMode="None" enableColumnReordering="true"
+										enableCellFilter="true" class="fcrUiTable">
+										<table:columns>
+											<table:Column width="7rem" sortProperty="glAccount" filterProperty="glAccount">
+												<table:label>
+													<Label text="G/L Acct"/>
+												</table:label>
+												<table:template>
+													<Text text="{fcr>glAccount}"/>
+												</table:template>
+											</table:Column>
+											<table:Column width="14rem" sortProperty="glName" filterProperty="glName">
+												<table:label>
+													<Label text="G/L Acct Long Text"/>
+												</table:label>
+												<table:template>
+													<Text text="{fcr>glName}"/>
+												</table:template>
+											</table:Column>
+											<table:Column width="18rem" sortProperty="glGroupText" filterProperty="glGroupText">
+												<table:label>
+													<Label text="G/L Group"/>
+												</table:label>
+												<table:template>
+													<Text text="{fcr>glGroupText}"/>
+												</table:template>
+											</table:Column>
+											<table:Column width="10rem" sortProperty="total" hAlign="End">
+												<table:label>
+													<Label text="Total"/>
+												</table:label>
+												<table:template>
+													<ObjectNumber number="{fcr>totalText}" state="{fcr>totalState}"/>
+												</table:template>
+											</table:Column>
+										</table:columns>
+									</table:Table>
+								</content>
+							</Panel>
+						</VBox>
+						<!-- SUMMARY TABLE -->
+						<VBox visible="{= ${ui>/allViewMode} === 'SUMMARY' }">
+							<Panel headerText="All Summary" expandable="false" expanded="true" class="fcrOutPanel" visible="{= ${ui>/allViewMode} === 'SUMMARY' }">
+								<content>
+									<suite:ChartContainer id="allSummaryChartContainer" showFullScreen="true" showPersonalization="false" autoAdjustHeight="false"
+										showLegendButton="false" title="All Fixed Cost Summary" class="fcrChartContainer">
+										<suite:content>
+											<!-- ========================================================= -->
+											<!-- TABLE VIEW -->
+											<!-- ========================================================= -->
+											<suite:ChartContainerContent icon="sap-icon://table-chart" title="Table View">
+												<suite:content>
+													<table:Table id="allSummaryTable" rows="{fcr>/allSummaryRows}" visibleRowCount="8" selectionMode="None" enableColumnReordering="true"
+														enableCellFilter="true" class="fcrUiTable">
+														<table:columns>
+															<table:Column width="10rem" sortProperty="glGroup" filterProperty="glGroup">
+																<table:label>
+																	<Label text="G/L Group"/>
+																</table:label>
+																<table:template>
+																	<Text text="{fcr>glGroup}"/>
+																</table:template>
+															</table:Column>
+															<table:Column width="20rem" sortProperty="groupName" filterProperty="groupName">
+																<table:label>
+																	<Label text="G/L Group Text"/>
+																</table:label>
+																<table:template>
+																	<Text text="{fcr>groupName}"/>
+																</table:template>
+															</table:Column>
+															<table:Column width="10rem" sortProperty="total" hAlign="End">
+																<table:label>
+																	<Label text="Total"/>
+																</table:label>
+																<table:template>
+																	<ObjectNumber number="{fcr>totalText}" state="{fcr>totalState}"/>
+																</table:template>
+															</table:Column>
+														</table:columns>
+													</table:Table>
+												</suite:content>
+											</suite:ChartContainerContent>
+											<!-- ========================================================= -->
+											<!-- CHART VIEW -->
+											<!-- ========================================================= -->
+											<suite:ChartContainerContent icon="sap-icon://bar-chart" title="Chart View">
+												<suite:content>
+													<viz:VizFrame id="allSummaryChart" width="100%" height="420px" vizType="column" uiConfig="{applicationSet:'fiori'}">
+														<viz:dependents>
+															<viz:Popover id="allSummaryPopover"/>
+														</viz:dependents>
+														<viz:dataset>
+															<viz.data:FlattenedDataset data="{fcr>/allSummaryChart}">
+																<viz.data:dimensions>
+																	<viz.data:DimensionDefinition name="GL Account" value="{fcr>name}"/>
+																</viz.data:dimensions>
+																<viz.data:measures>
+																	<viz.data:MeasureDefinition name="Total" value="{fcr>value}"/>
+																</viz.data:measures>
+															</viz.data:FlattenedDataset>
+														</viz:dataset>
+														<viz:feeds>
+															<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Total"/>
+															<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="GL Account"/>
+														</viz:feeds>
+													</viz:VizFrame>
+												</suite:content>
+											</suite:ChartContainerContent>
+										</suite:content>
+									</suite:ChartContainer>
+								</content>
+							</Panel>
+						</VBox>
+					</VBox>
+					<!-- TOP 5 -->
+					<VBox visible="{= ${ui>/selectedTab} === 'top' }">
+						<!-- DETAIL TABLE -->
+						<VBox visible="{= ${ui>/topViewMode} === 'DETAIL' }">
+							<Panel headerText="Top 4 Details" expandable="true" expanded="true" class="fcrOutPanel" visible="{= ${ui>/topViewMode} === 'DETAIL' }">
 											<content>
 												<table:Table id="topDetailTable" rows="{fcr>/topDetailRows}" visibleRowCount="8" selectionMode="None" enableColumnReordering="true"
 													enableCellFilter="true" class="fcrUiTable">
@@ -266,10 +250,10 @@
 												</table:Table>
 											</content>
 										</Panel>
-										<!-- ========================================================= -->
-										<!-- SUMMARY VIEW -->
-										<!-- ========================================================= -->
-										<Panel headerText="Summary Output" expandable="false" expanded="true" class="fcrOutPanel" visible="{= ${ui>/topViewMode} === 'SUMMARY' }">
+						</VBox>
+						<!-- SUMMARY TABLE -->
+						<VBox visible="{= ${ui>/topViewMode} === 'SUMMARY' }">
+							<Panel headerText="Top 5 Summary" expandable="false" expanded="true" class="fcrOutPanel" visible="{= ${ui>/topViewMode} === 'SUMMARY' }">
 											<content>
 												<suite:ChartContainer id="topSummaryChartContainer" showFullScreen="true" showPersonalization="false" autoAdjustHeight="false"
 													showLegendButton="false" title="Top 5 GL Summary" class="fcrChartContainer">
@@ -326,10 +310,7 @@
 												</suite:ChartContainer>
 											</content>
 										</Panel>
-									</VBox>
-								</IconTabFilter>
-							</items>
-						</IconTabBar>
+						</VBox>
 					</VBox>
 				</content>
 			</Page>

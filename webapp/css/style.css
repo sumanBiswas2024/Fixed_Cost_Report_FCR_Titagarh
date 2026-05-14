@@ -421,3 +421,32 @@
     background: #f8fafc !important;
     border-bottom: 1px solid #e2e8f0 !important;
 }
+
+.fcrSegmentToolbar {
+    background: #ffffff;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+
+    border: 1px solid #dbe3ea;
+
+    box-shadow: 0 0.15rem 0.6rem rgba(0, 0, 0, 0.04);
+}
+
+.fcrSegmentLeft {
+    gap: 0.75rem;
+}
+
+.fcrSegmentToolbar .sapMSegB {
+    border-radius: 0.55rem;
+    overflow: hidden;
+}
+
+.fcrSegmentToolbar .sapMSegBBtn .sapMBtnInner {
+    height: 2.3rem;
+}
+
+.fcrSegmentToolbar .sapMSegBBtnSel .sapMBtnInner {
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+    color: #ffffff;
+}

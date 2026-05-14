@@ -209,12 +209,35 @@ sap.ui.define([
 			}.bind(this), 0);
 		},
 
-		onViewModeChange: function() {
-			setTimeout(function() {
-				if (!this.bIsDestroyed) {
-					this._updateKpisFromActive();
-				}
-			}.bind(this), 0);
+		onViewModeChange: function(oEvent) {
+
+			var sKey = oEvent.getParameter("item").getKey();
+
+			var oUi = this.getView().getModel("ui");
+
+			if (oUi.getProperty("/selectedTab") === "all") {
+
+				oUi.setProperty("/allViewMode", sKey);
+
+			} else {
+
+				oUi.setProperty("/topViewMode", sKey);
+
+			}
+
+			this._updateKpisFromActive();
+
+		},
+		onSegmentTabChange: function(oEvent) {
+
+			var sKey = oEvent.getParameter("item").getKey();
+
+			this.getView()
+				.getModel("ui")
+				.setProperty("/selectedTab", sKey);
+
+			this._updateKpisFromActive();
+
 		},
 
 		onAllSearch: function(oEvent) {
