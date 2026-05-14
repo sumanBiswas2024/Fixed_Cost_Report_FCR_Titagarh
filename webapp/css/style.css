@@ -723,6 +723,7 @@
 
 .fcrViewSwitch .sapMSegBBtn {
     border-radius: 8px !important;
+    flex-shrink: 0 !important;
 }
 
 .fcrViewSwitch .sapMSegBBtnSel {
@@ -732,6 +733,25 @@
     padding: 0 1rem;
     border: none !important;
     box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
+}
+/* Force the individual buttons to size based on their content */
+.fcrViewSwitch .sapMSegBBtn {
+    width: auto !important;
+    max-width: none !important;
+    flex: 1 0 auto !important;
+}
+
+/* Force the inner wrapper to expand to fit the icon + text */
+.fcrViewSwitch .sapMSegBBtnInner {
+    width: max-content !important;
+    min-width: max-content !important;
+    padding: 0 0.75rem !important;
+}
+/* Override UI5's default ellipsis (the 3 dots) */
+.fcrViewSwitch .sapMSegBBtn .sapMBtnContent {
+    overflow: visible !important;
+    text-overflow: clip !important;
+    width: auto !important;
 }
 
 .fcrViewSwitch .sapMSegBBtn .sapMSegBBtnSel:hover .sapMSegBBtnInner {
@@ -785,4 +805,8 @@
 .fcrSegmentToolbar .sapMSegBBtnSel .sapMBtnInner {
     background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
     color: #ffffff;
+}
+
+.fcrSelectorContent {
+	width: 100%;
 }

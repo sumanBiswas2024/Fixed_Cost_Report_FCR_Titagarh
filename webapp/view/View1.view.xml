@@ -61,7 +61,8 @@
 					<!-- =====================================================
      STICKY KPI + TABS SECTION
 ===================================================== -->
-					<VBox class="fcrStickySection">
+					<!--<VBox class="fcrStickySection">-->
+					<VBox class="">
 						<!-- KPI CARDS -->
 						<!--<HBox class="fcrKpiStickyWrap" wrap="Wrap">-->
 							<layout:Grid defaultSpan="XL3 L3 M6 S12" hSpacing="1" vSpacing="1" class="fcrKpiGrid">
