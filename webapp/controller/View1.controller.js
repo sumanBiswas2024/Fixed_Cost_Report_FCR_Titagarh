@@ -88,6 +88,7 @@ sap.ui.define([
 				allViewMode: "DETAIL",
 				topViewMode: "DETAIL",
 				paramsExpanded: true,
+				globalSearch: "",
 				allSearch: "",
 				topSearch: "",
 				companyCodeState: "None",
@@ -135,7 +136,7 @@ sap.ui.define([
 		},
 
 		onAfterRendering: function() {
-			 this._configureCharts();
+			this._configureCharts();
 		},
 
 		onSearch: function() {
@@ -415,8 +416,16 @@ sap.ui.define([
 
 			this._updateTotalsFromPivot(aDetailRows, bMarkRun);
 			this._updatePeriodText(oFilters, aPeriods);
-			this._applyUniversalSearch("all", this.getView().getModel("ui").getProperty("/allSearch") || "");
-			this._applyUniversalSearch("top", this.getView().getModel("ui").getProperty("/topSearch") || "");
+			// this._applyUniversalSearch("all", this.getView().getModel("ui").getProperty("/allSearch") || "");
+			// this._applyUniversalSearch("top", this.getView().getModel("ui").getProperty("/topSearch") || "");
+			// this._refreshChartStyling();
+			// this._updateKpisFromActive();
+			// --- UPDATE THESE TWO LINES ---
+			var sGlobalQuery = this.getView().getModel("ui").getProperty("/globalSearch") || "";
+			this._applyUniversalSearch("all", sGlobalQuery);
+			this._applyUniversalSearch("top", sGlobalQuery);
+			// ------------------------------
+
 			this._refreshChartStyling();
 			this._updateKpisFromActive();
 		},
@@ -770,11 +779,25 @@ sap.ui.define([
 				" | Q: " + (aQ.join(", ") || "-") + " | PC: " + (aPc.join(", ") || "All") + " | GL: " + (aGlg.join(", ") || "All");
 			this.getView().getModel("ui").setProperty("/selectedValuesText", sText);
 		},
+		onUniversalSearch: function(oEvent) {
+			// 1. Get the search string
+			var sQuery = oEvent.getParameter("newValue") || "";
 
+			// 2. Save it to the model so it persists across refreshes
+			this.getView().getModel("ui").setProperty("/globalSearch", sQuery);
+
+			// 3. Apply the search to BOTH tabs (All and Top 5) so it's ready when the user switches
+			this._applyUniversalSearch("all", sQuery);
+			this._applyUniversalSearch("top", sQuery);
+
+			// 4. Recalculate the KPIs (Actual Cost, Variance, etc.) based on the new filtered rows
+			this._updateKpisFromActive();
+		},
 		_clearSearch: function() {
 			var oUi = this.getView().getModel("ui");
 			oUi.setProperty("/allSearch", "");
 			oUi.setProperty("/topSearch", "");
+			oUi.setProperty("/globalSearch", ""); // Clear unified search state
 			this._applyUniversalSearch("all", "");
 			this._applyUniversalSearch("top", "");
 		},

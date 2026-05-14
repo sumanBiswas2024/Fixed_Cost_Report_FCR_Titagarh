@@ -76,7 +76,8 @@
 								</VBox>
 								<VBox class="fcrKpi fcrKpiV">
 									<Text text="Max GL Total"/>
-									<ObjectNumber number="{ui>/totalVariance}" unit="INR" state="{ui>/varianceState}"/>
+									<!--<ObjectNumber number="{ui>/totalVariance}" unit="INR" state="{ui>/varianceState}"/>-->
+									<ObjectNumber number="{ui>/totalVariance}" unit="INR" />
 								</VBox>
 								<VBox class="fcrKpi fcrKpiP">
 									<Text text="Records"/>
