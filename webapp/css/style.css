@@ -18,8 +18,6 @@
 ========================================================= */
 
 
-
-
 /* COLLAPSED */
 
 
@@ -207,6 +205,7 @@
     position: relative;
     z-index: 1;
     margin-top: 0.5rem;
+    /*min-height: 400px;*/
 }
 
 
@@ -379,13 +378,29 @@
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
     transition: none;
 }
+
+
 /*.fcrParamWrap {*/
+
+
 /*    position: sticky;*/
+
+
 /*    top: 0;*/
+
+
 /*    z-index: 40;*/
+
+
 /*    background: #eef3f7;*/
+
+
 /*    padding-bottom: 0.5rem;*/
+
+
 /*    transition: transform 0.28s ease, opacity 0.28s ease;*/
+
+
 /*}*/
 
 .fcrParamHeader {
@@ -734,20 +749,28 @@
     border: none !important;
     box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
 }
+
+
 /* Force the individual buttons to size based on their content */
+
 .fcrViewSwitch .sapMSegBBtn {
     width: auto !important;
     max-width: none !important;
     flex: 1 0 auto !important;
 }
 
+
 /* Force the inner wrapper to expand to fit the icon + text */
+
 .fcrViewSwitch .sapMSegBBtnInner {
     width: max-content !important;
     min-width: max-content !important;
     padding: 0 0.75rem !important;
 }
+
+
 /* Override UI5's default ellipsis (the 3 dots) */
+
 .fcrViewSwitch .sapMSegBBtn .sapMBtnContent {
     overflow: visible !important;
     text-overflow: clip !important;
@@ -773,6 +796,43 @@
     border: 1px solid #e2e8f0 !important;
     border-radius: 8px !important;
     box-shadow: none !important;
+}
+
+
+/* =========================================================
+   SCROLL JUMP FIX (Prevents layout collapsing on tab switch)
+========================================================= */
+
+
+/* Give the main wrapper a minimum height so it doesn't shrink when the table is removed */
+
+.fcrContentSection {
+    min-height: 600px;
+}
+
+
+/* Ensure the panels keep a stable height while the chart is rendering inside */
+
+.fcrOutPanel {
+    min-height: 550px;
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* Allow the panel content to fill the space */
+
+.fcrOutPanel .sapMPanelContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* Force the ChartContainer to fill the stable panel height */
+
+.fcrChartContainer {
+    min-height: 500px;
 }
 
 .fcrOutPanel .sapMPanelWrappingDivTb {
@@ -808,5 +868,33 @@
 }
 
 .fcrSelectorContent {
-	width: 100%;
+    width: 100%;
+}
+
+
+/* =========================================================
+   MODE BLOCK (Labels above Segmented Buttons)
+========================================================= */
+
+.fcrModeBlock {
+    gap: 0.35rem;
+    /* Pushes the button slightly away from the label */
+}
+
+.fcrModeBlock .sapMLabel {
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    color: #475569 !important;
+    margin-left: 0.25rem;
+    /* Aligns the text visually with the edge of the button */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+
+/* Ensure the left side doesn't get squished by the search bar */
+
+.fcrSegmentLeft {
+    gap: 1rem;
+    flex-shrink: 0;
 }

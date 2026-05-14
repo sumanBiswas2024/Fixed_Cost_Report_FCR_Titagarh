@@ -65,48 +65,50 @@
 					<VBox class="">
 						<!-- KPI CARDS -->
 						<!--<HBox class="fcrKpiStickyWrap" wrap="Wrap">-->
-							<layout:Grid defaultSpan="XL3 L3 M6 S12" hSpacing="1" vSpacing="1" class="fcrKpiGrid">
-								<VBox class="fcrKpi fcrKpiA">
-									<Text text="Actual Fixed Cost"/>
-									<ObjectNumber number="{ui>/totalActual}" unit="INR" state="Information"/>
-								</VBox>
-								<VBox class="fcrKpi fcrKpiB">
-									<Text text="Budget (not bound)"/>
-									<ObjectNumber number="{ui>/totalBudget}" unit="INR"/>
-								</VBox>
-								<VBox class="fcrKpi fcrKpiV">
-									<Text text="Max GL Total"/>
-									<!--<ObjectNumber number="{ui>/totalVariance}" unit="INR" state="{ui>/varianceState}"/>-->
-									<ObjectNumber number="{ui>/totalVariance}" unit="INR" />
-								</VBox>
-								<VBox class="fcrKpi fcrKpiP">
-									<Text text="Records"/>
-									<ObjectNumber number="{ui>/recordCount}"/>
-								</VBox>
-							</layout:Grid>
+						<layout:Grid defaultSpan="XL3 L3 M6 S12" hSpacing="1" vSpacing="1" class="fcrKpiGrid">
+							<VBox class="fcrKpi fcrKpiA">
+								<Text text="Actual Fixed Cost"/>
+								<ObjectNumber number="{ui>/totalActual}" unit="INR" state="Information"/>
+							</VBox>
+							<VBox class="fcrKpi fcrKpiB">
+								<Text text="Budget (not bound)"/>
+								<ObjectNumber number="{ui>/totalBudget}" unit="INR"/>
+							</VBox>
+							<VBox class="fcrKpi fcrKpiV">
+								<Text text="Max GL Total"/>
+								<!--<ObjectNumber number="{ui>/totalVariance}" unit="INR" state="{ui>/varianceState}"/>-->
+								<ObjectNumber number="{ui>/totalVariance}" unit="INR"/>
+							</VBox>
+							<VBox class="fcrKpi fcrKpiP">
+								<Text text="Records"/>
+								<ObjectNumber number="{ui>/recordCount}"/>
+							</VBox>
+						</layout:Grid>
 						<!--</HBox>-->
 						<!-- SEGMENT TOOLBAR -->
-						<HBox justifyContent="SpaceBetween" alignItems="Center" class="fcrSegmentToolbar">
-							<!-- LEFT -->
-							<HBox alignItems="Center" class="fcrSegmentLeft">
-								<!-- ALL / TOP5 -->
-								<SegmentedButton selectedKey="{ui>/selectedTab}" selectionChange="onSegmentTabChange" class="fcrViewSwitch">
-									<items>
-										<SegmentedButtonItem key="all" text="All Details" icon="sap-icon://detail-view"/>
-										<SegmentedButtonItem key="top" text="Top 5 GL" icon="sap-icon://vertical-bar-chart"/>
-									</items>
-								</SegmentedButton>
-								<!-- DETAIL / SUMMARY -->
-								<SegmentedButton selectedKey="{= ${ui>/selectedTab} === 'all' ? ${ui>/allViewMode} : ${ui>/topViewMode} }"
-									selectionChange="onViewModeChange" class="fcrViewSwitch sapUiSmallMarginBegin">
-									<items>
-										<SegmentedButtonItem key="DETAIL" text="Details" icon="sap-icon://table-view"/>
-										<SegmentedButtonItem key="SUMMARY" text="Summary" icon="sap-icon://business-objects-experience"/>
-									</items>
-								</SegmentedButton>
+						<HBox justifyContent="SpaceBetween" alignItems="End" class="fcrSegmentToolbar">
+							<HBox alignItems="End" class="fcrSegmentLeft">
+								<VBox class="fcrModeBlock">
+									<Label text="Report Type"/>
+									<SegmentedButton selectedKey="{ui>/selectedTab}" selectionChange="onSegmentTabChange" class="fcrViewSwitch">
+										<items>
+											<SegmentedButtonItem key="all" text="All Details" icon="sap-icon://detail-view"/>
+											<SegmentedButtonItem key="top" text="Top 5 GL" icon="sap-icon://vertical-bar-chart"/>
+										</items>
+									</SegmentedButton>
+								</VBox>
+								<VBox class="fcrModeBlock">
+									<Label text="View"/>
+									<SegmentedButton selectedKey="{= ${ui>/selectedTab} === 'all' ? ${ui>/allViewMode} : ${ui>/topViewMode} }"
+										selectionChange="onViewModeChange" class="fcrViewSwitch">
+										<items>
+											<SegmentedButtonItem key="DETAIL" text="Details" icon="sap-icon://table-view"/>
+											<SegmentedButtonItem key="SUMMARY" text="Summary" icon="sap-icon://business-objects-experience"/>
+										</items>
+									</SegmentedButton>
+								</VBox>
 							</HBox>
-							<!-- RIGHT -->
-							<HBox alignItems="Center">
+							<HBox alignItems="End">
 								<SearchField width="18rem" placeholder="Search..." liveChange="onUniversalSearch" class="fcrToolbarSearch"/>
 								<Button icon="sap-icon://excel-attachment" tooltip="Export" class="fcrToolbarExport sapUiTinyMarginBegin" press="onExport"/>
 							</HBox>

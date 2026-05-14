@@ -225,6 +225,11 @@ sap.ui.define([
 
 			}
 
+			// Drop focus from the button to prevent browser scroll-anchoring jumps
+			if (document.activeElement) {
+				document.activeElement.blur();
+			}
+
 			this._updateKpisFromActive();
 
 		},
