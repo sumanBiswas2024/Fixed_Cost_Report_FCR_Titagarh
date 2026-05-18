@@ -35,10 +35,15 @@
     "blockPushLevel": "Error"
   },
   "build": {
-    "buildRequired": true,
+    "buildRequired": false,
     "sourceFolder": "webapp",
     "targetFolder": "dist",
     "excludedFolders": [],
-    "excludedFiles": []
+    "excludedFiles": [],
+    "lastBuildDateTime": "Mon, 18 May 2026 12:38:59 GMT"
+  },
+  "deploy": {
+    "destination": "DE1",
+    "name": "ZBSP_FCR"
   }
 }

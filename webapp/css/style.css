@@ -48,6 +48,7 @@
 
 .fcrField {
     gap: 0.2rem;
+    border-radius:1.5rem;
 }
 
 .fcrField .sapMLabel {
@@ -134,15 +135,15 @@
 
 /* KPI CARD */
 
-.fcrKpi {
-    min-height: 5.5rem;
-    padding: 1rem 1.2rem;
-    border-radius: 0.8rem;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 0.2rem 0.7rem rgba(0, 0, 0, 0.05);
-    flex: 1;
-}
+/*.fcrKpi {*/
+/*    min-height: 5.5rem;*/
+/*    padding: 1rem 1.2rem;*/
+/*    border-radius: 0.8rem;*/
+/*    background: #ffffff;*/
+/*    border: 1px solid #e2e8f0;*/
+/*    box-shadow: 0 0.2rem 0.7rem rgba(0, 0, 0, 0.05);*/
+/*    flex: 1;*/
+/*}*/
 
 
 /* KPI TITLE */
@@ -525,44 +526,217 @@
    KPI CARDS: COMPACT
 ========================================================= */
 
+
+/*.fcrKpiGrid {*/
+
+
+/*    margin-top: 0;*/
+
+
+/*}*/
+
+
+/*.fcrKpi {*/
+
+
+/*    min-height: 4.8rem;*/
+
+
+/*    padding: 0.75rem 1rem;*/
+
+
+/*    border-radius: 0.5rem;*/
+
+
+/*    background: #ffffff;*/
+
+
+/*    border: 1px solid #e2e8f0;*/
+
+
+/*}*/
+
+
+/*.fcrKpi .sapMText {*/
+
+
+/*    font-size: 0.7rem;*/
+
+
+/*    font-weight: 700;*/
+
+
+/*    color: #94a3b8;*/
+
+
+/*    text-transform: uppercase;*/
+
+
+/*}*/
+
+
+/*.fcrKpi .sapMObjectNumberText {*/
+
+
+/*    font-size: 1.3rem !important;*/
+
+
+/*    font-weight: 700;*/
+
+
+/*}*/
+
+
+/*.fcrKpiA {*/
+
+
+/*    border-left: 3px solid #0284c7;*/
+
+
+/*}*/
+
+
+/*.fcrKpiB {*/
+
+
+/*    border-left: 3px solid #f59e0b;*/
+
+
+/*}*/
+
+
+/*.fcrKpiV {*/
+
+
+/*    border-left: 3px solid #dc2626;*/
+
+
+/*}*/
+
+
+/*.fcrKpiP {*/
+
+
+/*    border-left: 3px solid #059669;*/
+
+
+/*}*/
+
+
+/* =========================================================
+   KPI CARDS: COLORED DASHBOARD WITH HOVER ANIMATION
+========================================================= */
+
 .fcrKpiGrid {
     margin-top: 0;
 }
 
+
+/* 1. Base Card Styling & Animation Ready */
+
 .fcrKpi {
+    /*min-height: 4.2rem;*/
+    /*padding: 0.85rem 1.25rem;*/
+    /*border-radius: 0.75rem;*/
+    /*border: 1px solid rgba(255, 255, 255, 0.4);*/
+    /* Soft inner glow border */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
+    /* Smooth transition for all hover changes */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
     min-height: 4.8rem;
     padding: 0.75rem 1rem;
-    border-radius: 0.5rem;
+    border-radius: 3rem;
     background: #ffffff;
     border: 1px solid #e2e8f0;
 }
 
+
+/* 2. The Hover Animation Effect */
+
+.fcrKpi:hover {
+    /* Lifts up and scales slightly forward */
+    transform: translateY(2px);
+    /* Deepens and widens the shadow */
+    /*box-shadow: 0 15px 25px rgba(0, 0, 0, 0.12);*/
+    /* Ensures the hovered card stays above others */
+    z-index: 10;
+}
+
+
+/* 3. Card A (Actual Cost) - Sky Blue Theme */
+
+.fcrKpiA {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border-left: 4px solid #0ea5e9;
+}
+
+.fcrKpiA:hover {
+    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+}
+
+
+/* 4. Card B (Budget) - Amber Theme */
+
+.fcrKpiB {
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    border-left: 4px solid #f59e0b;
+}
+
+.fcrKpiB:hover {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+}
+
+
+/* 5. Card V (Variance) - Rose/Red Theme */
+
+.fcrKpiV {
+    background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
+    border-left: 4px solid #f43f5e;
+}
+
+.fcrKpiV:hover {
+    background: linear-gradient(135deg, #ffe4e6 0%, #fecdd3 100%);
+}
+
+
+/* 6. Card P (Records) - Emerald Theme */
+
+.fcrKpiP {
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    border-left: 4px solid #10b981;
+}
+
+.fcrKpiP:hover {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+}
+
+
+/* 7. Typography Adjustments for Colored Backgrounds */
+
 .fcrKpi .sapMText {
-    font-size: 0.7rem;
+    font-size: 0.72rem;
     font-weight: 700;
-    color: #94a3b8;
+    color: #475569;
+    /* Slate grey for readability on colors */
     text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.35rem;
 }
 
 .fcrKpi .sapMObjectNumberText {
-    font-size: 1.3rem !important;
-    font-weight: 700;
+    font-size: 1.55rem !important;
+    font-weight: 800;
+    color: #0f172a !important;
+    /* Deep slate for high contrast */
+    line-height: 1.1;
 }
 
-.fcrKpiA {
-    border-left: 3px solid #0284c7;
-}
-
-.fcrKpiB {
-    border-left: 3px solid #f59e0b;
-}
-
-.fcrKpiV {
-    border-left: 3px solid #dc2626;
-}
-
-.fcrKpiP {
-    border-left: 3px solid #059669;
+.fcrKpi .sapMObjectNumberUnit {
+    font-size: 0.85rem !important;
+    font-weight: 600;
+    color: #64748b !important;
+    margin-left: 0.2rem;
 }
 
 
@@ -659,6 +833,7 @@
 
 .fcrToolbarExport .sapMBtnInner {
     /*background: #0284c7 !important;*/
+    background: #0284c7 !important;
     color: #0284c7 important;
     border-radius: 8px !important;
     padding: 0 1rem;
@@ -667,12 +842,16 @@
 }
 
 .fcrToolbarExport .sapMBtnIcon {
-    color: #0284c7;
+    /*color: #0284c7;*/
+    color: #ffffff !important;
 }
 
 .fcrToolbarExport:hover .sapMBtnInner {
-    background: #f8fafc !important;
-    border-color: #94a3b8 !important;
+    /*background: #f8fafc !important;*/
+    /*border-color: #94a3b8 !important;*/
+    /*transform: translateY(-1px);*/
+    /*box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);*/
+    background: #0369a1 !important;
     transform: translateY(-1px);
     box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);
 }
@@ -681,6 +860,26 @@
     transform: translateY(0);
     box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
 }
+
+.fcrToolbarExport:hover .sapMBtnIcon {
+    /*color: #0284c7;*/
+    color: #ffffff !important;
+}
+
+
+/*.fcrToolbarExport:hover .sapMBtnInner {*/
+
+
+/*    background: #f8fafc !important;*/
+
+
+/*    border-color: #94a3b8 !important;*/
+
+
+/*    box-shadow: 0 4px 10px rgba(2, 132, 199, 0.25) !important;*/
+
+
+/*}*/
 
 
 /* =========================================================
@@ -711,7 +910,7 @@
 .fcrToolbarSearch .sapMSFI {
     border: none !important;
     background: transparent !important;
-    height: 2.3rem !important;
+    height: 1.3rem !important;
 }
 
 
@@ -728,7 +927,7 @@
 .fcrToolbarSearch:hover .sapMSFF {
     background: #f8fafc !important;
     border-color: #94a3b8 !important;
-    box-shadow: 0 4px 10px rgba(2, 132, 199, 0.25) !important;
+    box-shadow: 10px 4px 10px rgba(2, 132, 199, 0.25) !important;
 }
 
 

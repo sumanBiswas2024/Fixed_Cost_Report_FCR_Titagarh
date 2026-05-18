@@ -11,7 +11,7 @@
 					<VBox id="paramSection" class="fcrParamWrap">
 						<HBox class="fcrHeader" alignItems="Center" justifyContent="SpaceBetween" wrap="Wrap">
 							<VBox class="fcrHeaderText">
-								<ObjectStatus text="ZFI_FCR" state="Information" icon="sap-icon://business-objects-experience" class="fcrEyebrow"/>
+								<!--<ObjectStatus text="ZFI_FCR" state="Information" icon="sap-icon://business-objects-experience" class="fcrEyebrow"/>-->
 								<Title text="Fixed Cost Report" level="H1" class="fcrTitle"/>
 								<Text text="{ui>/periodText}" class="fcrSubtitle"/>
 							</VBox>
