@@ -12,9 +12,10 @@ sap.ui.define([
 	"sap/m/MessageToast",
 	"sap/m/MessageBox",
 	"sap/ui/core/util/File",
-	"sap/ui/core/BusyIndicator"
+	"sap/ui/core/BusyIndicator",
+	"sap/m/BusyDialog"
 ], function(Controller, JSONModel, NumberFormat, Dialog, List, StandardListItem, Button, SearchField, Filter, FilterOperator,
-	MessageToast, MessageBox, File, BusyIndicator) {
+	MessageToast, MessageBox, File, BusyIndicator, BusyDialog) {
 	"use strict";
 
 	return Controller.extend("Z_Fixed_Cost_Report_FCR.controller.View1", {
@@ -51,7 +52,7 @@ sap.ui.define([
 				// companyCode: "",
 				// fiscalYear: "",
 				companyCode: "1100", // Default to 1100
-				fiscalYear: "2026",  // Default to 2026
+				fiscalYear: "2026", // Default to 2026
 				profitCenters: [],
 				glGroups: [],
 				quarters: [] // Stays empty to mean "All Quarters" or select by default
@@ -129,9 +130,42 @@ sap.ui.define([
 					details: (oErr && oErr.message) ? oErr.message : String(oErr || "")
 				});
 			});
-			
+
 			// Load data automatically on initial load since we now have defaults
 			this._applyFilters(false);
+		},
+
+		// _getBusyDialog: function() {
+		// 	if (!this._oBusyDialog) {
+		// 		this._oBusyDialog = new BusyDialog({
+		// 			title: "Initializing",
+		// 			text: "Please wait, it will take a few moments..."
+		// 		});
+		// 	}
+		// 	return this._oBusyDialog;
+		// },
+
+		_getBusyDialog: function() {
+			if (!this._oBusyDialog) {
+				this._oBusyDialog = new BusyDialog({
+					title: "Fetching Data",
+					text: "Initializing report, please wait...",
+					// showCancelButton: false, // Prevents users from interrupting the data fetch
+					// customIcon: "sap-icon://loading", // Adds a familiar Fiori loading icon
+					// customIconRotationSpeed: 1000 // Smooth, consistent rotation
+					showCancelButton: false,
+					customIcon: "sap-icon://synchronize",
+					customIconRotationSpeed: 800,
+					
+					customClass: "fcrBusyDialog"
+				});
+			}
+
+			// Dynamically update the text based on current filters for better UX
+			// var oFilters = this.getView().getModel("filters").getData();
+			// this._oBusyDialog.setText("Preparing " + (oFilters.fiscalYear || "") + " data for your selection...");
+
+			return this._oBusyDialog;
 		},
 
 		/**
@@ -148,6 +182,7 @@ sap.ui.define([
 
 		onAfterRendering: function() {
 			this._configureCharts();
+			this._connectPopovers(); // Add this line
 			// this._wireScrollAutoCollapse();
 		},
 
@@ -179,6 +214,8 @@ sap.ui.define([
 
 		onReset: function() {
 			this.getView().getModel("filters").setData({
+				// companyCode: "1100", // Default to 1100
+				// fiscalYear: "2026", // Default to 2026
 				companyCode: "",
 				fiscalYear: "",
 				profitCenters: [],
@@ -187,6 +224,8 @@ sap.ui.define([
 			});
 			this._clearSearch();
 			// Do not auto-fetch on reset; user will press Run Report.
+			MessageToast.show("Reset All Parameters");
+			// this._applyFilters(true);
 		},
 
 		onQuarterValueHelp: function() {
@@ -310,30 +349,30 @@ sap.ui.define([
 		},
 
 		onProfitCentreValueHelp: function() {
-			BusyIndicator.show(0);
+			this._getBusyDialog().open();
 			this._initOData().then(function() {
 				return this._loadProfitCenterF4();
 			}.bind(this)).then(function() {
-				BusyIndicator.hide();
+				this._getBusyDialog().close();
 				this._openMultiSelectValueHelp("Profit Centre", "profitCenters", "profitCenters", {
 					f4Kind: "PRCTR"
 				});
 			}.bind(this)).catch(function() {
-				BusyIndicator.hide();
+				this._getBusyDialog().close();
 			});
 		},
 
 		onGlGroupValueHelp: function() {
-			BusyIndicator.show(0);
+			this._getBusyDialog().open();
 			this._initOData().then(function() {
 				return this._loadGlGroupF4();
 			}.bind(this)).then(function() {
-				BusyIndicator.hide();
+				this._getBusyDialog().close();
 				this._openMultiSelectValueHelp("GL Group", "glGroups", "glGroups", {
 					f4Kind: "GLGRP"
 				});
 			}.bind(this)).catch(function() {
-				BusyIndicator.hide();
+				this._getBusyDialog().close();
 			});
 		},
 
@@ -697,9 +736,10 @@ sap.ui.define([
 		},
 
 		_applyFilters: function(bMarkRun) {
-			var oFilters = this.getView().getModel("filters").getData();
-			var oUi = this.getView().getModel("ui");
-			var oFcr = this.getView().getModel("fcr");
+			var that = this;
+			var oFilters = that.getView().getModel("filters").getData();
+			var oUi = that.getView().getModel("ui");
+			var oFcr = that.getView().getModel("fcr");
 
 			// Handle Quarters Multi-Selection
 			var aSelectedQuarters = (oFilters.quarters || []).map(function(o) {
@@ -707,8 +747,8 @@ sap.ui.define([
 			});
 			var aPeriods = [];
 			aSelectedQuarters.forEach(function(sQ) {
-				aPeriods = aPeriods.concat(this._mQuarterPeriods[sQ] || []);
-			}.bind(this));
+				aPeriods = aPeriods.concat(that._mQuarterPeriods[sQ] || []);
+			}.bind(that));
 
 			var aProfitCenters = (oFilters.profitCenters || []).map(function(oItem) {
 				return oItem.key;
@@ -718,15 +758,15 @@ sap.ui.define([
 			});
 
 			// Fix: If no specific quarters are selected, keep columns active for all months (1 to 12)
-			this._syncPeriodVisibility(aPeriods);
-			this._updateSelectedValuesText(oFilters);
-			this._updatePeriodText(oFilters, aPeriods);
+			that._syncPeriodVisibility(aPeriods);
+			that._updateSelectedValuesText(oFilters);
+			that._updatePeriodText(oFilters, aPeriods);
 
 			// Ensure OData model is ready (metadata + lookup init)
-			var pReady = this._initOData();
+			var pReady = that._initOData();
 
 			// Use core BusyIndicator for compatibility with older UI5 runtimes.
-			BusyIndicator.show(0);
+			that._getBusyDialog().open();
 
 			pReady.then(function() {
 				var sBukrs = (oFilters.companyCode || "").trim();
@@ -736,85 +776,86 @@ sap.ui.define([
 
 				var aDetailFilters = [];
 				if (sBukrs) {
-					aDetailFilters.push("bukrs eq '" + this._odataLiteral(sBukrs) + "'");
+					aDetailFilters.push("bukrs eq '" + that._odataLiteral(sBukrs) + "'");
 				}
 				if (sYear) {
-					aDetailFilters.push("ryear eq '" + this._odataLiteral(sYear) + "'");
+					aDetailFilters.push("ryear eq '" + that._odataLiteral(sYear) + "'");
 				}
 				if (aPrctr.length) {
 					aDetailFilters.push("(" + aPrctr.map(function(s) {
-						return "prctr eq '" + this._odataLiteral(s) + "'";
-					}.bind(this)).join(" or ") + ")");
+						return "prctr eq '" + that._odataLiteral(s) + "'";
+					}.bind(that)).join(" or ") + ")");
 				}
 				if (aGl.length) {
 					aDetailFilters.push("(" + aGl.map(function(s) {
-						return "gl_ac_group eq '" + this._odataLiteral(s) + "'";
-					}.bind(this)).join(" or ") + ")");
+						return "gl_ac_group eq '" + that._odataLiteral(s) + "'";
+					}.bind(that)).join(" or ") + ")");
 				}
 
 				var sDetailFilter = aDetailFilters.join(" and ");
 
 				var aSummaryFilters = [];
 				if (sBukrs) {
-					aSummaryFilters.push("bukrs eq '" + this._odataLiteral(sBukrs) + "'");
+					aSummaryFilters.push("bukrs eq '" + that._odataLiteral(sBukrs) + "'");
 				}
 				if (sYear) {
-					aSummaryFilters.push("ryear eq '" + this._odataLiteral(sYear) + "'");
+					aSummaryFilters.push("ryear eq '" + that._odataLiteral(sYear) + "'");
 				}
 				if (aPrctr.length) {
 					aSummaryFilters.push("(" + aPrctr.map(function(s) {
-						return "prctr eq '" + this._odataLiteral(s) + "'";
-					}.bind(this)).join(" or ") + ")");
+						return "prctr eq '" + that._odataLiteral(s) + "'";
+					}.bind(that)).join(" or ") + ")");
 				}
 				if (aGl.length) {
 					aSummaryFilters.push("(" + aGl.map(function(s) {
-						return "gl_ac_group eq '" + this._odataLiteral(s) + "'";
-					}.bind(this)).join(" or ") + ")");
+						return "gl_ac_group eq '" + that._odataLiteral(s) + "'";
+					}.bind(that)).join(" or ") + ")");
 				}
 				var sSummaryFilter = aSummaryFilters.join(" and ");
 
 				return Promise.all([
-					this._readODataPaged("/es_detailset", sDetailFilter ? {
+					that._readODataPaged("/es_detailset", sDetailFilter ? {
 						"$filter": sDetailFilter
 					} : {}, 50000),
-					this._readODataPaged("/es_summaryset", sSummaryFilter ? {
+					that._readODataPaged("/es_summaryset", sSummaryFilter ? {
 						"$filter": sSummaryFilter
 					} : {}, 50000)
 				]);
-			}.bind(this)).then(function(aResults) {
+			}.bind(that)).then(function(aResults) {
 				var aDetailRaw = aResults[0] || [];
 				var aSummaryRaw = aResults[1] || [];
 
-				var aDetailRows = aDetailRaw.map(this._mapDetailRowFromOData.bind(this)).filter(Boolean);
-				var aSummaryRows = aSummaryRaw.map(this._mapSummaryRowFromOData.bind(this)).filter(Boolean);
+				var aDetailRows = aDetailRaw.map(that._mapDetailRowFromOData.bind(that)).filter(Boolean);
+				var aSummaryRows = aSummaryRaw.map(that._mapSummaryRowFromOData.bind(that)).filter(Boolean);
 
-				var aTopDetailRows = aDetailRows.slice().sort(this._sortByTotalDesc).slice(0, 5);
-				var aTopSummaryRows = aSummaryRows.slice().sort(this._sortByTotalDesc).slice(0, 5);
+				var aTopDetailRows = aDetailRows.slice().sort(that._sortByTotalDesc).slice(0, 5);
+				var aTopSummaryRows = aSummaryRows.slice().sort(that._sortByTotalDesc).slice(0, 5);
 
 				oFcr.setData({
 					allDetailRows: aDetailRows,
 					allSummaryRows: aSummaryRows,
 					// allSummaryChart: this._createChartRows(aDetailRows, 12),
 					// FIX: Removed the 12 limit. It will now show everything in aSummaryRows.
-					allSummaryChart: this._createChartRows(aSummaryRows),
+					allSummaryChart: that._createChartRows(aSummaryRows),
 					topDetailRows: aTopDetailRows,
 					topSummaryRows: aTopSummaryRows,
-					topSummaryChart: this._createChartRows(aTopDetailRows, 5)
+					topSummaryChart: that._createChartRows(aTopDetailRows, 5)
 				});
 
-				this._updateTotalsFromPivot(aDetailRows, bMarkRun);
+				that._updateTotalsFromPivot(aDetailRows, bMarkRun);
 
 				var sGlobalQuery = oUi.getProperty("/globalSearch") || "";
-				this._applyUniversalSearch("all", sGlobalQuery);
-				this._applyUniversalSearch("top", sGlobalQuery);
-				this._refreshChartStyling();
-				this._updateKpisFromActive();
-			}.bind(this)).catch(function(oErr) {
+				that._applyUniversalSearch("all", sGlobalQuery);
+				that._applyUniversalSearch("top", sGlobalQuery);
+				that._refreshChartStyling();
+				that._updateKpisFromActive();
+			}.bind(that)).catch(function(oErr) {
 				MessageBox.error("Failed to load data from ZO_FCR_SRV.", {
 					details: (oErr && oErr.message) ? oErr.message : String(oErr || "")
 				});
+				that._getBusyDialog().close();
 			}).finally(function() {
-				BusyIndicator.hide();
+				that._getBusyDialog().close();
 			});
 
 			// Keep old behavior (function is now async, so we stop here).
@@ -824,13 +865,13 @@ sap.ui.define([
 			// this._refreshChartStyling();
 			// this._updateKpisFromActive();
 			// --- UPDATE THESE TWO LINES ---
-			var sGlobalQuery = this.getView().getModel("ui").getProperty("/globalSearch") || "";
-			this._applyUniversalSearch("all", sGlobalQuery);
-			this._applyUniversalSearch("top", sGlobalQuery);
+			var sGlobalQuery = that.getView().getModel("ui").getProperty("/globalSearch") || "";
+			that._applyUniversalSearch("all", sGlobalQuery);
+			that._applyUniversalSearch("top", sGlobalQuery);
 			// ------------------------------
 
-			this._refreshChartStyling();
-			this._updateKpisFromActive();
+			that._refreshChartStyling();
+			that._updateKpisFromActive();
 		},
 
 		_mapDetailRowFromOData: function(o) {
@@ -1025,7 +1066,7 @@ sap.ui.define([
 			aRows.forEach(function(oRow) {
 				var val = oRow.total || 0;
 				iTotal += val;
-				
+
 				// Identify the row with the largest absolute total
 				if (Math.abs(val) > iMax) {
 					iMax = Math.abs(val);
@@ -1074,14 +1115,15 @@ sap.ui.define([
 		_createChartRows: function(aRows, iLimit) {
 			var aSource = (aRows || []).slice();
 			aSource.sort(this._sortByTotalDesc);
-			
+
 			// 👇 LOOK AT THIS IF STATEMENT 👇
 			if (iLimit) {
 				aSource = aSource.slice(0, iLimit);
 			}
-			
+
 			return aSource.map(function(oRow) {
-				var sName = oRow.glAccount ? (oRow.glAccount + " - " + oRow.glName) : (oRow.glGroup + " - " + oRow.groupName);
+				// var sName = oRow.glAccount ? (oRow.glAccount + " - " + oRow.glName) : (oRow.glGroup + " - " + oRow.groupName);
+				var sName = oRow.glAccount ? (oRow.glAccount + " - " + oRow.glName) : oRow.glGroup;
 				return {
 					name: sName,
 					value: oRow.total
@@ -1112,25 +1154,79 @@ sap.ui.define([
 							dataLoading: true
 						}
 					},
-					valueAxis: {
-						title: {
-							visible: true,
-							text: "Total"
+					// valueAxis: {
+					// 	title: {
+					// 		visible: true,
+					// 		text: "Total"
+					// 	}
+					// },
+					// categoryAxis: {
+					// 	title: {
+					// 		visible: true,
+					// 		text: "G/L Group"
+					// 	},
+					// 	label: {
+					// 		rotation: "45", // Rotates text so it doesn't overlap
+					// 		truncate: false, // Disables the "..." truncation
+					// 		style: {
+					// 			maxWidth: "200" // Allows wider labels before wrapping
+					// 		}
+					// 	}
+					// },
+					// // This enables the detailed popover content
+					// interaction: {
+					// 	selectability: {
+					// 		mode: "single"
+					// 	}
+					// }
+					interaction: {
+						selectability: {
+							mode: "multiple"
 						}
 					},
 					categoryAxis: {
 						title: {
 							visible: true,
-							// text: "G/L Account"
-							text: "G/L Group" // FIX: Changed from G/L Account
+							text: "G/L Group"
 						},
 						label: {
-							rotation: "fixed"
+							visible: true,
+							allowMultiline: true,
+							linesOfWrap: 4,
+							overlapBehavior: "wrap",
+							rotation: 0,
+							angle: 0,
+							maxWidth: 200,
+							truncatedLabelRatio: 0.9,
+							style: {
+								fontSize: "12px",
+								fontWeight: "bold"
+							}
+						}
+					},
+					valueAxis: {
+						label: {
+							visible: true
 						}
 					}
 				});
 				oVizFrame.data("configured", true);
 			}.bind(this));
+		},
+
+		// Add this new function
+		_connectPopovers: function() {
+			var oAllChart = this.byId("allSummaryChart");
+			var oAllPop = this.byId("allSummaryPopover");
+			if (oAllChart && oAllPop) {
+				oAllPop.connect(oAllChart.getVizUid());
+			}
+
+			var oTopChart = this.byId("topSummaryChart");
+			var oTopPop = this.byId("topSummaryPopover");
+			if (oTopChart && oTopPop) {
+				oTopPop.connect(oTopChart.getVizUid());
+			}
 		},
 
 		_wireScrollAutoCollapse: function() {
@@ -1432,17 +1528,17 @@ sap.ui.define([
 		// 	}
 		// 	this._refreshChartStyling();
 		// },
-		
+
 		_syncChartsFromTables: function() {
 			var oFcr = this.getView().getModel("fcr");
-			
+
 			var oAllSummary = this.byId("allSummaryTable");
 			if (oAllSummary && oAllSummary.getBinding("rows")) {
 				var aAll = this._getFilteredTableObjects(oAllSummary, "fcr", "/allSummaryRows");
 				// FIX: Removed the 12 limit here as well.
 				oFcr.setProperty("/allSummaryChart", this._createChartRows(aAll));
 			}
-			
+
 			var oTopSummary = this.byId("topSummaryTable");
 			if (oTopSummary && oTopSummary.getBinding("rows")) {
 				var aTop = this._getFilteredTableObjects(oTopSummary, "fcr", "/topSummaryRows");

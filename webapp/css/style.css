@@ -1112,3 +1112,41 @@
     gap: 1rem;
     flex-shrink: 0;
 }
+
+
+/* 1. Base Dialog Modernization */
+.fcrBusyDialog.sapMBusyDialog {
+    border-radius: 1.5rem !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(15px) !important; /* The 'Glass' effect */
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    padding: 1rem !important;
+}
+
+/* 2. Styling the Title text */
+.fcrBusyDialog .sapMBusyDialogTitle {
+    color: #0f172a !important;
+    font-weight: 800 !important;
+    font-size: 1.1rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+/* 3. Styling the loading text */
+.fcrBusyDialog .sapMBusyDialogText {
+    color: #64748b !important;
+    font-weight: 500 !important;
+}
+
+/* 4. Fix for the Icon not showing/spinning */
+.fcrBusyDialog .sapMBusyDialogIcon {
+    color: #0ea5e9 !important; /* Matches your Sky Blue KPI theme */
+    font-size: 2rem !important;
+    /* Optional: If you want the sync icon to rotate */
+    animation: rotate 1.5s linear infinite;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
