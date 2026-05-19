@@ -92,6 +92,25 @@
 						<!-- SEGMENT TOOLBAR -->
 						<HBox justifyContent="SpaceBetween" alignItems="End" class="fcrSegmentToolbar">
 							<HBox alignItems="End" class="fcrSegmentLeft">
+								<!--<VBox class="fcrModeBlock">-->
+								<!--	<Label text="View Type"/>-->
+								<!--	<SegmentedButton selectedKey="{= ${ui>/selectedTab} === 'all' ? ${ui>/allViewMode} : ${ui>/topViewMode} }"-->
+								<!--		selectionChange="onViewModeChange" class="fcrViewSwitch">-->
+								<!--		<items>-->
+								<!--			<SegmentedButtonItem key="DETAIL" text="Details" icon="sap-icon://table-view"/>-->
+								<!--			<SegmentedButtonItem key="SUMMARY" text="Summary" icon="sap-icon://business-objects-experience"/>-->
+								<!--		</items>-->
+								<!--	</SegmentedButton>-->
+								<!--</VBox>-->
+								<VBox class="fcrModeBlock">
+									<Label text="Report Type"/>
+									<SegmentedButton selectedKey="{ui>/selectedTab}" selectionChange="onSegmentTabChange" class="fcrViewSwitch">
+										<items>
+											<SegmentedButtonItem key="all" text="All GL" icon="sap-icon://detail-view"/>
+											<SegmentedButtonItem key="top" text="Top 5 GL" icon="sap-icon://vertical-bar-chart"/>
+										</items>
+									</SegmentedButton>
+								</VBox>
 								<VBox class="fcrModeBlock">
 									<Label text="View"/>
 									<SegmentedButton selectedKey="{= ${ui>/selectedTab} === 'all' ? ${ui>/allViewMode} : ${ui>/topViewMode} }"
@@ -102,25 +121,6 @@
 										</items>
 									</SegmentedButton>
 								</VBox>
-								<VBox class="fcrModeBlock">
-									<Label text="Report Type"/>
-									<SegmentedButton selectedKey="{ui>/selectedTab}" selectionChange="onSegmentTabChange" class="fcrViewSwitch">
-										<items>
-											<SegmentedButtonItem key="all" text="All Details" icon="sap-icon://detail-view"/>
-											<SegmentedButtonItem key="top" text="Top 5 GL" icon="sap-icon://vertical-bar-chart"/>
-										</items>
-									</SegmentedButton>
-								</VBox>
-								<!--<VBox class="fcrModeBlock">-->
-								<!--	<Label text="View"/>-->
-								<!--	<SegmentedButton selectedKey="{= ${ui>/selectedTab} === 'all' ? ${ui>/allViewMode} : ${ui>/topViewMode} }"-->
-								<!--		selectionChange="onViewModeChange" class="fcrViewSwitch">-->
-								<!--		<items>-->
-								<!--			<SegmentedButtonItem key="DETAIL" text="Details" icon="sap-icon://table-view"/>-->
-								<!--			<SegmentedButtonItem key="SUMMARY" text="Summary" icon="sap-icon://business-objects-experience"/>-->
-								<!--		</items>-->
-								<!--	</SegmentedButton>-->
-								<!--</VBox>-->
 							</HBox>
 							<HBox alignItems="End">
 								<SearchField width="18rem" placeholder="Search..." liveChange="onUniversalSearch" class="fcrToolbarSearch"/>
@@ -136,7 +136,7 @@
 						<VBox visible="{= ${ui>/selectedTab} === 'all' }">
 							<!-- DETAIL TABLE -->
 							<VBox visible="{= ${ui>/allViewMode} === 'DETAIL' }">
-								<Panel headerText="All Details" expandable="true" expanded="true" class="fcrOutPanel" visible="{= ${ui>/allViewMode} === 'DETAIL' }">
+								<Panel headerText="All Details" expandable="false" expanded="true" class="fcrOutPanel" visible="{= ${ui>/allViewMode} === 'DETAIL' }">
 									<content>
 										<table:Table id="allDetailTable" rows="{fcr>/allDetailRows}" visibleRowCount="12" selectionMode="None" enableColumnReordering="true"
 											enableCellFilter="true" class="fcrUiTable">
@@ -228,7 +228,7 @@
 							</VBox>
 							<!-- SUMMARY TABLE -->
 							<VBox visible="{= ${ui>/allViewMode} === 'SUMMARY' }">
-								<Panel headerText="All Summary" expandable="false" expanded="true" class="fcrOutPanel" visible="{= ${ui>/allViewMode} === 'SUMMARY' }">
+								<Panel headerText="" expandable="false" expanded="true" class="fcrOutPanel" visible="{= ${ui>/allViewMode} === 'SUMMARY' }">
 									<content>
 										<suite:ChartContainer id="allSummaryChartContainer" showFullScreen="true" showPersonalization="false" autoAdjustHeight="false"
 											showLegendButton="false" title="All Fixed Cost Summary" class="fcrChartContainer">
@@ -353,7 +353,7 @@
 						<VBox visible="{= ${ui>/selectedTab} === 'top' }">
 							<!-- DETAIL TABLE -->
 							<VBox visible="{= ${ui>/topViewMode} === 'DETAIL' }">
-								<Panel headerText="Top 4 Details" expandable="true" expanded="true" class="fcrOutPanel" visible="{= ${ui>/topViewMode} === 'DETAIL' }">
+								<Panel headerText="Top 4 Details" expandable="false" expanded="true" class="fcrOutPanel" visible="{= ${ui>/topViewMode} === 'DETAIL' }">
 									<content>
 										<table:Table id="topDetailTable" rows="{fcr>/topDetailRows}" visibleRowCount="8" selectionMode="None" enableColumnReordering="true"
 											enableCellFilter="true" class="fcrUiTable">
@@ -431,7 +431,7 @@
 							</VBox>
 							<!-- SUMMARY TABLE -->
 							<VBox visible="{= ${ui>/topViewMode} === 'SUMMARY' }">
-								<Panel headerText="Top 5 Summary" expandable="false" expanded="true" class="fcrOutPanel" visible="{= ${ui>/topViewMode} === 'SUMMARY' }">
+								<Panel headerText="" expandable="false" expanded="true" class="fcrOutPanel" visible="{= ${ui>/topViewMode} === 'SUMMARY' }">
 									<content>
 										<suite:ChartContainer id="topSummaryChartContainer" showFullScreen="true" showPersonalization="false" autoAdjustHeight="false"
 											showLegendButton="false" title="Top 5 GL Summary" class="fcrChartContainer">

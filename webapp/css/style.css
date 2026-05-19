@@ -631,6 +631,9 @@
     margin-top: 0;
 }
 
+.sapUiRespGrid.sapUiRespGridHSpace1{
+	padding-top: 1rem;
+}
 
 /* 1. Base Card Styling & Animation Ready */
 

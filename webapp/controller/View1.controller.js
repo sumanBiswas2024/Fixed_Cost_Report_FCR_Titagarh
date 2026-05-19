@@ -789,7 +789,9 @@ sap.ui.define([
 				oFcr.setData({
 					allDetailRows: aDetailRows,
 					allSummaryRows: aSummaryRows,
-					allSummaryChart: this._createChartRows(aDetailRows, 12),
+					// allSummaryChart: this._createChartRows(aDetailRows, 12),
+					// FIX: Removed the 12 limit. It will now show everything in aSummaryRows.
+					allSummaryChart: this._createChartRows(aSummaryRows),
 					topDetailRows: aTopDetailRows,
 					topSummaryRows: aTopSummaryRows,
 					topSummaryChart: this._createChartRows(aTopDetailRows, 5)
@@ -1021,15 +1023,32 @@ sap.ui.define([
 				sPeriodText + " | " + sProfitText + " | " + sGlText);
 		},
 
+		// _createChartRows: function(aRows, iLimit) {
+		// 	var aSource = (aRows || []).slice();
+		// 	aSource.sort(this._sortByTotalDesc);
+		// 	if (iLimit) {
+		// 		aSource = aSource.slice(0, iLimit);
+		// 	}
+		// 	return aSource.map(function(oRow) {
+		// 		return {
+		// 			name: oRow.glAccount + " - " + oRow.glName,
+		// 			value: oRow.total
+		// 		};
+		// 	});
+		// },
 		_createChartRows: function(aRows, iLimit) {
 			var aSource = (aRows || []).slice();
 			aSource.sort(this._sortByTotalDesc);
+			
+			// 👇 LOOK AT THIS IF STATEMENT 👇
 			if (iLimit) {
 				aSource = aSource.slice(0, iLimit);
 			}
+			
 			return aSource.map(function(oRow) {
+				var sName = oRow.glAccount ? (oRow.glAccount + " - " + oRow.glName) : (oRow.glGroup + " - " + oRow.groupName);
 				return {
-					name: oRow.glAccount + " - " + oRow.glName,
+					name: sName,
 					value: oRow.total
 				};
 			});
@@ -1067,7 +1086,8 @@ sap.ui.define([
 					categoryAxis: {
 						title: {
 							visible: true,
-							text: "G/L Account"
+							// text: "G/L Account"
+							text: "G/L Group" // FIX: Changed from G/L Account
 						},
 						label: {
 							rotation: "fixed"
@@ -1363,16 +1383,34 @@ sap.ui.define([
 			this._updateKpisFromActive();
 		},
 
+		// _syncChartsFromTables: function() {
+		// 	var oFcr = this.getView().getModel("fcr");
+		// 	var oAllDetail = this.byId("allDetailTable");
+		// 	if (oAllDetail && oAllDetail.getBinding("rows")) {
+		// 		var aAll = this._getFilteredTableObjects(oAllDetail, "fcr", "/allDetailRows");
+		// 		oFcr.setProperty("/allSummaryChart", this._createChartRows(aAll, 12));
+		// 	}
+		// 	var oTopDetail = this.byId("topDetailTable");
+		// 	if (oTopDetail && oTopDetail.getBinding("rows")) {
+		// 		var aTop = this._getFilteredTableObjects(oTopDetail, "fcr", "/topDetailRows");
+		// 		oFcr.setProperty("/topSummaryChart", this._createChartRows(aTop, 5));
+		// 	}
+		// 	this._refreshChartStyling();
+		// },
+		
 		_syncChartsFromTables: function() {
 			var oFcr = this.getView().getModel("fcr");
-			var oAllDetail = this.byId("allDetailTable");
-			if (oAllDetail && oAllDetail.getBinding("rows")) {
-				var aAll = this._getFilteredTableObjects(oAllDetail, "fcr", "/allDetailRows");
-				oFcr.setProperty("/allSummaryChart", this._createChartRows(aAll, 12));
+			
+			var oAllSummary = this.byId("allSummaryTable");
+			if (oAllSummary && oAllSummary.getBinding("rows")) {
+				var aAll = this._getFilteredTableObjects(oAllSummary, "fcr", "/allSummaryRows");
+				// FIX: Removed the 12 limit here as well.
+				oFcr.setProperty("/allSummaryChart", this._createChartRows(aAll));
 			}
-			var oTopDetail = this.byId("topDetailTable");
-			if (oTopDetail && oTopDetail.getBinding("rows")) {
-				var aTop = this._getFilteredTableObjects(oTopDetail, "fcr", "/topDetailRows");
+			
+			var oTopSummary = this.byId("topSummaryTable");
+			if (oTopSummary && oTopSummary.getBinding("rows")) {
+				var aTop = this._getFilteredTableObjects(oTopSummary, "fcr", "/topSummaryRows");
 				oFcr.setProperty("/topSummaryChart", this._createChartRows(aTop, 5));
 			}
 			this._refreshChartStyling();
