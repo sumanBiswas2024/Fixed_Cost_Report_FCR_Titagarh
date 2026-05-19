@@ -690,6 +690,18 @@
     background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
 }
 
+/* Style for the GL Group Name inside the KPI Card */
+.fcrKpiSubText {
+    font-size: 1rem !important;
+    font-weight: 600;
+    color: #0f172a !important;
+    margin-bottom: 0.2rem !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
 
 /* 5. Card V (Variance) - Rose/Red Theme */
 

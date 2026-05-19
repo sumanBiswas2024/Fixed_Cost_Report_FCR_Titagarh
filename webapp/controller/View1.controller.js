@@ -48,8 +48,10 @@ sap.ui.define([
 			this._aPeriodMonthNames = ["", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar"];
 
 			this.getView().setModel(new JSONModel({
-				companyCode: "",
-				fiscalYear: "",
+				// companyCode: "",
+				// fiscalYear: "",
+				companyCode: "1100", // Default to 1100
+				fiscalYear: "2026",  // Default to 2026
 				profitCenters: [],
 				glGroups: [],
 				quarters: [] // Stays empty to mean "All Quarters" or select by default
@@ -127,6 +129,9 @@ sap.ui.define([
 					details: (oErr && oErr.message) ? oErr.message : String(oErr || "")
 				});
 			});
+			
+			// Load data automatically on initial load since we now have defaults
+			this._applyFilters(false);
 		},
 
 		/**
@@ -988,23 +993,53 @@ sap.ui.define([
 			return String(sValue || "").replace(/'/g, "''");
 		},
 
-		_updateTotalsFromPivot: function(aRows, bMarkRun) {
-			var iTotal = aRows.reduce(function(iSum, oRow) {
-				return iSum + (oRow.total || 0);
-			}, 0);
-			var iMax = 0;
-			if (aRows && aRows.length) {
-				iMax = aRows.reduce(function(iBest, oRow) {
-					return Math.max(iBest, Math.abs(oRow.total || 0));
-				}, 0);
-			}
-			var oUiModel = this.getView().getModel("ui");
+		// _updateTotalsFromPivot: function(aRows, bMarkRun) {
+		// 	var iTotal = aRows.reduce(function(iSum, oRow) {
+		// 		return iSum + (oRow.total || 0);
+		// 	}, 0);
+		// 	var iMax = 0;
+		// 	if (aRows && aRows.length) {
+		// 		iMax = aRows.reduce(function(iBest, oRow) {
+		// 			return Math.max(iBest, Math.abs(oRow.total || 0));
+		// 		}, 0);
+		// 	}
+		// 	var oUiModel = this.getView().getModel("ui");
 
+		// 	oUiModel.setProperty("/totalActual", this._formatAmount(iTotal));
+		// 	oUiModel.setProperty("/totalBudget", this._formatAmount(0));
+		// 	oUiModel.setProperty("/totalVariance", this._formatAmount(iMax));
+		// 	oUiModel.setProperty("/variancePct", this._formatPercent(0));
+		// 	oUiModel.setProperty("/varianceState", this._varianceState(iMax));
+		// 	oUiModel.setProperty("/recordCount", this._formatAmount(aRows.length));
+
+		// 	if (bMarkRun) {
+		// 		oUiModel.setProperty("/lastRunText", "Last run just now");
+		// 	}
+		// },
+		_updateTotalsFromPivot: function(aRows, bMarkRun) {
+			var iTotal = 0;
+			var iMax = 0;
+			var sTopGroupName = "None";
+			var iTopGroupValue = 0;
+
+			aRows.forEach(function(oRow) {
+				var val = oRow.total || 0;
+				iTotal += val;
+				
+				// Identify the row with the largest absolute total
+				if (Math.abs(val) > iMax) {
+					iMax = Math.abs(val);
+					// If it's a detail row, use glName; if summary, use groupName
+					sTopGroupName = oRow.glName || oRow.groupName || "Unknown";
+					iTopGroupValue = val;
+				}
+			});
+
+			var oUiModel = this.getView().getModel("ui");
 			oUiModel.setProperty("/totalActual", this._formatAmount(iTotal));
-			oUiModel.setProperty("/totalBudget", this._formatAmount(0));
+			oUiModel.setProperty("/maxGlGroupName", sTopGroupName); // New property
+			oUiModel.setProperty("/maxGlGroupValue", this._formatAmount(iTopGroupValue)); // New property
 			oUiModel.setProperty("/totalVariance", this._formatAmount(iMax));
-			oUiModel.setProperty("/variancePct", this._formatPercent(0));
-			oUiModel.setProperty("/varianceState", this._varianceState(iMax));
 			oUiModel.setProperty("/recordCount", this._formatAmount(aRows.length));
 
 			if (bMarkRun) {

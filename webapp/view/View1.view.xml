@@ -26,16 +26,25 @@
 							</HBox>
 							<VBox id="paramGrid" visible="{ui>/paramsExpanded}" class="fcrParamGrid">
 								<HBox class="fcrParamRow" alignItems="End" justifyContent="Start" wrap="NoWrap">
+									<!--<VBox class="fcrField fcrFieldCc">-->
+									<!--	<Label text="Company Code" required="true"/>-->
+									<!--	<Input value="{filters>/companyCode}" maxLength="4" placeholder="Select CC" valueState="{ui>/companyCodeState}" showValueHelp="true"-->
+									<!--		valueHelpOnly="false" valueHelpRequest=".onCompanyCodeValueHelp"/>-->
+									<!--</VBox>-->
 									<VBox class="fcrField fcrFieldCc">
 										<Label text="Company Code" required="true"/>
-										<Input value="{filters>/companyCode}" maxLength="4" placeholder="Select CC" valueState="{ui>/companyCodeState}" showValueHelp="true"
-											valueHelpOnly="false" valueHelpRequest=".onCompanyCodeValueHelp"/>
+										<ComboBox id="ccComboBox" selectedKey="{filters>/companyCode}" placeholder="Select Company Code" valueState="{ui>/companyCodeState}"
+											width="100%">
+											<core:Item key="1100" text="1100"/>
+											<core:Item key="1600" text="1600"/>
+										</ComboBox>
 									</VBox>
 									<VBox class="fcrField fcrFieldFy">
 										<Label text="Fiscal Year" required="true"/>
 										<!--<DatePicker value="{filters>/fiscalYear}" valueFormat="yyyy" displayFormat="yyyy" change=".onFiscalYearChange"-->
 										<!--	valueState="{ui>/fiscalYearState}"/>-->
-										<ComboBox selectedKey="{filters>/fiscalYear}" items="{yearModel>/years}" change=".onFiscalYearChange" valueState="{ui>/fiscalYearState}" placeholder="Select FY">
+										<ComboBox selectedKey="{filters>/fiscalYear}" items="{yearModel>/years}" change=".onFiscalYearChange" valueState="{ui>/fiscalYearState}"
+											placeholder="Select FY">
 											<core:Item key="{yearModel>key}" text="{yearModel>text}"/>
 										</ComboBox>
 									</VBox>
@@ -69,16 +78,21 @@
 					<VBox class="">
 						<!-- KPI CARDS -->
 						<!--<HBox class="fcrKpiStickyWrap" wrap="Wrap">-->
-						<layout:Grid defaultSpan="XL3 L3 M6 S12" hSpacing="1" vSpacing="1" class="fcrKpiGrid">
+						<layout:Grid defaultSpan="XL4 L4 M4 S12" hSpacing="1" vSpacing="1" class="fcrKpiGrid">
 							<VBox class="fcrKpi fcrKpiA">
 								<Text text="Actual Fixed Cost"/>
 								<ObjectNumber number="{ui>/totalActual}" unit="INR" state="Information"/>
 							</VBox>
+							<!--<VBox class="fcrKpi fcrKpiB">-->
+							<!--	<Text text="Budget (not bound)"/>-->
+							<!--	<ObjectNumber number="{ui>/totalBudget}" unit="INR"/>-->
+							<!--</VBox>-->
+							<!--<VBox class="fcrKpi fcrKpiB">-->
+							<!--	<Text text="Max GL Group"/>-->
+							<!--	<Text text="{ui>/maxGlGroupName}" class="fcrKpiSubText"/>-->
+							<!--</VBox>-->
+							
 							<VBox class="fcrKpi fcrKpiB">
-								<Text text="Budget (not bound)"/>
-								<ObjectNumber number="{ui>/totalBudget}" unit="INR"/>
-							</VBox>
-							<VBox class="fcrKpi fcrKpiV">
 								<Text text="Max GL Total"/>
 								<!--<ObjectNumber number="{ui>/totalVariance}" unit="INR" state="{ui>/varianceState}"/>-->
 								<ObjectNumber number="{ui>/totalVariance}" unit="INR"/>
@@ -249,14 +263,14 @@
 																		<Text text="{fcr>glGroup}"/>
 																	</table:template>
 																</table:Column>
-																<table:Column width="20rem" sortProperty="groupName" filterProperty="groupName">
-																	<table:label>
-																		<Label text="G/L Group Text"/>
-																	</table:label>
-																	<table:template>
-																		<Text text="{fcr>groupName}"/>
-																	</table:template>
-																</table:Column>
+																<!--<table:Column width="20rem" sortProperty="groupName" filterProperty="groupName">-->
+																<!--	<table:label>-->
+																<!--		<Label text="G/L Group Text"/>-->
+																<!--	</table:label>-->
+																<!--	<table:template>-->
+																<!--		<Text text="{fcr>groupName}"/>-->
+																<!--	</table:template>-->
+																<!--</table:Column>-->
 																<table:Column width="10rem" sortProperty="total" hAlign="End">
 																	<table:label>
 																		<Label text="Total"/>
@@ -446,10 +460,10 @@
 																	<table:label><Label text="G/L Group"/></table:label>
 																	<table:template><Text text="{fcr>glGroup}"/></table:template>
 																</table:Column>
-																<table:Column width="20rem">
-																	<table:label><Label text="G/L Group Text"/></table:label>
-																	<table:template><Text text="{fcr>groupName}"/></table:template>
-																</table:Column>
+																<!--<table:Column width="20rem">-->
+																<!--	<table:label><Label text="G/L Group Text"/></table:label>-->
+																<!--	<table:template><Text text="{fcr>groupName}"/></table:template>-->
+																<!--</table:Column>-->
 																<table:Column width="10rem" hAlign="End">
 																	<table:label><Label text="Total"/></table:label>
 																	<table:template>
