@@ -13,6 +13,11 @@
       "templateId": "ui5template.basicSAPUI5ApplicationProject",
       "templateVersion": "1.40.12",
       "dateTimeStamp": "Tue, 12 May 2026 06:01:54 GMT"
+    },
+    {
+      "templateId": "servicecatalog.connectivityComponent",
+      "templateVersion": "0.0.0",
+      "dateTimeStamp": "Tue, 19 May 2026 05:39:09 GMT"
     }
   ],
   "translation": {
@@ -35,7 +40,7 @@
     "blockPushLevel": "Error"
   },
   "build": {
-    "buildRequired": false,
+    "buildRequired": true,
     "sourceFolder": "webapp",
     "targetFolder": "dist",
     "excludedFolders": [],
@@ -45,5 +50,12 @@
   "deploy": {
     "destination": "DE1",
     "name": "ZBSP_FCR"
+  },
+  "mockpreview": {
+    "mockUri": "/sap/opu/odata/sap/ZO_FCR_SRV",
+    "metadataFilePath": "",
+    "loadJSONFiles": false,
+    "loadCustomRequests": false,
+    "mockRequestsFilePath": ""
   }
 }

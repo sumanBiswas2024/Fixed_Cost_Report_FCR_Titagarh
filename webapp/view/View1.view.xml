@@ -28,7 +28,8 @@
 								<HBox class="fcrParamRow" alignItems="End" justifyContent="Start" wrap="NoWrap">
 									<VBox class="fcrField fcrFieldCc">
 										<Label text="Company Code" required="true"/>
-										<Input value="{filters>/companyCode}" maxLength="4" placeholder="1000" valueState="{ui>/companyCodeState}"/>
+										<Input value="{filters>/companyCode}" maxLength="4" placeholder="1100" valueState="{ui>/companyCodeState}"
+											showValueHelp="true" valueHelpOnly="false" valueHelpRequest=".onCompanyCodeValueHelp"/>
 									</VBox>
 									<VBox class="fcrField fcrFieldFy">
 										<Label text="Fiscal Year" required="true"/>
@@ -159,6 +160,54 @@
 														<ObjectNumber number="{fcr>totalText}" state="{fcr>totalState}"/>
 													</table:template>
 												</table:Column>
+												<table:Column width="9rem" visible="{ui>/p1Visible}" hAlign="End">
+													<table:label><Label text="Apr"/></table:label>
+													<table:template><ObjectNumber number="{fcr>p1Text}"/></table:template>
+												</table:Column>
+												<table:Column width="9rem" visible="{ui>/p2Visible}" hAlign="End">
+													<table:label><Label text="May"/></table:label>
+													<table:template><ObjectNumber number="{fcr>p2Text}"/></table:template>
+												</table:Column>
+												<table:Column width="9rem" visible="{ui>/p3Visible}" hAlign="End">
+													<table:label><Label text="Jun"/></table:label>
+													<table:template><ObjectNumber number="{fcr>p3Text}"/></table:template>
+												</table:Column>
+												<table:Column width="9rem" visible="{ui>/p4Visible}" hAlign="End">
+													<table:label><Label text="Jul"/></table:label>
+													<table:template><ObjectNumber number="{fcr>p4Text}"/></table:template>
+												</table:Column>
+												<table:Column width="9rem" visible="{ui>/p5Visible}" hAlign="End">
+													<table:label><Label text="Aug"/></table:label>
+													<table:template><ObjectNumber number="{fcr>p5Text}"/></table:template>
+												</table:Column>
+												<table:Column width="9rem" visible="{ui>/p6Visible}" hAlign="End">
+													<table:label><Label text="Sep"/></table:label>
+													<table:template><ObjectNumber number="{fcr>p6Text}"/></table:template>
+												</table:Column>
+												<table:Column width="9rem" visible="{ui>/p7Visible}" hAlign="End">
+													<table:label><Label text="Oct"/></table:label>
+													<table:template><ObjectNumber number="{fcr>p7Text}"/></table:template>
+												</table:Column>
+												<table:Column width="9rem" visible="{ui>/p8Visible}" hAlign="End">
+													<table:label><Label text="Nov"/></table:label>
+													<table:template><ObjectNumber number="{fcr>p8Text}"/></table:template>
+												</table:Column>
+												<table:Column width="9rem" visible="{ui>/p9Visible}" hAlign="End">
+													<table:label><Label text="Dec"/></table:label>
+													<table:template><ObjectNumber number="{fcr>p9Text}"/></table:template>
+												</table:Column>
+												<table:Column width="9rem" visible="{ui>/p10Visible}" hAlign="End">
+													<table:label><Label text="Jan"/></table:label>
+													<table:template><ObjectNumber number="{fcr>p10Text}"/></table:template>
+												</table:Column>
+												<table:Column width="9rem" visible="{ui>/p11Visible}" hAlign="End">
+													<table:label><Label text="Feb"/></table:label>
+													<table:template><ObjectNumber number="{fcr>p11Text}"/></table:template>
+												</table:Column>
+												<table:Column width="9rem" visible="{ui>/p12Visible}" hAlign="End">
+													<table:label><Label text="Mar"/></table:label>
+													<table:template><ObjectNumber number="{fcr>p12Text}"/></table:template>
+												</table:Column>
 											</table:columns>
 										</table:Table>
 									</content>
@@ -202,6 +251,54 @@
 																	<table:template>
 																		<ObjectNumber number="{fcr>totalText}" state="{fcr>totalState}"/>
 																	</table:template>
+																</table:Column>
+																<table:Column width="9rem" visible="{ui>/p1Visible}" hAlign="End">
+																	<table:label><Label text="Apr"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>p1Text}"/></table:template>
+																</table:Column>
+																<table:Column width="9rem" visible="{ui>/p2Visible}" hAlign="End">
+																	<table:label><Label text="May"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>p2Text}"/></table:template>
+																</table:Column>
+																<table:Column width="9rem" visible="{ui>/p3Visible}" hAlign="End">
+																	<table:label><Label text="Jun"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>p3Text}"/></table:template>
+																</table:Column>
+																<table:Column width="9rem" visible="{ui>/p4Visible}" hAlign="End">
+																	<table:label><Label text="Jul"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>p4Text}"/></table:template>
+																</table:Column>
+																<table:Column width="9rem" visible="{ui>/p5Visible}" hAlign="End">
+																	<table:label><Label text="Aug"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>p5Text}"/></table:template>
+																</table:Column>
+																<table:Column width="9rem" visible="{ui>/p6Visible}" hAlign="End">
+																	<table:label><Label text="Sep"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>p6Text}"/></table:template>
+																</table:Column>
+																<table:Column width="9rem" visible="{ui>/p7Visible}" hAlign="End">
+																	<table:label><Label text="Oct"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>p7Text}"/></table:template>
+																</table:Column>
+																<table:Column width="9rem" visible="{ui>/p8Visible}" hAlign="End">
+																	<table:label><Label text="Nov"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>p8Text}"/></table:template>
+																</table:Column>
+																<table:Column width="9rem" visible="{ui>/p9Visible}" hAlign="End">
+																	<table:label><Label text="Dec"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>p9Text}"/></table:template>
+																</table:Column>
+																<table:Column width="9rem" visible="{ui>/p10Visible}" hAlign="End">
+																	<table:label><Label text="Jan"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>p10Text}"/></table:template>
+																</table:Column>
+																<table:Column width="9rem" visible="{ui>/p11Visible}" hAlign="End">
+																	<table:label><Label text="Feb"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>p11Text}"/></table:template>
+																</table:Column>
+																<table:Column width="9rem" visible="{ui>/p12Visible}" hAlign="End">
+																	<table:label><Label text="Mar"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>p12Text}"/></table:template>
 																</table:Column>
 															</table:columns>
 														</table:Table>
@@ -266,6 +363,54 @@
 														<ObjectNumber number="{fcr>totalText}" state="{fcr>totalState}"/>
 													</table:template>
 												</table:Column>
+												<table:Column width="9rem" visible="{ui>/p1Visible}" hAlign="End">
+													<table:label><Label text="Apr"/></table:label>
+													<table:template><ObjectNumber number="{fcr>p1Text}"/></table:template>
+												</table:Column>
+												<table:Column width="9rem" visible="{ui>/p2Visible}" hAlign="End">
+													<table:label><Label text="May"/></table:label>
+													<table:template><ObjectNumber number="{fcr>p2Text}"/></table:template>
+												</table:Column>
+												<table:Column width="9rem" visible="{ui>/p3Visible}" hAlign="End">
+													<table:label><Label text="Jun"/></table:label>
+													<table:template><ObjectNumber number="{fcr>p3Text}"/></table:template>
+												</table:Column>
+												<table:Column width="9rem" visible="{ui>/p4Visible}" hAlign="End">
+													<table:label><Label text="Jul"/></table:label>
+													<table:template><ObjectNumber number="{fcr>p4Text}"/></table:template>
+												</table:Column>
+												<table:Column width="9rem" visible="{ui>/p5Visible}" hAlign="End">
+													<table:label><Label text="Aug"/></table:label>
+													<table:template><ObjectNumber number="{fcr>p5Text}"/></table:template>
+												</table:Column>
+												<table:Column width="9rem" visible="{ui>/p6Visible}" hAlign="End">
+													<table:label><Label text="Sep"/></table:label>
+													<table:template><ObjectNumber number="{fcr>p6Text}"/></table:template>
+												</table:Column>
+												<table:Column width="9rem" visible="{ui>/p7Visible}" hAlign="End">
+													<table:label><Label text="Oct"/></table:label>
+													<table:template><ObjectNumber number="{fcr>p7Text}"/></table:template>
+												</table:Column>
+												<table:Column width="9rem" visible="{ui>/p8Visible}" hAlign="End">
+													<table:label><Label text="Nov"/></table:label>
+													<table:template><ObjectNumber number="{fcr>p8Text}"/></table:template>
+												</table:Column>
+												<table:Column width="9rem" visible="{ui>/p9Visible}" hAlign="End">
+													<table:label><Label text="Dec"/></table:label>
+													<table:template><ObjectNumber number="{fcr>p9Text}"/></table:template>
+												</table:Column>
+												<table:Column width="9rem" visible="{ui>/p10Visible}" hAlign="End">
+													<table:label><Label text="Jan"/></table:label>
+													<table:template><ObjectNumber number="{fcr>p10Text}"/></table:template>
+												</table:Column>
+												<table:Column width="9rem" visible="{ui>/p11Visible}" hAlign="End">
+													<table:label><Label text="Feb"/></table:label>
+													<table:template><ObjectNumber number="{fcr>p11Text}"/></table:template>
+												</table:Column>
+												<table:Column width="9rem" visible="{ui>/p12Visible}" hAlign="End">
+													<table:label><Label text="Mar"/></table:label>
+													<table:template><ObjectNumber number="{fcr>p12Text}"/></table:template>
+												</table:Column>
 											</table:columns>
 										</table:Table>
 									</content>
@@ -297,6 +442,54 @@
 																	<table:template>
 																		<ObjectNumber number="{fcr>totalText}" state="{fcr>totalState}"/>
 																	</table:template>
+																</table:Column>
+																<table:Column width="9rem" visible="{ui>/p1Visible}" hAlign="End">
+																	<table:label><Label text="Apr"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>p1Text}"/></table:template>
+																</table:Column>
+																<table:Column width="9rem" visible="{ui>/p2Visible}" hAlign="End">
+																	<table:label><Label text="May"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>p2Text}"/></table:template>
+																</table:Column>
+																<table:Column width="9rem" visible="{ui>/p3Visible}" hAlign="End">
+																	<table:label><Label text="Jun"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>p3Text}"/></table:template>
+																</table:Column>
+																<table:Column width="9rem" visible="{ui>/p4Visible}" hAlign="End">
+																	<table:label><Label text="Jul"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>p4Text}"/></table:template>
+																</table:Column>
+																<table:Column width="9rem" visible="{ui>/p5Visible}" hAlign="End">
+																	<table:label><Label text="Aug"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>p5Text}"/></table:template>
+																</table:Column>
+																<table:Column width="9rem" visible="{ui>/p6Visible}" hAlign="End">
+																	<table:label><Label text="Sep"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>p6Text}"/></table:template>
+																</table:Column>
+																<table:Column width="9rem" visible="{ui>/p7Visible}" hAlign="End">
+																	<table:label><Label text="Oct"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>p7Text}"/></table:template>
+																</table:Column>
+																<table:Column width="9rem" visible="{ui>/p8Visible}" hAlign="End">
+																	<table:label><Label text="Nov"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>p8Text}"/></table:template>
+																</table:Column>
+																<table:Column width="9rem" visible="{ui>/p9Visible}" hAlign="End">
+																	<table:label><Label text="Dec"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>p9Text}"/></table:template>
+																</table:Column>
+																<table:Column width="9rem" visible="{ui>/p10Visible}" hAlign="End">
+																	<table:label><Label text="Jan"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>p10Text}"/></table:template>
+																</table:Column>
+																<table:Column width="9rem" visible="{ui>/p11Visible}" hAlign="End">
+																	<table:label><Label text="Feb"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>p11Text}"/></table:template>
+																</table:Column>
+																<table:Column width="9rem" visible="{ui>/p12Visible}" hAlign="End">
+																	<table:label><Label text="Mar"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>p12Text}"/></table:template>
 																</table:Column>
 															</table:columns>
 														</table:Table>

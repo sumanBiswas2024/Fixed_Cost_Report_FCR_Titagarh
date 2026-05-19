@@ -1,0 +1,89 @@
+<edmx:Edmx
+    xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx"
+    xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata"
+    xmlns:sap="http://www.sap.com/Protocols/SAPData" Version="1.0">
+    <edmx:DataServices m:DataServiceVersion="2.0">
+        <Schema
+            xmlns="http://schemas.microsoft.com/ado/2008/09/edm" Namespace="ZO_FCR_SRV" xml:lang="en" sap:schema-version="1">
+            <Annotation
+                xmlns="http://docs.oasis-open.org/odata/ns/edm" Term="Core.SchemaVersion" String="1.0.0"/>
+                <EntityType Name="es_detail" sap:content-version="1">
+                    <Key>
+                        <PropertyRef Name="bukrs"/>
+                        <PropertyRef Name="ryear"/>
+                        <PropertyRef Name="prctr"/>
+                        <PropertyRef Name="gl_ac_group"/>
+                        <PropertyRef Name="saknr"/>
+                    </Key>
+                    <Property Name="bukrs" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="Company Code" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="ryear" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="Fiscal Year" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="prctr" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="Profit Centre" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="gl_ac_group" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="G/L Group" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="saknr" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="G/L Acct" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="gl_ac_text" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="G/L Description" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="hsl01" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="April" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="hsl02" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="May" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="hsl03" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="June" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="hsl04" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="July" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="hsl05" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="August" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="hsl06" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="September" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="hsl07" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="October" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="rhsl08" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="November" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="hsl09" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="December" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="hsl10" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="January" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="hsl11" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="February" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="hsl12" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="March" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="hsl13" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="Specl 1" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="hsl14" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="Specl 2" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="hsl15" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="Specl 3" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="hsl16" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="Specl 4" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="q1" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="Quarter 1" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="q2" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="Quarter 2" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="q3" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="Quarter 3" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="q4" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="Quarter 4" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="total" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="Total" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                </EntityType>
+                <EntityType Name="es_summary" sap:content-version="1">
+                    <Key>
+                        <PropertyRef Name="bukrs"/>
+                        <PropertyRef Name="ryear"/>
+                        <PropertyRef Name="prctr"/>
+                        <PropertyRef Name="gl_ac_group"/>
+                    </Key>
+                    <Property Name="bukrs" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="Company Code" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="ryear" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="Fiscal Year" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="prctr" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="Profit Centre" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="gl_ac_group" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="G/L Group" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="hsl01" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="April" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="hsl02" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="May" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="hsl03" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="June" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="hsl04" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="July" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="hsl05" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="August" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="hsl06" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="September" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="hsl07" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="October" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="rhsl08" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="November" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="hsl09" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="December" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="hsl10" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="January" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="hsl11" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="February" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="hsl12" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="March" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="hsl13" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="Specl 1" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="hsl14" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="Specl 2" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="hsl15" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="Specl 3" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="hsl16" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="Specl 4" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="q1" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="Quarter 1" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="q2" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="Quarter 2" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="q3" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="Quarter 3" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="q4" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="Quarter 4" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="total" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="Total" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                </EntityType>
+                <EntityContainer Name="ZO_FCR_SRV_Entities" m:IsDefaultEntityContainer="true" sap:supported-formats="atom json xlsx">
+                    <EntitySet Name="es_detailset" EntityType="ZO_FCR_SRV.es_detail" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:addressable="false" sap:content-version="1"/>
+                    <EntitySet Name="es_summaryset" EntityType="ZO_FCR_SRV.es_summary" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:addressable="false" sap:content-version="1"/>
+                </EntityContainer>
+                <atom:link
+                    xmlns:atom="http://www.w3.org/2005/Atom" rel="self" href="https://DEVDBAPP.TITAGARH.IN:44301/sap/opu/odata/sap/ZO_FCR_SRV/$metadata"/>
+                    <atom:link
+                        xmlns:atom="http://www.w3.org/2005/Atom" rel="latest-version" href="https://DEVDBAPP.TITAGARH.IN:44301/sap/opu/odata/sap/ZO_FCR_SRV/$metadata"/>
+                    </Schema>
+                </edmx:DataServices>
+            </edmx:Edmx>

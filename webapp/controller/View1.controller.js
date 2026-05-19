@@ -11,13 +11,17 @@ sap.ui.define([
 	"sap/ui/model/FilterOperator",
 	"sap/m/MessageToast",
 	"sap/m/MessageBox",
-	"sap/ui/core/util/File"
+	"sap/ui/core/util/File",
+	"sap/ui/core/BusyIndicator"
 ], function(Controller, JSONModel, NumberFormat, Dialog, List, StandardListItem, Button, SearchField, Filter, FilterOperator,
-	MessageToast, MessageBox, File) {
+	MessageToast, MessageBox, File, BusyIndicator) {
 	"use strict";
 
 	return Controller.extend("Z_Fixed_Cost_Report_FCR.controller.View1", {
 		onInit: function() {
+			this._oODataModel = null;
+			this._oODataReady = null;
+
 			this._oAmountFormat = NumberFormat.getFloatInstance({
 				groupingEnabled: true,
 				maxFractionDigits: 0
@@ -35,30 +39,23 @@ sap.ui.define([
 				Q4: [10, 11, 12]
 			};
 
-			this._mGroupNames = {
-				LAB: "Labour and Benefits",
-				POW: "Power and Utilities",
-				REP: "Repairs and Maintenance",
-				ADM: "Administration Overheads",
-				DEP: "Depreciation",
-				SEC: "Security and Facility"
-			};
+			// Kept for compatibility with existing helper functions and UI text mapping.
+			this._mGroupNames = {};
 
 			this._aPeriodMonthNames = ["", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar"];
 
-			this._aBaseRows = this._createBaseRows();
-
 			this.getView().setModel(new JSONModel({
-				companyCode: "1000",
-				fiscalYear: "2026",
+				companyCode: "",
+				fiscalYear: "",
 				profitCenters: [],
 				glGroups: [],
 				quarters: [] // Stays empty to mean "All Quarters" or select by default
 			}), "filters");
 
 			this.getView().setModel(new JSONModel({
-				profitCenters: this._createProfitCenters(),
-				glGroups: this._createGlGroups(),
+				companyCodes: [],
+				profitCenters: [],
+				glGroups: [],
 				quarters: [{
 					key: "Q1",
 					text: "Q1 - Period 1 to 3"
@@ -120,7 +117,13 @@ sap.ui.define([
 				recordCount: "0"
 			}), "ui");
 
-			this._applyFilters(false);
+			// Initialize OData metadata/value-helps, but do not load report data until "Run Report".
+			this._initOData().catch(function(oErr) {
+				// Keep the UI usable even if the service isn't reachable in the current environment.
+				MessageBox.error("Unable to initialize OData service ZO_FCR_SRV.", {
+					details: (oErr && oErr.message) ? oErr.message : String(oErr || "")
+				});
+			});
 		},
 
 		/**
@@ -137,6 +140,7 @@ sap.ui.define([
 
 		onAfterRendering: function() {
 			this._configureCharts();
+			this._wireScrollAutoCollapse();
 		},
 
 		onSearch: function() {
@@ -149,14 +153,14 @@ sap.ui.define([
 
 		onReset: function() {
 			this.getView().getModel("filters").setData({
-				companyCode: "1000",
-				fiscalYear: "2026",
+				companyCode: "",
+				fiscalYear: "",
 				profitCenters: [],
 				glGroups: [],
 				quarters: []
 			});
 			this._clearSearch();
-			this._applyFilters(true);
+			// Do not auto-fetch on reset; user will press Run Report.
 		},
 
 		onQuarterValueHelp: function() {
@@ -169,7 +173,6 @@ sap.ui.define([
 
 			if (sYear && sYear.length === 4) {
 				this.getView().getModel("filters").setProperty("/fiscalYear", sYear);
-				this._applyFilters(true);
 			}
 		},
 
@@ -210,8 +213,18 @@ sap.ui.define([
 		},
 
 		onViewModeChange: function(oEvent) {
-
-			var sKey = oEvent.getParameter("item").getKey();
+			var sKey = "";
+			var oSource = oEvent.getSource();
+			if (oSource && oSource.getSelectedKey) {
+				sKey = oSource.getSelectedKey() || "";
+			}
+			if (!sKey) {
+				sKey = oEvent.getParameter("key") || "";
+			}
+			if (!sKey) {
+				var oItem = oEvent.getParameter("item");
+				sKey = oItem && oItem.getKey ? (oItem.getKey() || "") : "";
+			}
 
 			var oUi = this.getView().getModel("ui");
 
@@ -235,7 +248,18 @@ sap.ui.define([
 		},
 		onSegmentTabChange: function(oEvent) {
 
-			var sKey = oEvent.getParameter("item").getKey();
+			var sKey = "";
+			var oSource = oEvent.getSource();
+			if (oSource && oSource.getSelectedKey) {
+				sKey = oSource.getSelectedKey() || "";
+			}
+			if (!sKey) {
+				sKey = oEvent.getParameter("key") || "";
+			}
+			if (!sKey) {
+				var oItem = oEvent.getParameter("item");
+				sKey = oItem && oItem.getKey ? (oItem.getKey() || "") : "";
+			}
 
 			this.getView()
 				.getModel("ui")
@@ -260,18 +284,292 @@ sap.ui.define([
 		},
 
 		onProfitCentreValueHelp: function() {
-			this._openMultiSelectValueHelp("Profit Centre", "profitCenters", "profitCenters");
+			BusyIndicator.show(0);
+			this._initOData().then(function() {
+				return this._loadProfitCenterF4();
+			}.bind(this)).then(function() {
+				BusyIndicator.hide();
+				this._openMultiSelectValueHelp("Profit Centre", "profitCenters", "profitCenters", {
+					f4Kind: "PRCTR"
+				});
+			}.bind(this)).catch(function() {
+				BusyIndicator.hide();
+			});
 		},
 
 		onGlGroupValueHelp: function() {
-			this._openMultiSelectValueHelp("GL Group", "glGroups", "glGroups");
+			BusyIndicator.show(0);
+			this._initOData().then(function() {
+				return this._loadGlGroupF4();
+			}.bind(this)).then(function() {
+				BusyIndicator.hide();
+				this._openMultiSelectValueHelp("GL Group", "glGroups", "glGroups", {
+					f4Kind: "GLGRP"
+				});
+			}.bind(this)).catch(function() {
+				BusyIndicator.hide();
+			});
 		},
 
-		_openMultiSelectValueHelp: function(sTitle, sLookupPath, sFilterPath) {
+		onCompanyCodeValueHelp: function() {
+			this._openSingleSelectValueHelp("Company Code", "companyCodes", "/companyCode");
+		},
+
+		_openSingleSelectValueHelp: function(sTitle, sLookupPath, sFilterPropPath) {
+			var oView = this.getView();
+			var oFiltersModel = oView.getModel("filters");
+			var sCurrent = oFiltersModel.getProperty(sFilterPropPath) || "";
+			var sSelected = sCurrent;
+
+			var oList = new List({
+				mode: "SingleSelectMaster",
+				includeItemInSelection: true,
+				items: {
+					path: "lookups>/" + sLookupPath,
+					template: new StandardListItem({
+						title: "{lookups>key}",
+						description: "{lookups>text}"
+					})
+				}
+			});
+
+			oList.attachSelectionChange(function(oEvent) {
+				var oItem = oEvent.getParameter("listItem");
+				if (!oItem) {
+					return;
+				}
+				sSelected = oItem.getBindingContext("lookups").getProperty("key");
+			});
+
+			oList.attachUpdateFinished(function() {
+				oList.getItems().forEach(function(oItem) {
+					var sKey = oItem.getBindingContext("lookups").getProperty("key");
+					oItem.setSelected(sKey === sCurrent);
+				});
+			});
+
+			var oSearch = new SearchField({
+				width: "100%",
+				placeholder: "Search " + sTitle,
+				liveChange: function(oEvent) {
+					var sValue = oEvent.getParameter("newValue");
+					var oBinding = oList.getBinding("items");
+					var aFilters = [];
+					if (sValue) {
+						aFilters.push(new Filter({
+							filters: [
+								new Filter("key", FilterOperator.Contains, sValue),
+								new Filter("text", FilterOperator.Contains, sValue)
+							],
+							and: false
+						}));
+					}
+					oBinding.filter(aFilters);
+				}
+			});
+
+			var oDialog = new Dialog({
+				title: sTitle,
+				contentWidth: "30rem",
+				contentHeight: "34rem",
+				stretchOnPhone: true,
+				content: [oSearch, oList],
+				buttons: [
+					new Button({
+						text: "Clear",
+						press: function() {
+							oList.removeSelections(true);
+							sSelected = "";
+						}
+					}),
+					new Button({
+						text: "OK",
+						type: "Emphasized",
+						press: function() {
+							oFiltersModel.setProperty(sFilterPropPath, sSelected || "");
+							oDialog.close();
+						}.bind(this)
+					}),
+					new Button({
+						text: "Cancel",
+						press: function() {
+							oDialog.close();
+						}
+					})
+				],
+				afterClose: function() {
+					oDialog.destroy();
+				}
+			});
+
+			oView.addDependent(oDialog);
+			oDialog.open();
+		},
+
+		_initOData: function() {
+			if (this._oODataReady) {
+				return this._oODataReady;
+			}
+
+			this._oODataModel = this.getOwnerComponent().getModel();
+			if (!this._oODataModel) {
+				this._oODataReady = Promise.reject(new Error("Default OData model is not configured."));
+				return this._oODataReady;
+			}
+
+			this._oODataReady = this._oODataModel.metadataLoaded().then(function() {
+				return this._loadLookupsFromService();
+			}.bind(this));
+
+			return this._oODataReady;
+		},
+
+		_loadLookupsFromService: function() {
+			var oModel = this._oODataModel;
+			var oLookups = this.getView().getModel("lookups");
+			if (!oModel || !oLookups) {
+				return Promise.resolve();
+			}
+
+			// Company codes are not provided via a dedicated F4 set, so we still derive a small list
+			// from the detail set. Profit Centre / GL Group come from the dedicated F4 entity sets.
+			var pBukrs = this._readOData("/es_detailset", {
+				"$select": "bukrs",
+				"$top": "500"
+			}).then(function(aResults) {
+				var mBukrs = {};
+				(aResults || []).forEach(function(oRow) {
+					if (oRow && oRow.bukrs) {
+						mBukrs[oRow.bukrs] = true;
+					}
+				});
+				oLookups.setProperty("/companyCodes", Object.keys(mBukrs).sort().map(function(sKey) {
+					return {
+						key: sKey,
+						text: sKey
+					};
+				}));
+			});
+
+			var pPrctr = this._loadProfitCenterF4();
+			var pGl = this._loadGlGroupF4();
+
+			return Promise.all([pBukrs, pPrctr, pGl]).then(function() {
+				return;
+			});
+		},
+
+		_loadProfitCenterF4: function() {
+			if (this._pPrctrF4All) {
+				return this._pPrctrF4All;
+			}
+
+			this._pPrctrF4All = this._readOData("/es_f4_prctrset", {
+				"$format": "json",
+				"$select": "prctr,ltext",
+				"$top": "5000"
+			}).then(function(aResults) {
+				var oLookups = this.getView().getModel("lookups");
+				oLookups.setProperty("/profitCenters", (aResults || []).map(function(o) {
+					var sKey = (o && o.prctr) ? String(o.prctr) : "";
+					var sText = (o && o.ltext) ? String(o.ltext) : "";
+					return {
+						key: sKey,
+						text: sText
+					};
+				}).filter(function(o) {
+					return !!o.key;
+				}));
+			}.bind(this)).catch(function() {
+				// Non-blocking: keep typing usable even if F4 fails
+				return;
+			});
+
+			return this._pPrctrF4All;
+		},
+
+		_loadGlGroupF4: function() {
+			if (this._pGlGroupF4All) {
+				return this._pGlGroupF4All;
+			}
+
+			this._pGlGroupF4All = this._readOData("/es_f4_gl_ac_grpset", {
+				"$format": "json",
+				"$select": "gl_ac_group",
+				"$top": "5000"
+			}).then(function(aResults) {
+				var oLookups = this.getView().getModel("lookups");
+				oLookups.setProperty("/glGroups", (aResults || []).map(function(o) {
+					var sVal = (o && o.gl_ac_group) ? String(o.gl_ac_group) : "";
+					return {
+						key: sVal,
+						text: sVal
+					};
+				}).filter(function(o) {
+					return !!o.key;
+				}));
+			}.bind(this)).catch(function() {
+				return;
+			});
+
+			return this._pGlGroupF4All;
+		},
+
+		_readOData: function(sPath, mUrlParameters) {
+			var oModel = this._oODataModel;
+			return new Promise(function(resolve, reject) {
+				if (!oModel) {
+					reject(new Error("OData model not available"));
+					return;
+				}
+
+				oModel.read(sPath, {
+					urlParameters: mUrlParameters || {},
+					success: function(oData) {
+						resolve((oData && oData.results) ? oData.results : []);
+					},
+					error: function(oErr) {
+						reject(oErr);
+					}
+				});
+			});
+		},
+
+		_readODataPaged: function(sPath, mUrlParameters, iMaxRows) {
+			var iPageSize = 5000;
+			var iMax = typeof iMaxRows === "number" ? iMaxRows : 50000;
+			var aAll = [];
+			var iSkip = 0;
+
+			var fnNext = function() {
+				var m = Object.assign({}, mUrlParameters || {});
+				m["$top"] = String(iPageSize);
+				m["$skip"] = String(iSkip);
+
+				return this._readOData(sPath, m).then(function(aChunk) {
+					aChunk = aChunk || [];
+					aAll = aAll.concat(aChunk);
+					iSkip += aChunk.length;
+
+					if (aChunk.length < iPageSize) {
+						return aAll;
+					}
+					if (aAll.length >= iMax) {
+						return aAll.slice(0, iMax);
+					}
+					return fnNext();
+				});
+			}.bind(this);
+
+			return fnNext();
+		},
+
+		_openMultiSelectValueHelp: function(sTitle, sLookupPath, sFilterPath, mOptions) {
 			var oView = this.getView();
 			var oFiltersModel = oView.getModel("filters");
 			var aCurrent = oFiltersModel.getProperty("/" + sFilterPath) || [];
 			var mSelected = {};
+			var sF4Kind = (mOptions && mOptions.f4Kind) ? mOptions.f4Kind : "";
 
 			aCurrent.forEach(function(oItem) {
 				mSelected[oItem.key] = true;
@@ -310,6 +608,7 @@ sap.ui.define([
 				placeholder: "Search " + sTitle,
 				liveChange: function(oEvent) {
 					var sValue = oEvent.getParameter("newValue");
+					// Client-side filtering (F4 lists are loaded once with a BusyIndicator on open).
 					var oBinding = oList.getBinding("items");
 					var aFilters = [];
 					if (sValue) {
@@ -322,7 +621,7 @@ sap.ui.define([
 						}));
 					}
 					oBinding.filter(aFilters);
-				}
+				}.bind(this)
 			});
 
 			var oDialog = new Dialog({
@@ -352,7 +651,6 @@ sap.ui.define([
 							});
 
 							oFiltersModel.setProperty("/" + sFilterPath, aSelected);
-							this._applyFilters(true);
 							oDialog.close();
 						}.bind(this)
 					}),
@@ -374,6 +672,8 @@ sap.ui.define([
 
 		_applyFilters: function(bMarkRun) {
 			var oFilters = this.getView().getModel("filters").getData();
+			var oUi = this.getView().getModel("ui");
+			var oFcr = this.getView().getModel("fcr");
 
 			// Handle Quarters Multi-Selection
 			var aSelectedQuarters = (oFilters.quarters || []).map(function(o) {
@@ -394,33 +694,103 @@ sap.ui.define([
 			// Fix: If no specific quarters are selected, keep columns active for all months (1 to 12)
 			this._syncPeriodVisibility(aPeriods);
 			this._updateSelectedValuesText(oFilters);
-
-			var aRows = this._aBaseRows.filter(function(oRow) {
-				var bCompany = !oFilters.companyCode || oRow.companyCode === oFilters.companyCode;
-				var bYear = !oFilters.fiscalYear || oRow.fiscalYear === oFilters.fiscalYear;
-				var bPeriod = !aPeriods.length || aPeriods.indexOf(oRow.period) !== -1;
-				var bProfitCenter = !aProfitCenters.length || aProfitCenters.indexOf(oRow.profitCenter) !== -1;
-				var bGlGroup = !aGlGroups.length || aGlGroups.indexOf(oRow.glGroup) !== -1;
-
-				return bCompany && bYear && bPeriod && bProfitCenter && bGlGroup;
-			});
-
-			var aDetailRows = this._buildDetailPivotRows(aRows);
-			var aSummaryRows = this._buildGroupPivotRows(aRows);
-			var aTopDetailRows = aDetailRows.slice().sort(this._sortByTotalDesc).slice(0, 5);
-			var aTopSummaryRows = aSummaryRows.slice().sort(this._sortByTotalDesc).slice(0, 5);
-
-			this.getView().getModel("fcr").setData({
-				allDetailRows: aDetailRows,
-				allSummaryRows: aSummaryRows,
-				allSummaryChart: this._createChartRows(aDetailRows, 12),
-				topDetailRows: aTopDetailRows,
-				topSummaryRows: aTopSummaryRows,
-				topSummaryChart: this._createChartRows(aTopDetailRows, 5)
-			});
-
-			this._updateTotalsFromPivot(aDetailRows, bMarkRun);
 			this._updatePeriodText(oFilters, aPeriods);
+
+			// Ensure OData model is ready (metadata + lookup init)
+			var pReady = this._initOData();
+
+			// Use core BusyIndicator for compatibility with older UI5 runtimes.
+			BusyIndicator.show(0);
+
+			pReady.then(function() {
+				var sBukrs = (oFilters.companyCode || "").trim();
+				var sYear = (oFilters.fiscalYear || "").trim();
+				var aPrctr = aProfitCenters.slice();
+				var aGl = aGlGroups.slice();
+
+				var aDetailFilters = [];
+				if (sBukrs) {
+					aDetailFilters.push("bukrs eq '" + this._odataLiteral(sBukrs) + "'");
+				}
+				if (sYear) {
+					aDetailFilters.push("ryear eq '" + this._odataLiteral(sYear) + "'");
+				}
+				if (aPrctr.length) {
+					aDetailFilters.push("(" + aPrctr.map(function(s) {
+						return "prctr eq '" + this._odataLiteral(s) + "'";
+					}.bind(this)).join(" or ") + ")");
+				}
+				if (aGl.length) {
+					aDetailFilters.push("(" + aGl.map(function(s) {
+						return "gl_ac_group eq '" + this._odataLiteral(s) + "'";
+					}.bind(this)).join(" or ") + ")");
+				}
+
+				var sDetailFilter = aDetailFilters.join(" and ");
+
+				var aSummaryFilters = [];
+				if (sBukrs) {
+					aSummaryFilters.push("bukrs eq '" + this._odataLiteral(sBukrs) + "'");
+				}
+				if (sYear) {
+					aSummaryFilters.push("ryear eq '" + this._odataLiteral(sYear) + "'");
+				}
+				if (aPrctr.length) {
+					aSummaryFilters.push("(" + aPrctr.map(function(s) {
+						return "prctr eq '" + this._odataLiteral(s) + "'";
+					}.bind(this)).join(" or ") + ")");
+				}
+				if (aGl.length) {
+					aSummaryFilters.push("(" + aGl.map(function(s) {
+						return "gl_ac_group eq '" + this._odataLiteral(s) + "'";
+					}.bind(this)).join(" or ") + ")");
+				}
+				var sSummaryFilter = aSummaryFilters.join(" and ");
+
+				return Promise.all([
+					this._readODataPaged("/es_detailset", sDetailFilter ? {
+						"$filter": sDetailFilter
+					} : {}, 50000),
+					this._readODataPaged("/es_summaryset", sSummaryFilter ? {
+						"$filter": sSummaryFilter
+					} : {}, 50000)
+				]);
+			}.bind(this)).then(function(aResults) {
+				var aDetailRaw = aResults[0] || [];
+				var aSummaryRaw = aResults[1] || [];
+
+				var aDetailRows = aDetailRaw.map(this._mapDetailRowFromOData.bind(this)).filter(Boolean);
+				var aSummaryRows = aSummaryRaw.map(this._mapSummaryRowFromOData.bind(this)).filter(Boolean);
+
+				var aTopDetailRows = aDetailRows.slice().sort(this._sortByTotalDesc).slice(0, 5);
+				var aTopSummaryRows = aSummaryRows.slice().sort(this._sortByTotalDesc).slice(0, 5);
+
+				oFcr.setData({
+					allDetailRows: aDetailRows,
+					allSummaryRows: aSummaryRows,
+					allSummaryChart: this._createChartRows(aDetailRows, 12),
+					topDetailRows: aTopDetailRows,
+					topSummaryRows: aTopSummaryRows,
+					topSummaryChart: this._createChartRows(aTopDetailRows, 5)
+				});
+
+				this._updateTotalsFromPivot(aDetailRows, bMarkRun);
+
+				var sGlobalQuery = oUi.getProperty("/globalSearch") || "";
+				this._applyUniversalSearch("all", sGlobalQuery);
+				this._applyUniversalSearch("top", sGlobalQuery);
+				this._refreshChartStyling();
+				this._updateKpisFromActive();
+			}.bind(this)).catch(function(oErr) {
+				MessageBox.error("Failed to load data from ZO_FCR_SRV.", {
+					details: (oErr && oErr.message) ? oErr.message : String(oErr || "")
+				});
+			}).finally(function() {
+				BusyIndicator.hide();
+			});
+
+			// Keep old behavior (function is now async, so we stop here).
+			return;
 			// this._applyUniversalSearch("all", this.getView().getModel("ui").getProperty("/allSearch") || "");
 			// this._applyUniversalSearch("top", this.getView().getModel("ui").getProperty("/topSearch") || "");
 			// this._refreshChartStyling();
@@ -433,6 +803,166 @@ sap.ui.define([
 
 			this._refreshChartStyling();
 			this._updateKpisFromActive();
+		},
+
+		_mapDetailRowFromOData: function(o) {
+			if (!o) {
+				return null;
+			}
+			var m = this._mapPeriodFieldsFromOData(o);
+			var iTotal = this._parseAmount(o.total);
+			var sGlGroup = o.gl_ac_group || "";
+			var sGlAccount = o.saknr || "";
+			var sGlText = o.gl_ac_text || "";
+
+			return {
+				glAccount: sGlAccount,
+				glName: sGlText,
+				glGroup: sGlGroup,
+				glGroupText: sGlGroup,
+				p1: m.p1,
+				p2: m.p2,
+				p3: m.p3,
+				p4: m.p4,
+				p5: m.p5,
+				p6: m.p6,
+				p7: m.p7,
+				p8: m.p8,
+				p9: m.p9,
+				p10: m.p10,
+				p11: m.p11,
+				p12: m.p12,
+				p1Text: m.p1Text,
+				p2Text: m.p2Text,
+				p3Text: m.p3Text,
+				p4Text: m.p4Text,
+				p5Text: m.p5Text,
+				p6Text: m.p6Text,
+				p7Text: m.p7Text,
+				p8Text: m.p8Text,
+				p9Text: m.p9Text,
+				p10Text: m.p10Text,
+				p11Text: m.p11Text,
+				p12Text: m.p12Text,
+				q1: m.q1,
+				q2: m.q2,
+				q3: m.q3,
+				q4: m.q4,
+				q1Text: m.q1Text,
+				q2Text: m.q2Text,
+				q3Text: m.q3Text,
+				q4Text: m.q4Text,
+				total: iTotal,
+				totalText: this._formatAmount(iTotal),
+				totalState: this._varianceState(iTotal)
+			};
+		},
+
+		_mapSummaryRowFromOData: function(o) {
+			if (!o) {
+				return null;
+			}
+			var m = this._mapPeriodFieldsFromOData(o);
+			var iTotal = this._parseAmount(o.total);
+			var sGlGroup = o.gl_ac_group || "";
+			return {
+				glGroup: sGlGroup,
+				groupName: sGlGroup,
+				p1: m.p1,
+				p2: m.p2,
+				p3: m.p3,
+				p4: m.p4,
+				p5: m.p5,
+				p6: m.p6,
+				p7: m.p7,
+				p8: m.p8,
+				p9: m.p9,
+				p10: m.p10,
+				p11: m.p11,
+				p12: m.p12,
+				p1Text: m.p1Text,
+				p2Text: m.p2Text,
+				p3Text: m.p3Text,
+				p4Text: m.p4Text,
+				p5Text: m.p5Text,
+				p6Text: m.p6Text,
+				p7Text: m.p7Text,
+				p8Text: m.p8Text,
+				p9Text: m.p9Text,
+				p10Text: m.p10Text,
+				p11Text: m.p11Text,
+				p12Text: m.p12Text,
+				q1: m.q1,
+				q2: m.q2,
+				q3: m.q3,
+				q4: m.q4,
+				q1Text: m.q1Text,
+				q2Text: m.q2Text,
+				q3Text: m.q3Text,
+				q4Text: m.q4Text,
+				total: iTotal,
+				totalText: this._formatAmount(iTotal),
+				totalState: this._varianceState(iTotal)
+			};
+		},
+
+		_mapPeriodFieldsFromOData: function(o) {
+			var p = {};
+			p.p1 = this._parseAmount(o.hsl01);
+			p.p2 = this._parseAmount(o.hsl02);
+			p.p3 = this._parseAmount(o.hsl03);
+			p.p4 = this._parseAmount(o.hsl04);
+			p.p5 = this._parseAmount(o.hsl05);
+			p.p6 = this._parseAmount(o.hsl06);
+			p.p7 = this._parseAmount(o.hsl07);
+			// Metadata uses "rhsl08" for November; handle either spelling.
+			p.p8 = this._parseAmount((o.rhsl08 !== undefined) ? o.rhsl08 : o.hsl08);
+			p.p9 = this._parseAmount(o.hsl09);
+			p.p10 = this._parseAmount(o.hsl10);
+			p.p11 = this._parseAmount(o.hsl11);
+			p.p12 = this._parseAmount(o.hsl12);
+
+			p.p1Text = this._formatAmount(p.p1);
+			p.p2Text = this._formatAmount(p.p2);
+			p.p3Text = this._formatAmount(p.p3);
+			p.p4Text = this._formatAmount(p.p4);
+			p.p5Text = this._formatAmount(p.p5);
+			p.p6Text = this._formatAmount(p.p6);
+			p.p7Text = this._formatAmount(p.p7);
+			p.p8Text = this._formatAmount(p.p8);
+			p.p9Text = this._formatAmount(p.p9);
+			p.p10Text = this._formatAmount(p.p10);
+			p.p11Text = this._formatAmount(p.p11);
+			p.p12Text = this._formatAmount(p.p12);
+
+			p.q1 = this._parseAmount(o.q1);
+			p.q2 = this._parseAmount(o.q2);
+			p.q3 = this._parseAmount(o.q3);
+			p.q4 = this._parseAmount(o.q4);
+
+			p.q1Text = this._formatAmount(p.q1);
+			p.q2Text = this._formatAmount(p.q2);
+			p.q3Text = this._formatAmount(p.q3);
+			p.q4Text = this._formatAmount(p.q4);
+
+			return p;
+		},
+
+		_parseAmount: function(v) {
+			if (v === null || v === undefined) {
+				return 0;
+			}
+			if (typeof v === "number") {
+				return v;
+			}
+			var s = String(v);
+			s = s.replace(/[, ]/g, "");
+			var n = parseFloat(s);
+			return isNaN(n) ? 0 : n;
+		},
+
+		_odataLiteral: function(sValue) {
+			return String(sValue || "").replace(/'/g, "''");
 		},
 
 		_updateTotalsFromPivot: function(aRows, bMarkRun) {
@@ -528,71 +1058,37 @@ sap.ui.define([
 		},
 
 		_wireScrollAutoCollapse: function() {
-
 			var oView = this.getView();
-
 			var oDomRef = oView.getDomRef();
-
 			if (!oDomRef) {
 				return;
 			}
 
-			var oScrollContainer =
-				oDomRef.querySelector(".sapMPageEnableScrolling");
-
-			if (!oScrollContainer) {
+			var oScroll = oDomRef.querySelector(".sapMPageEnableScrolling");
+			if (!oScroll) {
 				return;
 			}
 
 			if (this._fnScrollHandler) {
-
-				oScrollContainer.removeEventListener(
-					"scroll",
-					this._fnScrollHandler
-				);
+				oScroll.removeEventListener("scroll", this._fnScrollHandler);
 			}
 
 			this._fnScrollHandler = function() {
+				var oUiModel = oView.getModel("ui");
+				var bExpanded = !!oUiModel.getProperty("/paramsExpanded");
+				var iTop = oScroll.scrollTop || 0;
 
-				var iTop = oScrollContainer.scrollTop;
-
-				var oParamSection =
-					this.byId("paramSection");
-
-				if (!oParamSection) {
-					return;
+				// Scroll down => collapse; scroll back to top => expand.
+				if (iTop > 90 && bExpanded) {
+					oUiModel.setProperty("/paramsExpanded", false);
+				} else if (iTop <= 10 && !bExpanded) {
+					oUiModel.setProperty("/paramsExpanded", true);
 				}
+			};
 
-				var oParamDom =
-					oParamSection.getDomRef();
-
-				if (!oParamDom) {
-					return;
-				}
-
-				/* SCROLL DOWN => COLLAPSE */
-
-				if (iTop > 80) {
-
-					oParamDom.classList.add(
-						"fcrParamWrapCollapsed"
-					);
-
-				} else {
-
-					oParamDom.classList.remove(
-						"fcrParamWrapCollapsed"
-					);
-				}
-
-			}.bind(this);
-
-			oScrollContainer.addEventListener(
-				"scroll",
-				this._fnScrollHandler, {
-					passive: true
-				}
-			);
+			oScroll.addEventListener("scroll", this._fnScrollHandler, {
+				passive: true
+			});
 		},
 
 		_paletteForChart: function(sChartId) {
@@ -886,73 +1382,7 @@ sap.ui.define([
 			oUi.setProperty("/varianceState", this._varianceState(iMax));
 			oUi.setProperty("/recordCount", this._formatAmount(aRows.length));
 		},
-		_wireScrollAutoCollapse: function() {
 
-			var oView = this.getView();
-
-			var oDomRef = oView.getDomRef();
-
-			if (!oDomRef) {
-				return;
-			}
-
-			var oScrollContainer =
-				oDomRef.querySelector(".sapMPageEnableScrolling");
-
-			if (!oScrollContainer) {
-				return;
-			}
-
-			if (this._fnScrollHandler) {
-
-				oScrollContainer.removeEventListener(
-					"scroll",
-					this._fnScrollHandler
-				);
-			}
-
-			this._fnScrollHandler = function() {
-
-				var iTop = oScrollContainer.scrollTop;
-
-				var oParamSection =
-					this.byId("paramSection");
-
-				if (!oParamSection) {
-					return;
-				}
-
-				var oParamDom =
-					oParamSection.getDomRef();
-
-				if (!oParamDom) {
-					return;
-				}
-
-				/* SCROLL DOWN => COLLAPSE */
-
-				if (iTop > 80) {
-
-					oParamDom.classList.add(
-						"fcrParamWrapCollapsed"
-					);
-
-				} else {
-
-					oParamDom.classList.remove(
-						"fcrParamWrapCollapsed"
-					);
-				}
-
-			}.bind(this);
-
-			oScrollContainer.addEventListener(
-				"scroll",
-				this._fnScrollHandler, {
-					passive: true
-				}
-			);
-		},
 
 		_refreshChartStyling: function() {
 			["allSummaryChart", "topSummaryChart"].forEach(function(sChartId) {
@@ -1084,112 +1514,17 @@ sap.ui.define([
 			return s;
 		},
 
-		_createProfitCenters: function() {
-			return [{
-				key: "PC100",
-				text: "Rail Coach Assembly"
-			}, {
-				key: "PC200",
-				text: "Foundry Operations"
-			}, {
-				key: "PC300",
-				text: "Maintenance Workshop"
-			}, {
-				key: "PC400",
-				text: "Corporate Services"
-			}, {
-				key: "PC500",
-				text: "Paint Shop"
-			}];
-		},
-
-		_createGlGroups: function() {
-			return Object.keys(this._mGroupNames).map(function(sKey) {
-				return {
-					key: sKey,
-					text: this._mGroupNames[sKey]
-				};
-			}.bind(this));
-		},
-
-		_createBaseRows: function() {
-			return [
-				// --- Q1: Periods 1 to 3 (Apr, May, Jun) ---
-				this._row("PC100", "LAB", "500101", "Basic Wages", 1, 1420000, 1495000),
-				this._row("PC100", "POW", "510201", "Electricity Charges", 1, 880000, 960000),
-				this._row("PC100", "REP", "520301", "Mechanical Repairs", 2, 610000, 575000),
-				this._row("PC100", "DEP", "560101", "Plant Depreciation", 3, 760000, 760000),
-				this._row("PC200", "LAB", "500102", "Contract Labour", 1, 1180000, 1275000),
-				this._row("PC200", "POW", "510202", "Fuel and Gas", 2, 970000, 1030000),
-				this._row("PC200", "REP", "520302", "Foundry Maintenance", 3, 690000, 820000),
-				this._row("PC200", "SEC", "540101", "Security Services", 3, 240000, 225000),
-				this._row("PC300", "LAB", "500103", "Overtime Wages", 2, 530000, 610000),
-				this._row("PC300", "ADM", "530101", "Office Administration", 2, 390000, 360000),
-				this._row("PC300", "REP", "520303", "Preventive Maintenance", 3, 840000, 790000),
-				this._row("PC400", "ADM", "530102", "Shared Service Cost", 1, 720000, 755000),
-				this._row("PC400", "SEC", "540102", "Facility Management", 2, 315000, 349000),
-				this._row("PC400", "DEP", "560102", "Building Depreciation", 3, 410000, 410000),
-				this._row("PC500", "POW", "510203", "Compressed Air", 1, 520000, 595000),
-				this._row("PC500", "LAB", "500104", "Paint Shop Labour", 2, 680000, 642000),
-				this._row("PC500", "REP", "520304", "Booth Maintenance", 3, 455000, 530000),
-
-				// --- Q2: Periods 4 to 6 (Jul, Aug, Sep) ---
-				this._row("PC100", "LAB", "500101", "Basic Wages", 4, 1450000, 1510000),
-				this._row("PC100", "POW", "510201", "Electricity Charges", 4, 910000, 890000),
-				this._row("PC100", "REP", "520301", "Mechanical Repairs", 5, 630000, 650000),
-				this._row("PC200", "POW", "510202", "Fuel and Gas", 5, 1010000, 980000),
-				this._row("PC200", "LAB", "500102", "Contract Labour", 6, 1200000, 1150000),
-				this._row("PC300", "REP", "520303", "Preventive Maintenance", 6, 860000, 925000),
-				this._row("PC300", "ADM", "530101", "Office Administration", 4, 400000, 410000),
-				this._row("PC400", "SEC", "540102", "Facility Management", 5, 320000, 310000),
-				this._row("PC500", "LAB", "500104", "Paint Shop Labour", 6, 700000, 720000),
-
-				// --- Q3: Periods 7 to 9 (Oct, Nov, Dec) ---
-				this._row("PC400", "ADM", "530102", "Shared Service Cost", 7, 735000, 705000),
-				this._row("PC100", "LAB", "500101", "Basic Wages", 7, 1480000, 1460000),
-				this._row("PC100", "POW", "510201", "Electricity Charges", 8, 950000, 1020000),
-				this._row("PC500", "POW", "510203", "Compressed Air", 8, 540000, 622000),
-				this._row("PC200", "REP", "520302", "Foundry Maintenance", 9, 710000, 750000),
-				this._row("PC300", "LAB", "500103", "Overtime Wages", 9, 550000, 580000),
-				this._row("PC400", "DEP", "560102", "Building Depreciation", 7, 410000, 410000),
-				this._row("PC500", "REP", "520304", "Booth Maintenance", 8, 460000, 440000),
-
-				// --- Q4: Periods 10 to 12 (Jan, Feb, Mar) ---
-				this._row("PC100", "DEP", "560101", "Plant Depreciation", 10, 780000, 780000),
-				this._row("PC100", "LAB", "500101", "Basic Wages", 11, 1500000, 1530000),
-				this._row("PC200", "SEC", "540101", "Security Services", 11, 250000, 268000),
-				this._row("PC200", "LAB", "500102", "Contract Labour", 10, 1250000, 1290000),
-				this._row("PC300", "REP", "520303", "Preventive Maintenance", 12, 880000, 860000),
-				this._row("PC400", "ADM", "530102", "Shared Service Cost", 12, 750000, 780000),
-				this._row("PC500", "POW", "510203", "Compressed Air", 10, 560000, 540000),
-				this._row("PC500", "LAB", "500104", "Paint Shop Labour", 12, 720000, 710000)
-			];
-		},
-
-		_row: function(sProfitCenter, sGlGroup, sGlAccount, sGlName, iPeriod, iBudget, iActual) {
-			return {
-				companyCode: "1000",
-				fiscalYear: "2026",
-				profitCenter: sProfitCenter,
-				glGroup: sGlGroup,
-				glAccount: sGlAccount,
-				glName: sGlName,
-				period: iPeriod,
-				budget: iBudget,
-				actual: iActual
-			};
-		},
-
 		/**
 		 * Synchronizes the data model when the MultiInput is cleared via the UI icon
 		 */
 		onTokenUpdate: function(oEvent) {
+			var oFiltersModel = this.getView().getModel("filters");
 			var sType = oEvent.getParameter("type");
 
+			// With valueHelpOnly=true, this mainly handles user clearing tokens via the MultiInput "x".
 			if (sType === "removed") {
 				var oSource = oEvent.getSource();
 				var sId = oSource.getId();
-				var oFiltersModel = this.getView().getModel("filters");
 
 				if (sId.includes("quarterInput")) {
 					oFiltersModel.setProperty("/quarters", []);
@@ -1198,8 +1533,6 @@ sap.ui.define([
 				} else if (sId.includes("glGroupInput")) {
 					oFiltersModel.setProperty("/glGroups", []);
 				}
-
-				this._applyFilters(true);
 			}
 		}
 	});
