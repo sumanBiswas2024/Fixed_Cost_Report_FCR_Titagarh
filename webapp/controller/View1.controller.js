@@ -19,6 +19,9 @@ sap.ui.define([
 
 	return Controller.extend("Z_Fixed_Cost_Report_FCR.controller.View1", {
 		onInit: function() {
+
+			this.setUpFiscalYear();
+
 			this._oODataModel = null;
 			this._oODataReady = null;
 
@@ -140,7 +143,25 @@ sap.ui.define([
 
 		onAfterRendering: function() {
 			this._configureCharts();
-			this._wireScrollAutoCollapse();
+			// this._wireScrollAutoCollapse();
+		},
+
+		setUpFiscalYear: function() {
+			var aYears = [];
+			var iCurrentYear = new Date().getFullYear();
+
+			for (var i = iCurrentYear - 5; i <= iCurrentYear + 5; i++) {
+				aYears.push({
+					key: i.toString(),
+					text: i.toString()
+				});
+			}
+
+			var oYearModel = new sap.ui.model.json.JSONModel({
+				years: aYears
+			});
+
+			this.getView().setModel(oYearModel, "yearModel");
 		},
 
 		onSearch: function() {
@@ -1382,7 +1403,6 @@ sap.ui.define([
 			oUi.setProperty("/varianceState", this._varianceState(iMax));
 			oUi.setProperty("/recordCount", this._formatAmount(aRows.length));
 		},
-
 
 		_refreshChartStyling: function() {
 			["allSummaryChart", "topSummaryChart"].forEach(function(sChartId) {
