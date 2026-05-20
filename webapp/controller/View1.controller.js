@@ -26,10 +26,21 @@ sap.ui.define([
 			this._oODataModel = null;
 			this._oODataReady = null;
 
+			// this._oAmountFormat = NumberFormat.getFloatInstance({
+			// 	groupingEnabled: true,
+			// 	maxFractionDigits: 0
+			// });
 			this._oAmountFormat = NumberFormat.getFloatInstance({
 				groupingEnabled: true,
-				maxFractionDigits: 0
+				minFractionDigits: 2, // Forces exactly 2 decimal places (e.g., 100.00)
+				maxFractionDigits: 2  // Limits to maximum 2 decimal places
 			});
+			
+			// ADD THIS NEW FORMATTER FOR WHOLE NUMBERS:
+			this._oIntegerFormat = NumberFormat.getIntegerInstance({
+				groupingEnabled: true
+			});
+			
 			this._oPercentFormat = NumberFormat.getFloatInstance({
 				groupingEnabled: true,
 				minFractionDigits: 1,
@@ -1089,7 +1100,8 @@ sap.ui.define([
 			oUiModel.setProperty("/maxGlGroupName", sTopGroupName); // New property
 			oUiModel.setProperty("/maxGlGroupValue", this._formatAmount(iTopGroupValue)); // New property
 			oUiModel.setProperty("/totalVariance", this._formatAmount(iMax));
-			oUiModel.setProperty("/recordCount", this._formatAmount(aRows.length));
+			// oUiModel.setProperty("/recordCount", this._formatAmount(aRows.length));
+			oUiModel.setProperty("/recordCount", this._oIntegerFormat.format(aRows.length));
 
 			if (bMarkRun) {
 				oUiModel.setProperty("/lastRunText", "Last run just now");
@@ -1867,7 +1879,8 @@ sap.ui.define([
 			oUi.setProperty("/totalVariance", this._formatAmount(iMax));
 			oUi.setProperty("/variancePct", this._formatPercent(0));
 			oUi.setProperty("/varianceState", this._varianceState(iMax));
-			oUi.setProperty("/recordCount", this._formatAmount(aRows.length));
+			// oUi.setProperty("/recordCount", this._formatAmount(aRows.length));
+			oUi.setProperty("/recordCount", this._oIntegerFormat.format(aRows.length));
 		},
 
 		// _refreshChartStyling: function() {
