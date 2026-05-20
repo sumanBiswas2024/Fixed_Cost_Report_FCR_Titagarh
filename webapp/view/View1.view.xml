@@ -91,7 +91,6 @@
 							<!--	<Text text="Max GL Group"/>-->
 							<!--	<Text text="{ui>/maxGlGroupName}" class="fcrKpiSubText"/>-->
 							<!--</VBox>-->
-							
 							<VBox class="fcrKpi fcrKpiB">
 								<Text text="Max GL Total"/>
 								<!--<ObjectNumber number="{ui>/totalVariance}" unit="INR" state="{ui>/varianceState}"/>-->
@@ -235,6 +234,23 @@
 													<table:label><Label text="Mar"/></table:label>
 													<table:template><ObjectNumber number="{fcr>p12Text}"/></table:template>
 												</table:Column>
+												<!--Quarter-->
+												<table:Column width="9rem" visible="{ui>/q1Visible}" hAlign="End">
+													<table:label><Label text="Q1"/></table:label>
+													<table:template><ObjectNumber number="{fcr>q1Text}"/></table:template>
+												</table:Column>
+												<table:Column width="9rem" visible="{ui>/q2Visible}" hAlign="End">
+													<table:label><Label text="Q2"/></table:label>
+													<table:template><ObjectNumber number="{fcr>q2Text}"/></table:template>
+												</table:Column>
+												<table:Column width="9rem" visible="{ui>/q3Visible}" hAlign="End">
+													<table:label><Label text="Q3"/></table:label>
+													<table:template><ObjectNumber number="{fcr>q3Text}"/></table:template>
+												</table:Column>
+												<table:Column width="9rem" visible="{ui>/q4Visible}" hAlign="End">
+													<table:label><Label text="Q4"/></table:label>
+													<table:template><ObjectNumber number="{fcr>q4Text}"/></table:template>
+												</table:Column>
 											</table:columns>
 										</table:Table>
 									</content>
@@ -326,6 +342,23 @@
 																<table:Column width="9rem" visible="{ui>/p12Visible}" hAlign="End">
 																	<table:label><Label text="Mar"/></table:label>
 																	<table:template><ObjectNumber number="{fcr>p12Text}"/></table:template>
+																</table:Column>
+																<!--Quarter-->
+																<table:Column width="9rem" visible="{ui>/q1Visible}" hAlign="End">
+																	<table:label><Label text="Q1"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>q1Text}"/></table:template>
+																</table:Column>
+																<table:Column width="9rem" visible="{ui>/q2Visible}" hAlign="End">
+																	<table:label><Label text="Q2"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>q2Text}"/></table:template>
+																</table:Column>
+																<table:Column width="9rem" visible="{ui>/q3Visible}" hAlign="End">
+																	<table:label><Label text="Q3"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>q3Text}"/></table:template>
+																</table:Column>
+																<table:Column width="9rem" visible="{ui>/q4Visible}" hAlign="End">
+																	<table:label><Label text="Q4"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>q4Text}"/></table:template>
 																</table:Column>
 															</table:columns>
 														</table:Table>
@@ -438,6 +471,23 @@
 													<table:label><Label text="Mar"/></table:label>
 													<table:template><ObjectNumber number="{fcr>p12Text}"/></table:template>
 												</table:Column>
+												<!--Quarter-->
+												<table:Column width="9rem" visible="{ui>/q1Visible}" hAlign="End">
+													<table:label><Label text="Q1"/></table:label>
+													<table:template><ObjectNumber number="{fcr>q1Text}"/></table:template>
+												</table:Column>
+												<table:Column width="9rem" visible="{ui>/q2Visible}" hAlign="End">
+													<table:label><Label text="Q2"/></table:label>
+													<table:template><ObjectNumber number="{fcr>q2Text}"/></table:template>
+												</table:Column>
+												<table:Column width="9rem" visible="{ui>/q3Visible}" hAlign="End">
+													<table:label><Label text="Q3"/></table:label>
+													<table:template><ObjectNumber number="{fcr>q3Text}"/></table:template>
+												</table:Column>
+												<table:Column width="9rem" visible="{ui>/q4Visible}" hAlign="End">
+													<table:label><Label text="Q4"/></table:label>
+													<table:template><ObjectNumber number="{fcr>q4Text}"/></table:template>
+												</table:Column>
 											</table:columns>
 										</table:Table>
 									</content>
@@ -517,6 +567,23 @@
 																<table:Column width="9rem" visible="{ui>/p12Visible}" hAlign="End">
 																	<table:label><Label text="Mar"/></table:label>
 																	<table:template><ObjectNumber number="{fcr>p12Text}"/></table:template>
+																</table:Column>
+																<!--Quarter-->
+																<table:Column width="9rem" visible="{ui>/q1Visible}" hAlign="End">
+																	<table:label><Label text="Q1"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>q1Text}"/></table:template>
+																</table:Column>
+																<table:Column width="9rem" visible="{ui>/q2Visible}" hAlign="End">
+																	<table:label><Label text="Q2"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>q2Text}"/></table:template>
+																</table:Column>
+																<table:Column width="9rem" visible="{ui>/q3Visible}" hAlign="End">
+																	<table:label><Label text="Q3"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>q3Text}"/></table:template>
+																</table:Column>
+																<table:Column width="9rem" visible="{ui>/q4Visible}" hAlign="End">
+																	<table:label><Label text="Q4"/></table:label>
+																	<table:template><ObjectNumber number="{fcr>q4Text}"/></table:template>
 																</table:Column>
 															</table:columns>
 														</table:Table>

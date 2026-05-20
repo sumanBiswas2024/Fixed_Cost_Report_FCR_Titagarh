@@ -113,6 +113,12 @@ sap.ui.define([
 				p10Visible: true,
 				p11Visible: true,
 				p12Visible: true,
+				// Quarter Fields
+				q1Visible: false,
+				q2Visible: false,
+				q3Visible: false,
+				q4Visible: false,
+
 				periodText: "",
 				lastRunText: "Ready to run",
 				totalActual: "0",
@@ -156,7 +162,7 @@ sap.ui.define([
 					showCancelButton: false,
 					customIcon: "sap-icon://synchronize",
 					customIconRotationSpeed: 800,
-					
+
 					customClass: "fcrBusyDialog"
 				});
 			}
@@ -758,7 +764,8 @@ sap.ui.define([
 			});
 
 			// Fix: If no specific quarters are selected, keep columns active for all months (1 to 12)
-			that._syncPeriodVisibility(aPeriods);
+			// that._syncPeriodVisibility(aPeriods);
+			this._syncPeriodVisibility(aSelectedQuarters);
 			that._updateSelectedValuesText(oFilters);
 			that._updatePeriodText(oFilters, aPeriods);
 
@@ -1425,17 +1432,20 @@ sap.ui.define([
 		},
 
 		// Fix: Synchronize monthly column visibilities correctly when aPeriods is empty
-		_syncPeriodVisibility: function(aPeriods) {
+		_syncPeriodVisibility: function(aSelectedQuarters) {
 			var oUiModel = this.getView().getModel("ui");
+			var bQuarterSelected = (aSelectedQuarters && aSelectedQuarters.length > 0);
+
+			// Hide/Show Month columns (p1 - p12)
 			for (var i = 1; i <= 12; i++) {
-				if (!aPeriods || aPeriods.length === 0) {
-					// If no specific quarter selected, all months remain visible
-					oUiModel.setProperty("/p" + i + "Visible", true);
-				} else {
-					// Otherwise, match exact quarter indices
-					oUiModel.setProperty("/p" + i + "Visible", aPeriods.indexOf(i) !== -1);
-				}
+				oUiModel.setProperty("/p" + i + "Visible", !bQuarterSelected);
 			}
+
+			// Hide/Show Quarter columns (q1 - q4)
+			oUiModel.setProperty("/q1Visible", bQuarterSelected && aSelectedQuarters.indexOf("Q1") !== -1);
+			oUiModel.setProperty("/q2Visible", bQuarterSelected && aSelectedQuarters.indexOf("Q2") !== -1);
+			oUiModel.setProperty("/q3Visible", bQuarterSelected && aSelectedQuarters.indexOf("Q3") !== -1);
+			oUiModel.setProperty("/q4Visible", bQuarterSelected && aSelectedQuarters.indexOf("Q4") !== -1);
 		},
 
 		_updateSelectedValuesText: function(oFilters) {
@@ -1637,15 +1647,56 @@ sap.ui.define([
 			});
 		},
 
+		// _csvColumnsForMode: function(sMode) {
+		// 	var oUi = this.getView().getModel("ui");
+		// 	var aPeriods = [];
+		// 	for (var i = 1; i <= 12; i++) {
+		// 		if (oUi.getProperty("/p" + i + "Visible")) {
+		// 			aPeriods.push(i);
+		// 		}
+		// 	}
+		// 	var a = [];
+		// 	if (sMode === "DETAIL") {
+		// 		a.push({
+		// 			key: "glAccount",
+		// 			label: "G/L Acct"
+		// 		});
+		// 		a.push({
+		// 			key: "glName",
+		// 			label: "G/L Acct Long Text"
+		// 		});
+		// 		a.push({
+		// 			key: "glGroupText",
+		// 			label: "G/L Group"
+		// 		});
+		// 	} else {
+		// 		a.push({
+		// 			key: "glGroup",
+		// 			label: "G/L Group"
+		// 		});
+		// 		a.push({
+		// 			key: "groupName",
+		// 			label: "G/L Group Text"
+		// 		});
+		// 	}
+		// 	a.push({
+		// 		key: "total",
+		// 		label: "Total"
+		// 	});
+		// 	aPeriods.forEach(function(iP) {
+		// 		a.push({
+		// 			key: "p" + iP,
+		// 			label: this._aPeriodMonthNames[iP]
+		// 		});
+		// 	}.bind(this));
+		// 	return a;
+		// },
+
 		_csvColumnsForMode: function(sMode) {
 			var oUi = this.getView().getModel("ui");
-			var aPeriods = [];
-			for (var i = 1; i <= 12; i++) {
-				if (oUi.getProperty("/p" + i + "Visible")) {
-					aPeriods.push(i);
-				}
-			}
 			var a = [];
+
+			// 1. Add Header Columns based on View Mode
 			if (sMode === "DETAIL") {
 				a.push({
 					key: "glAccount",
@@ -1669,16 +1720,33 @@ sap.ui.define([
 					label: "G/L Group Text"
 				});
 			}
+
+			// 2. Add Total
 			a.push({
 				key: "total",
 				label: "Total"
 			});
-			aPeriods.forEach(function(iP) {
-				a.push({
-					key: "p" + iP,
-					label: this._aPeriodMonthNames[iP]
-				});
-			}.bind(this));
+
+			// 3. Add visible Month columns (p1-p12)
+			for (var i = 1; i <= 12; i++) {
+				if (oUi.getProperty("/p" + i + "Visible")) {
+					a.push({
+						key: "p" + i,
+						label: this._aPeriodMonthNames[i]
+					});
+				}
+			}
+
+			// 4. ADD THIS BLOCK: Add visible Quarter columns (q1-q4)
+			for (var j = 1; j <= 4; j++) {
+				if (oUi.getProperty("/q" + j + "Visible")) {
+					a.push({
+						key: "q" + j,
+						label: "Q" + j
+					});
+				}
+			}
+
 			return a;
 		},
 
