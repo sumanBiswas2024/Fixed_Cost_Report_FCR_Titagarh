@@ -390,6 +390,33 @@
 														</viz:VizFrame>
 													</suite:content>
 												</suite:ChartContainerContent>
+												<!--All Trend Chart-->
+												<suite:ChartContainerContent icon="sap-icon://line-chart" title="Trend View">
+													<suite:content>
+														<viz:VizFrame id="allTrendChart" width="100%" height="420px" vizType="column" uiConfig="{applicationSet:'fiori'}">
+															<viz:dependents>
+																<viz:Popover id="allTrendPopover"/>
+															</viz:dependents>
+															<viz:dataset>
+																<viz.data:FlattenedDataset data="{fcr>/allTrendChart}">
+																	<viz.data:dimensions>
+																		<viz.data:DimensionDefinition name="Period" value="{fcr>period}"/>
+																		<viz.data:DimensionDefinition name="GL Group" value="{fcr>gl}"/>
+																	</viz.data:dimensions>
+																	<viz.data:measures>
+																		<viz.data:MeasureDefinition name="Amount" value="{fcr>value}"/>
+																	</viz.data:measures>
+																</viz.data:FlattenedDataset>
+															</viz:dataset>
+															<viz:feeds>
+																<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Amount"/>
+																<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Period"/>
+																<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="GL Group"/>
+																<viz.feeds:FeedItem uid="color" type="Dimension" values="GL Group"/>
+															</viz:feeds>
+														</viz:VizFrame>
+													</suite:content>
+												</suite:ChartContainerContent>
 											</suite:content>
 										</suite:ChartContainer>
 									</content>
@@ -609,6 +636,33 @@
 															<viz:feeds>
 																<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Total"/>
 																<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="GL Account"/>
+															</viz:feeds>
+														</viz:VizFrame>
+													</suite:content>
+												</suite:ChartContainerContent>
+												<!--Top 5 Trend Chart-->
+												<suite:ChartContainerContent icon="sap-icon://line-chart" title="Trend View">
+													<suite:content>
+														<viz:VizFrame id="topTrendChart" width="100%" height="420px" vizType="column" uiConfig="{applicationSet:'fiori'}">
+															<viz:dependents>
+																<viz:Popover id="topTrendPopover"/>
+															</viz:dependents>
+															<viz:dataset>
+																<viz.data:FlattenedDataset data="{fcr>/topTrendChart}">
+																	<viz.data:dimensions>
+																		<viz.data:DimensionDefinition name="Period" value="{fcr>period}"/>
+																		<viz.data:DimensionDefinition name="GL Group" value="{fcr>gl}"/>
+																	</viz.data:dimensions>
+																	<viz.data:measures>
+																		<viz.data:MeasureDefinition name="Amount" value="{fcr>value}"/>
+																	</viz.data:measures>
+																</viz.data:FlattenedDataset>
+															</viz:dataset>
+															<viz:feeds>
+																<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Amount"/>
+																<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Period"/>
+																<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="GL Group"/>
+																<viz.feeds:FeedItem uid="color" type="Dimension" values="GL Group"/>
 															</viz:feeds>
 														</viz:VizFrame>
 													</suite:content>

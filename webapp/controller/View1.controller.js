@@ -188,6 +188,7 @@ sap.ui.define([
 
 		onAfterRendering: function() {
 			this._configureCharts();
+			this._configureTrendChart(); // Configures the new Trend Chart
 			this._connectPopovers(); // Add this line
 			// this._wireScrollAutoCollapse();
 		},
@@ -1221,6 +1222,136 @@ sap.ui.define([
 			}.bind(this));
 		},
 
+		// _configureTrendChart: function() {
+		// 	var oVizFrame = this.byId("allTrendChart");
+		// 	if (!oVizFrame || oVizFrame.data("configured")) {
+		// 		return;
+		// 	}
+
+		// 	oVizFrame.setVizProperties({
+		// 		title: {
+		// 			visible: false
+		// 		},
+		// 		legend: {
+		// 			visible: true
+		// 		},
+		// 		plotArea: {
+		// 			dataLabel: {
+		// 				visible: true
+		// 			},
+		// 			drawingEffect: "glossy",
+		// 			colorPalette: this._paletteForChart("allTrendChart"),
+		// 			// FIX: Adjust the gap to make bars thicker and closer together
+		// 			gap: {
+		// 				innerGroupSpacing: 0.1, // Space between bars in the same month
+		// 				groupSpacing: 1.2 // Space between different months
+		// 			}
+		// 		},
+		// 		// Enables the Popover to work
+		// 		interaction: {
+		// 			selectability: {
+		// 				mode: "multiple"
+		// 			}
+		// 		},
+		// 		categoryAxis: {
+		// 			title: {
+		// 				visible: true,
+		// 				text: "Period & G/L Group"
+		// 			},
+		// 			label: {
+		// 				rotation: "45",
+		// 				allowMultiline: true,
+		// 				style: {
+		// 					fontSize: "11px",
+		// 					fontWeight: "bold"
+		// 				}
+		// 			}
+		// 		},
+		// 		valueAxis: {
+		// 			title: {
+		// 				visible: true,
+		// 				text: "Amount"
+		// 			}
+		// 		}
+		// 	});
+
+		// 	oVizFrame.data("configured", true);
+		// },
+
+		_configureTrendChart: function() {
+			["allTrendChart", "topTrendChart"].forEach(function(sChartId) {
+				var oVizFrame = this.byId(sChartId);
+				if (!oVizFrame || oVizFrame.data("configured")) {
+					return;
+				}
+
+				oVizFrame.setVizProperties({
+					title: {
+						visible: false
+					},
+					legend: {
+						visible: true
+					},
+					plotArea: {
+						dataLabel: {
+							visible: true
+						},
+						drawingEffect: "glossy",
+						colorPalette: this._paletteForChart(sChartId),
+						gap: {
+							innerGroupSpacing: 0.1,
+							groupSpacing: 1.2
+						}
+					},
+					interaction: {
+						selectability: {
+							mode: "multiple"
+						}
+					},
+					// categoryAxis: {
+					// 	title: {
+					// 		visible: true,
+					// 		text: "Period & G/L Group"
+					// 	},
+					// 	label: {
+					// 		visible: true,
+					// 		allowMultiline: true,
+					// 		linesOfWrap: 4,
+					// 		overlapBehavior: "wrap",
+					// 		rotation: 0,
+					// 		angle: 0,
+					// 		maxWidth: 200,
+					// 		truncatedLabelRatio: 0.9,
+					// 		style: {
+					// 			fontSize: "12px",
+					// 			fontWeight: "bold"
+					// 		}
+					// 	}
+					// },
+					categoryAxis: {
+						title: { visible: true, text: "Period & G/L Group" },
+						label: {
+							// FIX: -90 forces the text to ALWAYS be strictly vertical
+							rotation: "-90", 
+							allowMultiline: true,
+							style: {
+								fontSize: "11px",
+								fontWeight: "bold"
+							}
+						}
+					},
+					valueAxis: {
+						title: {
+							visible: true,
+							text: "Amount"
+						}
+					}
+				});
+
+				oVizFrame.data("configured", true);
+			}.bind(this));
+		},
+
 		// Add this new function
 		_connectPopovers: function() {
 			var oAllChart = this.byId("allSummaryChart");
@@ -1233,6 +1364,20 @@ sap.ui.define([
 			var oTopPop = this.byId("topSummaryPopover");
 			if (oTopChart && oTopPop) {
 				oTopPop.connect(oTopChart.getVizUid());
+			}
+
+			// ADD THIS NEW BLOCK FOR THE TREND CHART
+			var oTrendChart = this.byId("allTrendChart");
+			var oTrendPop = this.byId("allTrendPopover");
+			if (oTrendChart && oTrendPop) {
+				oTrendPop.connect(oTrendChart.getVizUid());
+			}
+
+			// ADD THIS FOR TOP 5 TREND
+			var oTopTrendChart = this.byId("topTrendChart");
+			var oTopTrendPop = this.byId("topTrendPopover");
+			if (oTopTrendChart && oTopTrendPop) {
+				oTopTrendPop.connect(oTopTrendChart.getVizUid());
 			}
 		},
 
@@ -1270,15 +1415,68 @@ sap.ui.define([
 			});
 		},
 
+		// _paletteForChart: function(sChartId) {
+		// 	var oFcr = this.getView().getModel("fcr");
+		// 	var sPath = sChartId === "topSummaryChart" ? "/topSummaryChart" : "/allSummaryChart";
+		// 	var aData = oFcr.getProperty(sPath) || [];
+		// 	var a = [];
+		// 	for (var i = 0; i < aData.length; i++) {
+		// 		a.push(this._colorForKey(aData[i].name));
+		// 	}
+		// 	return a;
+		// },
+		// _paletteForChart: function(sChartId) {
+		// 	var oFcr = this.getView().getModel("fcr");
+		// 	var aColors = [];
+
+		// 	// Custom logic to extract colors specifically for the Trend Chart
+		// 	if (sChartId === "allTrendChart") {
+		// 		var aTrendData = oFcr.getProperty("/allTrendChart") || [];
+		// 		var mUnique = {};
+		// 		// Find all unique GL Groups so we don't duplicate colors
+		// 		aTrendData.forEach(function(oRow) {
+		// 			mUnique[oRow.gl] = true;
+		// 		});
+		// 		var aUniqueGroups = Object.keys(mUnique);
+		// 		for (var j = 0; j < aUniqueGroups.length; j++) {
+		// 			aColors.push(this._colorForKey(aUniqueGroups[j]));
+		// 		}
+		// 		return aColors;
+		// 	}
+
+		// 	// Original logic for the Summary Charts
+		// 	var sPath = sChartId === "topSummaryChart" ? "/topSummaryChart" : "/allSummaryChart";
+		// 	var aData = oFcr.getProperty(sPath) || [];
+		// 	for (var i = 0; i < aData.length; i++) {
+		// 		aColors.push(this._colorForKey(aData[i].name));
+		// 	}
+		// 	return aColors;
+		// },
 		_paletteForChart: function(sChartId) {
 			var oFcr = this.getView().getModel("fcr");
+			var aColors = [];
+
+			// Handle BOTH trend charts
+			if (sChartId === "allTrendChart" || sChartId === "topTrendChart") {
+				var sTrendPath = sChartId === "topTrendChart" ? "/topTrendChart" : "/allTrendChart";
+				var aTrendData = oFcr.getProperty(sTrendPath) || [];
+				var mUnique = {};
+				aTrendData.forEach(function(oRow) {
+					mUnique[oRow.gl] = true;
+				});
+				var aUniqueGroups = Object.keys(mUnique);
+				for (var j = 0; j < aUniqueGroups.length; j++) {
+					aColors.push(this._colorForKey(aUniqueGroups[j]));
+				}
+				return aColors;
+			}
+
 			var sPath = sChartId === "topSummaryChart" ? "/topSummaryChart" : "/allSummaryChart";
 			var aData = oFcr.getProperty(sPath) || [];
-			var a = [];
 			for (var i = 0; i < aData.length; i++) {
-				a.push(this._colorForKey(aData[i].name));
+				aColors.push(this._colorForKey(aData[i].name));
 			}
-			return a;
+			return aColors;
 		},
 
 		_colorForKey: function(sKey) {
@@ -1547,14 +1745,94 @@ sap.ui.define([
 				var aAll = this._getFilteredTableObjects(oAllSummary, "fcr", "/allSummaryRows");
 				// FIX: Removed the 12 limit here as well.
 				oFcr.setProperty("/allSummaryChart", this._createChartRows(aAll));
+
+				// ADD THIS LINE FOR THE NEW CHART:
+				oFcr.setProperty("/allTrendChart", this._createTrendData(aAll));
 			}
 
 			var oTopSummary = this.byId("topSummaryTable");
 			if (oTopSummary && oTopSummary.getBinding("rows")) {
 				var aTop = this._getFilteredTableObjects(oTopSummary, "fcr", "/topSummaryRows");
 				oFcr.setProperty("/topSummaryChart", this._createChartRows(aTop, 5));
+
+				// ADD THIS LINE: Generate trend data for the Top 5
+				oFcr.setProperty("/topTrendChart", this._createTrendData(aTop));
 			}
 			this._refreshChartStyling();
+		},
+		// _createTrendData: function(aRows) {
+		// 	var aTrendData = [];
+		// 	var aVisiblePeriods = [];
+
+		// 	// 1. Identify which Months are visible (p1 to p12)
+		// 	for (var i = 1; i <= 12; i++) {
+		// 		if (this.getView().getModel("ui").getProperty("/p" + i + "Visible")) {
+		// 			aVisiblePeriods.push({
+		// 				key: "p" + i,
+		// 				label: this._aPeriodMonthNames[i]
+		// 			});
+		// 		}
+		// 	}
+
+		// 	// 2. Identify which Quarters are visible (q1 to q4)
+		// 	for (var j = 1; j <= 4; j++) {
+		// 		if (this.getView().getModel("ui").getProperty("/q" + j + "Visible")) {
+		// 			aVisiblePeriods.push({
+		// 				key: "q" + j,
+		// 				label: "Q" + j
+		// 			});
+		// 		}
+		// 	}
+
+		// 	// 3. Extract the specific month/quarter value for each GL Group
+		// 	aRows.forEach(function(oRow) {
+		// 		aVisiblePeriods.forEach(function(oPeriod) {
+		// 			aTrendData.push({
+		// 				gl: oRow.glGroup, // The GL Group name
+		// 				period: oPeriod.label, // "Apr", "May", or "Q1"
+		// 				value: oRow[oPeriod.key] || 0 // The actual value for that specific month/quarter!
+		// 			});
+		// 		});
+		// 	});
+
+		// 	return aTrendData;
+		// },
+		_createTrendData: function(aRows) {
+			var aTrendData = [];
+			var aVisiblePeriods = [];
+
+			for (var i = 1; i <= 12; i++) {
+				if (this.getView().getModel("ui").getProperty("/p" + i + "Visible")) {
+					aVisiblePeriods.push({
+						key: "p" + i,
+						label: this._aPeriodMonthNames[i]
+					});
+				}
+			}
+			for (var j = 1; j <= 4; j++) {
+				if (this.getView().getModel("ui").getProperty("/q" + j + "Visible")) {
+					aVisiblePeriods.push({
+						key: "q" + j,
+						label: "Q" + j
+					});
+				}
+			}
+
+			aRows.forEach(function(oRow) {
+				aVisiblePeriods.forEach(function(oPeriod) {
+					var iVal = oRow[oPeriod.key] || 0;
+
+					// FIX: Only push data if the value is not zero to prevent empty gaps!
+					if (iVal !== 0) {
+						aTrendData.push({
+							gl: oRow.glGroup,
+							period: oPeriod.label,
+							value: iVal
+						});
+					}
+				});
+			});
+			return aTrendData;
 		},
 
 		_updateKpisFromActive: function() {
@@ -1583,7 +1861,58 @@ sap.ui.define([
 			oUi.setProperty("/recordCount", this._formatAmount(aRows.length));
 		},
 
+		// _refreshChartStyling: function() {
+		// 	["allSummaryChart", "topSummaryChart"].forEach(function(sChartId) {
+		// 		var oVizFrame = this.byId(sChartId);
+		// 		if (!oVizFrame) {
+		// 			return;
+		// 		}
+		// 		var aRules = this._dataPointRulesForChart(sChartId);
+		// 		oVizFrame.setVizProperties({
+		// 			plotArea: {
+		// 				drawingEffect: "glossy",
+		// 				colorPalette: this._paletteForChart(sChartId),
+		// 				dataPointStyle: {
+		// 					rules: aRules
+		// 				}
+		// 			}
+		// 		});
+		// 	}.bind(this));
+		// },
+		// _refreshChartStyling: function() {
+		// 	// 1. Refresh Original Charts
+		// 	["allSummaryChart", "topSummaryChart"].forEach(function(sChartId) {
+		// 		var oVizFrame = this.byId(sChartId);
+		// 		if (!oVizFrame) {
+		// 			return;
+		// 		}
+
+		// 		var aRules = this._dataPointRulesForChart(sChartId);
+		// 		oVizFrame.setVizProperties({
+		// 			plotArea: {
+		// 				drawingEffect: "glossy",
+		// 				colorPalette: this._paletteForChart(sChartId),
+		// 				dataPointStyle: {
+		// 					rules: aRules
+		// 				}
+		// 			}
+		// 		});
+		// 	}.bind(this));
+
+		// 	// 2. Refresh Trend Chart Separately
+		// 	var oTrendViz = this.byId("allTrendChart");
+		// 	if (oTrendViz) {
+		// 		oTrendViz.setVizProperties({
+		// 			plotArea: {
+		// 				drawingEffect: "glossy",
+		// 				// Give it the palette, but DO NOT apply dataPointStyle rules!
+		// 				colorPalette: this._paletteForChart("allTrendChart")
+		// 			}
+		// 		});
+		// 	}
+		// },
 		_refreshChartStyling: function() {
+			// 1. Refresh Original Charts (with dataPointStyle)
 			["allSummaryChart", "topSummaryChart"].forEach(function(sChartId) {
 				var oVizFrame = this.byId(sChartId);
 				if (!oVizFrame) {
@@ -1599,6 +1928,19 @@ sap.ui.define([
 						}
 					}
 				});
+			}.bind(this));
+
+			// 2. Refresh BOTH Trend Charts (without dataPointStyle)
+			["allTrendChart", "topTrendChart"].forEach(function(sChartId) {
+				var oTrendViz = this.byId(sChartId);
+				if (oTrendViz) {
+					oTrendViz.setVizProperties({
+						plotArea: {
+							drawingEffect: "glossy",
+							colorPalette: this._paletteForChart(sChartId)
+						}
+					});
+				}
 			}.bind(this));
 		},
 
