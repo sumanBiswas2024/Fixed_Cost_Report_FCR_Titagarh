@@ -151,7 +151,7 @@
 							<VBox visible="{= ${ui>/allViewMode} === 'DETAIL' }">
 								<Panel headerText="All Details" expandable="false" expanded="true" class="fcrOutPanel" visible="{= ${ui>/allViewMode} === 'DETAIL' }">
 									<content>
-										<table:Table id="allDetailTable" rows="{fcr>/allDetailRows}" visibleRowCount="12" selectionMode="None" enableColumnReordering="true"
+										<table:Table id="allDetailTable" rows="{fcr>/allDetailRows}" visibleRowCount="9" fixedColumnCount="3" selectionMode="None" enableColumnReordering="true"
 											enableCellFilter="true" class="fcrUiTable">
 											<table:columns>
 												<table:Column width="7rem" sortProperty="glAccount" filterProperty="glAccount">
@@ -170,7 +170,7 @@
 														<Text text="{fcr>glName}"/>
 													</table:template>
 												</table:Column>
-												<table:Column width="18rem" sortProperty="glGroupText" filterProperty="glGroupText">
+												<table:Column width="16rem" sortProperty="glGroupText" filterProperty="glGroupText">
 													<table:label>
 														<Label text="G/L Group"/>
 													</table:label>
@@ -268,10 +268,10 @@
 												<!-- ========================================================= -->
 												<suite:ChartContainerContent icon="sap-icon://table-chart" title="Table View">
 													<suite:content>
-														<table:Table id="allSummaryTable" rows="{fcr>/allSummaryRows}" visibleRowCount="8" selectionMode="None" enableColumnReordering="true"
+														<table:Table id="allSummaryTable" rows="{fcr>/allSummaryRows}" visibleRowCount="8" fixedColumnCount="2" selectionMode="None" enableColumnReordering="true"
 															enableCellFilter="true" class="fcrUiTable">
 															<table:columns>
-																<table:Column width="10rem" sortProperty="glGroup" filterProperty="glGroup">
+																<table:Column width="16rem" sortProperty="glGroup" filterProperty="glGroup">
 																	<table:label>
 																		<Label text="G/L Group"/>
 																	</table:label>
@@ -429,7 +429,7 @@
 							<VBox visible="{= ${ui>/topViewMode} === 'DETAIL' }">
 								<Panel headerText="Top 4 Details" expandable="false" expanded="true" class="fcrOutPanel" visible="{= ${ui>/topViewMode} === 'DETAIL' }">
 									<content>
-										<table:Table id="topDetailTable" rows="{fcr>/topDetailRows}" visibleRowCount="8" selectionMode="None" enableColumnReordering="true"
+										<table:Table id="topDetailTable" rows="{fcr>/topDetailRows}" visibleRowCount="8" fixedColumnCount="3" selectionMode="None" enableColumnReordering="true"
 											enableCellFilter="true" class="fcrUiTable">
 											<table:columns>
 												<table:Column width="7rem">
@@ -440,7 +440,7 @@
 													<table:label><Label text="G/L Acct Long Text"/></table:label>
 													<table:template><Text text="{fcr>glName}"/></table:template>
 												</table:Column>
-												<table:Column width="18rem">
+												<table:Column width="16rem">
 													<table:label><Label text="G/L Group"/></table:label>
 													<table:template><Text text="{fcr>glGroupText}"/></table:template>
 												</table:Column>
@@ -530,10 +530,10 @@
 												<!-- TABLE -->
 												<suite:ChartContainerContent icon="sap-icon://table-chart" title="Table View">
 													<suite:content>
-														<table:Table id="topSummaryTable" rows="{fcr>/topSummaryRows}" visibleRowCount="6" selectionMode="None" enableColumnReordering="true"
+														<table:Table id="topSummaryTable" rows="{fcr>/topSummaryRows}" visibleRowCount="8" fixedColumnCount="2" selectionMode="None" enableColumnReordering="true"
 															enableCellFilter="true" class="fcrUiTable">
 															<table:columns>
-																<table:Column width="10rem">
+																<table:Column width="16rem">
 																	<table:label><Label text="G/L Group"/></table:label>
 																	<table:template><Text text="{fcr>glGroup}"/></table:template>
 																</table:Column>

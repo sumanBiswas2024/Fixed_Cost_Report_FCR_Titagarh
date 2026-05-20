@@ -172,10 +172,11 @@ sap.ui.define([
 					// customIconRotationSpeed: 1000 // Smooth, consistent rotation
 					showCancelButton: false,
 					customIcon: "sap-icon://synchronize",
-					customIconRotationSpeed: 800,
+					customIconRotationSpeed: 800
 
-					customClass: "fcrBusyDialog"
+					// customClass: "fcrBusyDialog"
 				});
+				this._oBusyDialog.addStyleClass("fcrBusyDialog");
 			}
 
 			// Dynamically update the text based on current filters for better UX
