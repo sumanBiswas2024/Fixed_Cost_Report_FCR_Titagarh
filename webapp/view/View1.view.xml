@@ -367,7 +367,7 @@
 												<!-- ========================================================= -->
 												<!-- CHART VIEW -->
 												<!-- ========================================================= -->
-												<suite:ChartContainerContent icon="sap-icon://bar-chart" title="Chart View">
+												<suite:ChartContainerContent icon="sap-icon://bar-chart" title="Total Chart View">
 													<suite:content>
 														<viz:VizFrame id="allSummaryChart" width="100%" height="420px" vizType="column" uiConfig="{applicationSet:'fiori'}">
 															<viz:dependents>
@@ -391,7 +391,7 @@
 													</suite:content>
 												</suite:ChartContainerContent>
 												<!--All Trend Chart-->
-												<suite:ChartContainerContent icon="sap-icon://line-chart" title="Trend View">
+												<suite:ChartContainerContent icon="sap-icon://line-chart" title="Period Chart View">
 													<suite:content>
 														<viz:VizFrame id="allTrendChart" width="100%" height="420px" vizType="column" uiConfig="{applicationSet:'fiori'}">
 															<viz:dependents>
@@ -410,9 +410,9 @@
 															</viz:dataset>
 															<viz:feeds>
 																<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Amount"/>
-																<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Period"/>
 																<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="GL Group"/>
-																<viz.feeds:FeedItem uid="color" type="Dimension" values="GL Group"/>
+																<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Period"/>
+																<!--<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="GL Group"/>-->
 															</viz:feeds>
 														</viz:VizFrame>
 													</suite:content>
@@ -617,7 +617,7 @@
 													</suite:content>
 												</suite:ChartContainerContent>
 												<!-- CHART -->
-												<suite:ChartContainerContent icon="sap-icon://bar-chart" title="Chart View">
+												<suite:ChartContainerContent icon="sap-icon://bar-chart" title="Total Chart View">
 													<suite:content>
 														<viz:VizFrame id="topSummaryChart" width="100%" height="420px" vizType="column" uiConfig="{applicationSet:'fiori'}">
 															<viz:dependents>
@@ -641,7 +641,7 @@
 													</suite:content>
 												</suite:ChartContainerContent>
 												<!--Top 5 Trend Chart-->
-												<suite:ChartContainerContent icon="sap-icon://line-chart" title="Trend View">
+												<suite:ChartContainerContent icon="sap-icon://line-chart" title="Period Chart View">
 													<suite:content>
 														<viz:VizFrame id="topTrendChart" width="100%" height="420px" vizType="column" uiConfig="{applicationSet:'fiori'}">
 															<viz:dependents>
@@ -660,9 +660,9 @@
 															</viz:dataset>
 															<viz:feeds>
 																<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Amount"/>
-																<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Period"/>
 																<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="GL Group"/>
-																<viz.feeds:FeedItem uid="color" type="Dimension" values="GL Group"/>
+																<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Period"/>
+																<!--<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="GL Group"/>-->
 															</viz:feeds>
 														</viz:VizFrame>
 													</suite:content>

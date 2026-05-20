@@ -1290,8 +1290,8 @@ sap.ui.define([
 						visible: false
 					},
 					legend: {
-						visible: true
-					},
+						visible: false
+					}, // Hidden since every bar will be a unique color
 					plotArea: {
 						dataLabel: {
 							visible: true
@@ -1299,8 +1299,8 @@ sap.ui.define([
 						drawingEffect: "glossy",
 						colorPalette: this._paletteForChart(sChartId),
 						gap: {
-							innerGroupSpacing: 0.1,
-							groupSpacing: 1.2
+							barSpacing: 0.4,
+							groupSpacing: 0.3
 						}
 					},
 					interaction: {
@@ -1308,34 +1308,30 @@ sap.ui.define([
 							mode: "multiple"
 						}
 					},
-					// categoryAxis: {
-					// 	title: {
-					// 		visible: true,
-					// 		text: "Period & G/L Group"
-					// 	},
-					// 	label: {
-					// 		visible: true,
-					// 		allowMultiline: true,
-					// 		linesOfWrap: 4,
-					// 		overlapBehavior: "wrap",
-					// 		rotation: 0,
-					// 		angle: 0,
-					// 		maxWidth: 200,
-					// 		truncatedLabelRatio: 0.9,
-					// 		style: {
-					// 			fontSize: "12px",
-					// 			fontWeight: "bold"
-					// 		}
-					// 	}
-					// },
 					categoryAxis: {
-						title: { visible: true, text: "Period & G/L Group" },
+						title: {
+							visible: true,
+							text: "Period & G/L Group"
+						},
 						label: {
-							// FIX: -90 forces the text to ALWAYS be strictly vertical
-							rotation: "-90", 
+							// rotation: "0", 
+							// // FIX: Enable multiline so long horizontal labels wrap instead of overlapping
+							// allowMultiline: true,
+							// linesOfWrap: 3,
+							// style: {
+							// 	fontSize: "11px",
+							// 	fontWeight: "bold"
+							// }
+							visible: true,
 							allowMultiline: true,
+							linesOfWrap: 4,
+							overlapBehavior: "wrap",
+							rotation: 0,
+							angle: 0,
+							maxWidth: 200,
+							truncatedLabelRatio: 0.9,
 							style: {
-								fontSize: "11px",
+								fontSize: "12px",
 								fontWeight: "bold"
 							}
 						}
@@ -1452,21 +1448,22 @@ sap.ui.define([
 		// 	}
 		// 	return aColors;
 		// },
+
 		_paletteForChart: function(sChartId) {
 			var oFcr = this.getView().getModel("fcr");
 			var aColors = [];
 
-			// Handle BOTH trend charts
 			if (sChartId === "allTrendChart" || sChartId === "topTrendChart") {
 				var sTrendPath = sChartId === "topTrendChart" ? "/topTrendChart" : "/allTrendChart";
 				var aTrendData = oFcr.getProperty(sTrendPath) || [];
 				var mUnique = {};
+
 				aTrendData.forEach(function(oRow) {
-					mUnique[oRow.gl] = true;
+					mUnique[oRow.colorId] = true;
 				});
-				var aUniqueGroups = Object.keys(mUnique);
-				for (var j = 0; j < aUniqueGroups.length; j++) {
-					aColors.push(this._colorForKey(aUniqueGroups[j]));
+				var aUniqueLabels = Object.keys(mUnique);
+				for (var j = 0; j < aUniqueLabels.length; j++) {
+					aColors.push(this._colorForKey(aUniqueLabels[j]));
 				}
 				return aColors;
 			}
@@ -1480,14 +1477,22 @@ sap.ui.define([
 		},
 
 		_colorForKey: function(sKey) {
+			// Vibrant Fiori chart colors for maximum contrast
+			var aColors = [
+				"#5899DA", "#E8743B", "#19A979", "#ED4A7B", "#945ECF",
+				"#13A4B4", "#525DF4", "#BF399E", "#6C8893", "#EE6868",
+				"#2F6497", "#E48F29", "#29846E", "#D54366", "#734F96",
+				"#00A6A6", "#F1B500", "#7A1C7D", "#A6A6A6", "#007D34"
+			];
+
 			var s = String(sKey || "");
 			var hash = 0;
 			for (var i = 0; i < s.length; i++) {
 				hash = ((hash << 5) - hash) + s.charCodeAt(i);
 				hash |= 0;
 			}
-			var hue = Math.abs(hash) % 360;
-			return "hsl(" + hue + ", 78%, 48%)";
+			var index = Math.abs(hash) % aColors.length;
+			return aColors[index];
 		},
 
 		_buildDetailPivotRows: function(aRows) {
@@ -1822,9 +1827,10 @@ sap.ui.define([
 				aVisiblePeriods.forEach(function(oPeriod) {
 					var iVal = oRow[oPeriod.key] || 0;
 
-					// FIX: Only push data if the value is not zero to prevent empty gaps!
 					if (iVal !== 0) {
 						aTrendData.push({
+							// We generate a unique string purely for color assignment later
+							colorId: oPeriod.label + " - " + (oRow.groupName || oRow.glGroup),
 							gl: oRow.glGroup,
 							period: oPeriod.label,
 							value: iVal
@@ -1912,13 +1918,15 @@ sap.ui.define([
 		// 	}
 		// },
 		_refreshChartStyling: function() {
-			// 1. Refresh Original Charts (with dataPointStyle)
-			["allSummaryChart", "topSummaryChart"].forEach(function(sChartId) {
+			// Apply dataPointStyle rules to ALL 4 charts dynamically
+			["allSummaryChart", "topSummaryChart", "allTrendChart", "topTrendChart"].forEach(function(sChartId) {
 				var oVizFrame = this.byId(sChartId);
 				if (!oVizFrame) {
 					return;
 				}
+
 				var aRules = this._dataPointRulesForChart(sChartId);
+
 				oVizFrame.setVizProperties({
 					plotArea: {
 						drawingEffect: "glossy",
@@ -1929,26 +1937,37 @@ sap.ui.define([
 					}
 				});
 			}.bind(this));
-
-			// 2. Refresh BOTH Trend Charts (without dataPointStyle)
-			["allTrendChart", "topTrendChart"].forEach(function(sChartId) {
-				var oTrendViz = this.byId(sChartId);
-				if (oTrendViz) {
-					oTrendViz.setVizProperties({
-						plotArea: {
-							drawingEffect: "glossy",
-							colorPalette: this._paletteForChart(sChartId)
-						}
-					});
-				}
-			}.bind(this));
 		},
 
 		_dataPointRulesForChart: function(sChartId) {
 			var oFcr = this.getView().getModel("fcr");
+			var aRules = [];
+
+			// 1. Rules for the TREND Charts (Using multiple dimensions like your reference code)
+			if (sChartId === "allTrendChart" || sChartId === "topTrendChart") {
+				var sTrendPath = sChartId === "topTrendChart" ? "/topTrendChart" : "/allTrendChart";
+				var aTrendData = oFcr.getProperty(sTrendPath) || [];
+
+				aTrendData.forEach(function(oRow) {
+					aRules.push({
+						// Maps exactly to the XML dimension names
+						dataContext: {
+							"Period": oRow.period,
+							"GL Group": oRow.gl
+						},
+						properties: {
+							color: this._colorForKey(oRow.colorId)
+						}
+					});
+				}.bind(this));
+
+				return aRules;
+			}
+
+			// 2. Rules for the SUMMARY Charts (Single dimension)
 			var sPath = sChartId === "topSummaryChart" ? "/topSummaryChart" : "/allSummaryChart";
 			var aData = oFcr.getProperty(sPath) || [];
-			var aRules = [];
+
 			for (var i = 0; i < aData.length; i++) {
 				var sName = aData[i].name;
 				aRules.push({
