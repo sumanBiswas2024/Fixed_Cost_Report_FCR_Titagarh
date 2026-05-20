@@ -1160,6 +1160,9 @@ sap.ui.define([
 						colorPalette: this._paletteForChart(sChartId),
 						animation: {
 							dataLoading: true
+						},
+						gap: {
+							barSpacing: 2.2
 						}
 					},
 					// valueAxis: {
@@ -1299,7 +1302,7 @@ sap.ui.define([
 						drawingEffect: "glossy",
 						colorPalette: this._paletteForChart(sChartId),
 						gap: {
-							barSpacing: 0.4,
+							barSpacing: 1.4,
 							groupSpacing: 0.3
 						}
 					},
@@ -1328,7 +1331,7 @@ sap.ui.define([
 							overlapBehavior: "wrap",
 							rotation: 0,
 							angle: 0,
-							maxWidth: 200,
+							maxWidth: 400,
 							truncatedLabelRatio: 0.9,
 							style: {
 								fontSize: "12px",
