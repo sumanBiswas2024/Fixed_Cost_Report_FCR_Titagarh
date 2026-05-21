@@ -12,7 +12,11 @@
 						<HBox class="fcrHeader" alignItems="Center" justifyContent="SpaceBetween" wrap="Wrap">
 							<VBox class="fcrHeaderText">
 								<!--<ObjectStatus text="ZFI_FCR" state="Information" icon="sap-icon://business-objects-experience" class="fcrEyebrow"/>-->
-								<Title text="Fixed Cost Report" level="H1" class="fcrTitle"/>
+								<!--<Title text="Fixed Cost Report" level="H1" class="fcrTitle"/>-->
+								<HBox alignItems="Center">
+									<core:Icon src="sap-icon://expense-report" size="1.5rem" class="sapUiTinyMarginEnd" color="#0a6ed1"/>
+									<Title text="Fixed Cost Report" level="H1" class="fcrTitle"/>
+								</HBox>
 								<Text text="{ui>/periodText}" class="fcrSubtitle"/>
 							</VBox>
 							<ObjectStatus text="{ui>/lastRunText}" state="Success" icon="sap-icon://sys-enter-2" class="fcrRunStatus"/>
@@ -20,11 +24,11 @@
 						<VBox class="fcrParamWrap">
 							<HBox class="fcrParamHeader" alignItems="Center" justifyContent="SpaceBetween">
 								<Title text="Report Parameters" level="H4"/>
-								<Button id="paramToggleBtn" class="fcrParamToggle" type="Transparent" press=".onToggleParams"
-									icon="{= ${ui>/paramsExpanded} ? 'sap-icon://slim-arrow-up' : 'sap-icon://slim-arrow-down' }"
-									tooltip="{= ${ui>/paramsExpanded} ? 'Collapse parameters' : 'Expand parameters' }"/>
+								<!--<Button id="paramToggleBtn" class="fcrParamToggle" type="Transparent" press=".onToggleParams"-->
+								<!--	icon="{= ${ui>/paramsExpanded} ? 'sap-icon://slim-arrow-up' : 'sap-icon://slim-arrow-down' }"-->
+								<!--	tooltip="{= ${ui>/paramsExpanded} ? 'Collapse parameters' : 'Expand parameters' }"/>-->
 							</HBox>
-							<VBox id="paramGrid" visible="{ui>/paramsExpanded}" class="fcrParamGrid">
+							<VBox id="paramGrid" class="fcrParamGrid">
 								<HBox class="fcrParamRow" alignItems="End" justifyContent="Start" wrap="NoWrap">
 									<!--<VBox class="fcrField fcrFieldCc">-->
 									<!--	<Label text="Company Code" required="true"/>-->
@@ -162,6 +166,14 @@
 														<Text text="{fcr>glAccount}"/>
 													</table:template>
 												</table:Column>
+												<table:Column width="8rem" sortProperty="profitCentre" filterProperty="profitCentre" visible="false">
+													<table:label>
+														<Label text="Profit Centre"/>
+													</table:label>
+													<table:template>
+														<Text text="{fcr>profitCentre}"/>
+													</table:template>
+												</table:Column>
 												<table:Column width="14rem" sortProperty="glName" filterProperty="glName">
 													<table:label>
 														<Label text="G/L Acct Long Text"/>
@@ -274,6 +286,14 @@
 															<table:Table id="allSummaryTable" rows="{fcr>/allSummaryRows}" visibleRowCount="8" fixedColumnCount="2" selectionMode="None"
 																enableColumnReordering="true" enableCellFilter="true" class="fcrUiTable">
 																<table:columns>
+																	<table:Column width="8rem" sortProperty="profitCentre" filterProperty="profitCentre" visible="false">
+																		<table:label>
+																			<Label text="Profit Centre"/>
+																		</table:label>
+																		<table:template>
+																			<Text text="{fcr>profitCentre}"/>
+																		</table:template>
+																	</table:Column>
 																	<table:Column width="16rem" sortProperty="glGroup" filterProperty="glGroup">
 																		<table:label>
 																			<Label text="G/L Group"/>
@@ -542,7 +562,7 @@
 						<VBox visible="{= ${ui>/selectedTab} === 'top' }">
 							<!-- DETAIL TABLE -->
 							<VBox visible="{= ${ui>/topViewMode} === 'DETAIL' }">
-								<Panel headerText="Top 4 Details" expandable="false" expanded="true" class="fcrOutPanel" visible="{= ${ui>/topViewMode} === 'DETAIL' }">
+								<Panel headerText="Top 5 Details" expandable="false" expanded="true" class="fcrOutPanel" visible="{= ${ui>/topViewMode} === 'DETAIL' }">
 									<content>
 										<table:Table id="topDetailTable" rows="{fcr>/topDetailRows}" visibleRowCount="10" fixedColumnCount="3" selectionMode="None"
 											enableColumnReordering="true" enableCellFilter="true" class="fcrUiTable">
@@ -550,6 +570,14 @@
 												<table:Column width="7rem">
 													<table:label><Label text="G/L Acct"/></table:label>
 													<table:template><Text text="{fcr>glAccount}"/></table:template>
+												</table:Column>
+												<table:Column width="8rem" sortProperty="profitCentre" filterProperty="profitCentre" visible="false">
+													<table:label>
+														<Label text="Profit Centre"/>
+													</table:label>
+													<table:template>
+														<Text text="{fcr>profitCentre}"/>
+													</table:template>
 												</table:Column>
 												<table:Column width="14rem">
 													<table:label><Label text="G/L Acct Long Text"/></table:label>
@@ -639,7 +667,7 @@
 								<Panel headerText="" expandable="false" expanded="true" class="fcrOutPanel" visible="{= ${ui>/topViewMode} === 'SUMMARY' }">
 									<content>
 										<suite:ChartContainer id="topSummaryChartContainer" showFullScreen="true" showPersonalization="false" autoAdjustHeight="false"
-											showLegendButton="false" title="Top 5 GL Summary (Tip: Click 'Apr' or 'Q1' headers to view charts)" class="fcrChartContainer">
+											showLegendButton="false" title="Top 5 GL Summary" class="fcrChartContainer">
 											<suite:content>
 												<!-- TABLE -->
 												<suite:ChartContainerContent icon="sap-icon://table-chart" title="Table View">
@@ -647,10 +675,18 @@
 														<VBox>
 															<MessageStrip
 																text="Tip: Click on any month or quarter column header (e.g., 'Apr' or 'Q1') in the table below to view a Month/Quarter Wise detailed breakdown chart."
-																type="Information" showIcon="true" showCloseButton="true" class="sapUiSmallMarginBottom"/>
+																type="Information" showIcon="true" showCloseButton="false" class="sapUiSmallMarginBottom"/>
 															<table:Table id="topSummaryTable" rows="{fcr>/topSummaryRows}" visibleRowCount="8" fixedColumnCount="2" selectionMode="None"
 																enableColumnReordering="true" enableCellFilter="true" class="fcrUiTable">
 																<table:columns>
+																	<table:Column width="8rem" sortProperty="profitCentre" filterProperty="profitCentre" visible="false">
+																		<table:label>
+																			<Label text="Profit Centre"/>
+																		</table:label>
+																		<table:template>
+																			<Text text="{fcr>profitCentre}"/>
+																		</table:template>
+																	</table:Column>
 																	<table:Column width="16rem">
 																		<table:label><Label text="G/L Group"/></table:label>
 																		<table:template><Text text="{fcr>glGroup}"/></table:template>

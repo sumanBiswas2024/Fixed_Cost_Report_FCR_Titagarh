@@ -51,12 +51,6 @@
     border-radius:1.5rem;
 }
 
-.fcrField .sapMLabel {
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: #334155;
-}
-
 
 /* WIDTHS */
 
@@ -337,9 +331,12 @@
 }
 
 .fcrTitle {
-    font-size: 1.4rem !important;
-    font-weight: 700;
-    color: #0f172a;
+    /*font-size: 1.4rem !important;*/
+    /*font-weight: 700;*/
+    /*color: #0f172a;*/
+    font-size: 2rem !important;
+    font-weight: 800;
+    color: #0284c7;
 }
 
 .fcrSubtitle {
@@ -421,6 +418,13 @@
     padding: 0.75rem 1rem;
     background: #ffffff;
 }
+/* Make all input labels in the parameter and toolbar sections bold and larger */
+.fcrParamGrid .sapMLabel,
+.fcrModeBlock .sapMLabel {
+    font-weight: bold !important;
+    font-size: 15px !important;
+    color: #333333; /* Optional: Makes the text slightly darker for better readability */
+}
 
 .fcrParamRow {
     gap: 0.5rem !important;
@@ -446,7 +450,7 @@
 
 .fcrField .sapMLabel {
     font-weight: 600;
-    font-size: 0.75rem !important;
+    font-size: 12px !important;
     color: #475569;
 }
 
@@ -1152,4 +1156,12 @@
 @keyframes rotate {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
+}
+
+/* Make all table headers in the FCR app bold and larger */
+.fcrUiTable .sapUiTableColHdrCnt .sapMLabel,
+.fcrUiTable .sapUiTableColHdrCnt .sapMLnk {
+    /*font-weight: bold !important;*/
+    font-weight: 600 !important;;
+    font-size: 12px !important; /* Standard Fiori is usually 12px or 14px */
 }

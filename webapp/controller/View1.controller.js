@@ -909,6 +909,10 @@ sap.ui.define([
 				glName: sGlText,
 				glGroup: sGlGroup,
 				glGroupText: sGlGroup,
+
+				// ADD THIS LINE to pull the Profit Centre from OData
+				profitCentre: o.prctr || "",
+
 				p1: m.p1,
 				p2: m.p2,
 				p3: m.p3,
@@ -957,6 +961,7 @@ sap.ui.define([
 			return {
 				glGroup: sGlGroup,
 				groupName: sGlGroup,
+				profitCentre: o.prctr || "",
 				p1: m.p1,
 				p2: m.p2,
 				p3: m.p3,
@@ -1729,7 +1734,9 @@ sap.ui.define([
 				new Filter("glGroup", FilterOperator.Contains, s),
 				new Filter("glGroupText", FilterOperator.Contains, s),
 				new Filter("groupName", FilterOperator.Contains, s),
-				new Filter("fiscalYear", FilterOperator.Contains, s)
+				new Filter("fiscalYear", FilterOperator.Contains, s),
+				
+				new Filter("profitCentre", FilterOperator.Contains, s)
 			];
 
 			var aAppFilters = [new Filter({
