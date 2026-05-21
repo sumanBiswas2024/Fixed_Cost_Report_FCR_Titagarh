@@ -1164,8 +1164,13 @@ sap.ui.define([
 					return;
 				}
 				oVizFrame.setVizProperties({
+					// title: {
+					// 	visible: false
+					// },
 					title: {
-						visible: false
+						visible: true,
+						// Automatically sets the correct title based on the chart ID
+						text: sChartId.includes("top") ? "Top 5 G/L Accounts by Total" : "All G/L Accounts by Total"
 					},
 					legend: {
 						visible: true
@@ -1307,8 +1312,12 @@ sap.ui.define([
 				}
 
 				oVizFrame.setVizProperties({
+					// title: {
+					// 	visible: false
+					// },
 					title: {
-						visible: false
+						visible: true,
+						text: sChartId.includes("top") ? "Top 5 Trend by Period & G/L Group" : "Overall Trend by Period & G/L Group"
 					},
 					legend: {
 						visible: false
@@ -1735,7 +1744,7 @@ sap.ui.define([
 				new Filter("glGroupText", FilterOperator.Contains, s),
 				new Filter("groupName", FilterOperator.Contains, s),
 				new Filter("fiscalYear", FilterOperator.Contains, s),
-				
+
 				new Filter("profitCentre", FilterOperator.Contains, s)
 			];
 
@@ -2245,11 +2254,18 @@ sap.ui.define([
 					}
 				};
 			}.bind(this));
+			
+			// 1. Grab the month/quarter name the user just clicked
+			var sPeriodName = this.getView().getModel("ui").getProperty("/selectedPeriodLabel");
 
 			// Apply the styling, thick bars (gaps), and chart configurations
 			oVizFrame.setVizProperties({
+				// title: {
+				// 	visible: false
+				// },
 				title: {
-					visible: false
+					visible: true,
+					text: "G/L Group Totals for " + sPeriodName // Results in: "G/L Group Totals for April"
 				},
 				legend: {
 					visible: false
@@ -2287,7 +2303,7 @@ sap.ui.define([
 						maxWidth: 200,
 						truncatedLabelRatio: 0.9,
 						style: {
-							fontSize: "11px",
+							fontSize: "12px",
 							fontWeight: "bold"
 						}
 					}
