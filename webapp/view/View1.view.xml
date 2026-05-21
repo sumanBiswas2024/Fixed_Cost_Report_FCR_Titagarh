@@ -80,7 +80,7 @@
 						<!--<HBox class="fcrKpiStickyWrap" wrap="Wrap">-->
 						<layout:Grid defaultSpan="XL4 L4 M4 S12" hSpacing="1" vSpacing="1" class="fcrKpiGrid">
 							<VBox class="fcrKpi fcrKpiA">
-								<Text text="Actual Fixed Cost"/>
+								<Text text="Total Cost Amount"/>
 								<ObjectNumber number="{ui>/totalActual}" unit="INR" state="Information"/>
 							</VBox>
 							<!--<VBox class="fcrKpi fcrKpiB">-->
@@ -260,218 +260,223 @@
 								<Panel headerText="" expandable="false" expanded="true" class="fcrOutPanel" visible="{= ${ui>/allViewMode} === 'SUMMARY' }">
 									<content>
 										<suite:ChartContainer id="allSummaryChartContainer" showFullScreen="true" showPersonalization="false" autoAdjustHeight="false"
-											showLegendButton="false" title="All Fixed Cost Summary" class="fcrChartContainer">
+											showLegendButton="false" title="All Fixed Cost Summary " class="fcrChartContainer">
 											<suite:content>
 												<!-- ========================================================= -->
 												<!-- TABLE VIEW -->
 												<!-- ========================================================= -->
 												<suite:ChartContainerContent icon="sap-icon://table-chart" title="Table View">
 													<suite:content>
-														<table:Table id="allSummaryTable" rows="{fcr>/allSummaryRows}" visibleRowCount="10" fixedColumnCount="2" selectionMode="None"
-															enableColumnReordering="true" enableCellFilter="true" class="fcrUiTable">
-															<table:columns>
-																<table:Column width="16rem" sortProperty="glGroup" filterProperty="glGroup">
-																	<table:label>
-																		<Label text="G/L Group"/>
-																	</table:label>
-																	<table:template>
-																		<Text text="{fcr>glGroup}"/>
-																	</table:template>
-																</table:Column>
-																<!--<table:Column width="20rem" sortProperty="groupName" filterProperty="groupName">-->
-																<!--	<table:label>-->
-																<!--		<Label text="G/L Group Text"/>-->
-																<!--	</table:label>-->
-																<!--	<table:template>-->
-																<!--		<Text text="{fcr>groupName}"/>-->
-																<!--	</table:template>-->
-																<!--</table:Column>-->
-																<table:Column width="10rem" sortProperty="total" hAlign="End">
-																	<table:label>
-																		<Label text="Total"/>
-																	</table:label>
-																	<table:template>
-																		<ObjectNumber number="{fcr>totalText}" state="{fcr>totalState}"/>
-																	</table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/p1Visible}" hAlign="End" sortProperty="p1">
-																	<table:label>
-																		<Link text="Apr" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="p1"/>
-																				<core:CustomData key="periodLabel" value="April"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>p1Text}"/></table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/p2Visible}" hAlign="End" sortProperty="p2">
-																	<table:label>
-																		<Link text="May" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="p2"/>
-																				<core:CustomData key="periodLabel" value="May"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>p2Text}"/></table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/p3Visible}" hAlign="End" sortProperty="p3">
-																	<table:label>
-																		<Link text="Jun" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="p3"/>
-																				<core:CustomData key="periodLabel" value="June"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>p3Text}"/></table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/p4Visible}" hAlign="End" sortProperty="p4">
-																	<table:label>
-																		<Link text="Jul" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="p4"/>
-																				<core:CustomData key="periodLabel" value="July"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>p4Text}"/></table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/p5Visible}" hAlign="End" sortProperty="p5">
-																	<table:label>
-																		<Link text="Aug" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="p5"/>
-																				<core:CustomData key="periodLabel" value="August"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>p5Text}"/></table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/p6Visible}" hAlign="End" sortProperty="p6">
-																	<table:label>
-																		<Link text="Sep" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="p6"/>
-																				<core:CustomData key="periodLabel" value="September"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>p6Text}"/></table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/p7Visible}" hAlign="End" sortProperty="p7">
-																	<table:label>
-																		<Link text="Oct" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="p7"/>
-																				<core:CustomData key="periodLabel" value="October"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>p7Text}"/></table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/p8Visible}" hAlign="End" sortProperty="p8">
-																	<table:label>
-																		<Link text="Nov" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="p8"/>
-																				<core:CustomData key="periodLabel" value="November"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>p8Text}"/></table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/p9Visible}" hAlign="End" sortProperty="p9">
-																	<table:label>
-																		<Link text="Dec" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="p9"/>
-																				<core:CustomData key="periodLabel" value="December"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>p9Text}"/></table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/p10Visible}" hAlign="End" sortProperty="p10">
-																	<table:label>
-																		<Link text="Jan" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="p10"/>
-																				<core:CustomData key="periodLabel" value="January"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>p10Text}"/></table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/p11Visible}" hAlign="End" sortProperty="p11">
-																	<table:label>
-																		<Link text="Feb" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="p11"/>
-																				<core:CustomData key="periodLabel" value="February"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>p11Text}"/></table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/p12Visible}" hAlign="End" sortProperty="p12">
-																	<table:label>
-																		<Link text="Mar" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="p12"/>
-																				<core:CustomData key="periodLabel" value="March"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>p12Text}"/></table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/q1Visible}" hAlign="End" sortProperty="q1">
-																	<table:label>
-																		<Link text="Q1" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="q1"/>
-																				<core:CustomData key="periodLabel" value="Quarter 1"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>q1Text}"/></table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/q2Visible}" hAlign="End" sortProperty="q2">
-																	<table:label>
-																		<Link text="Q2" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="q2"/>
-																				<core:CustomData key="periodLabel" value="Quarter 2"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>q2Text}"/></table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/q3Visible}" hAlign="End" sortProperty="q3">
-																	<table:label>
-																		<Link text="Q3" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="q3"/>
-																				<core:CustomData key="periodLabel" value="Quarter 3"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>q3Text}"/></table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/q4Visible}" hAlign="End" sortProperty="q4">
-																	<table:label>
-																		<Link text="Q4" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="q4"/>
-																				<core:CustomData key="periodLabel" value="Quarter 4"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>q4Text}"/></table:template>
-																</table:Column>
-															</table:columns>
-														</table:Table>
+														<VBox>
+															<MessageStrip
+																text="Tip: Click on any month or quarter column header (e.g., 'Apr' or 'Q1') in the table below to view a Month/Quarter Wise detailed breakdown chart."
+																type="Information" showIcon="true" showCloseButton="false" class="sapUiSmallMarginBottom"/>
+															<table:Table id="allSummaryTable" rows="{fcr>/allSummaryRows}" visibleRowCount="8" fixedColumnCount="2" selectionMode="None"
+																enableColumnReordering="true" enableCellFilter="true" class="fcrUiTable">
+																<table:columns>
+																	<table:Column width="16rem" sortProperty="glGroup" filterProperty="glGroup">
+																		<table:label>
+																			<Label text="G/L Group"/>
+																		</table:label>
+																		<table:template>
+																			<Text text="{fcr>glGroup}"/>
+																		</table:template>
+																	</table:Column>
+																	<!--<table:Column width="20rem" sortProperty="groupName" filterProperty="groupName">-->
+																	<!--	<table:label>-->
+																	<!--		<Label text="G/L Group Text"/>-->
+																	<!--	</table:label>-->
+																	<!--	<table:template>-->
+																	<!--		<Text text="{fcr>groupName}"/>-->
+																	<!--	</table:template>-->
+																	<!--</table:Column>-->
+																	<table:Column width="10rem" sortProperty="total" hAlign="End">
+																		<table:label>
+																			<Label text="Total"/>
+																		</table:label>
+																		<table:template>
+																			<ObjectNumber number="{fcr>totalText}" state="{fcr>totalState}"/>
+																		</table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/p1Visible}" hAlign="End" sortProperty="p1">
+																		<table:label>
+																			<Link text="Apr" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="p1"/>
+																					<core:CustomData key="periodLabel" value="April"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>p1Text}"/></table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/p2Visible}" hAlign="End" sortProperty="p2">
+																		<table:label>
+																			<Link text="May" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="p2"/>
+																					<core:CustomData key="periodLabel" value="May"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>p2Text}"/></table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/p3Visible}" hAlign="End" sortProperty="p3">
+																		<table:label>
+																			<Link text="Jun" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="p3"/>
+																					<core:CustomData key="periodLabel" value="June"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>p3Text}"/></table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/p4Visible}" hAlign="End" sortProperty="p4">
+																		<table:label>
+																			<Link text="Jul" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="p4"/>
+																					<core:CustomData key="periodLabel" value="July"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>p4Text}"/></table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/p5Visible}" hAlign="End" sortProperty="p5">
+																		<table:label>
+																			<Link text="Aug" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="p5"/>
+																					<core:CustomData key="periodLabel" value="August"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>p5Text}"/></table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/p6Visible}" hAlign="End" sortProperty="p6">
+																		<table:label>
+																			<Link text="Sep" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="p6"/>
+																					<core:CustomData key="periodLabel" value="September"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>p6Text}"/></table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/p7Visible}" hAlign="End" sortProperty="p7">
+																		<table:label>
+																			<Link text="Oct" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="p7"/>
+																					<core:CustomData key="periodLabel" value="October"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>p7Text}"/></table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/p8Visible}" hAlign="End" sortProperty="p8">
+																		<table:label>
+																			<Link text="Nov" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="p8"/>
+																					<core:CustomData key="periodLabel" value="November"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>p8Text}"/></table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/p9Visible}" hAlign="End" sortProperty="p9">
+																		<table:label>
+																			<Link text="Dec" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="p9"/>
+																					<core:CustomData key="periodLabel" value="December"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>p9Text}"/></table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/p10Visible}" hAlign="End" sortProperty="p10">
+																		<table:label>
+																			<Link text="Jan" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="p10"/>
+																					<core:CustomData key="periodLabel" value="January"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>p10Text}"/></table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/p11Visible}" hAlign="End" sortProperty="p11">
+																		<table:label>
+																			<Link text="Feb" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="p11"/>
+																					<core:CustomData key="periodLabel" value="February"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>p11Text}"/></table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/p12Visible}" hAlign="End" sortProperty="p12">
+																		<table:label>
+																			<Link text="Mar" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="p12"/>
+																					<core:CustomData key="periodLabel" value="March"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>p12Text}"/></table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/q1Visible}" hAlign="End" sortProperty="q1">
+																		<table:label>
+																			<Link text="Q1" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="q1"/>
+																					<core:CustomData key="periodLabel" value="Quarter 1"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>q1Text}"/></table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/q2Visible}" hAlign="End" sortProperty="q2">
+																		<table:label>
+																			<Link text="Q2" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="q2"/>
+																					<core:CustomData key="periodLabel" value="Quarter 2"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>q2Text}"/></table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/q3Visible}" hAlign="End" sortProperty="q3">
+																		<table:label>
+																			<Link text="Q3" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="q3"/>
+																					<core:CustomData key="periodLabel" value="Quarter 3"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>q3Text}"/></table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/q4Visible}" hAlign="End" sortProperty="q4">
+																		<table:label>
+																			<Link text="Q4" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="q4"/>
+																					<core:CustomData key="periodLabel" value="Quarter 4"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>q4Text}"/></table:template>
+																	</table:Column>
+																</table:columns>
+															</table:Table>
+														</VBox>
 													</suite:content>
 												</suite:ChartContainerContent>
 												<!-- ========================================================= -->
@@ -634,206 +639,211 @@
 								<Panel headerText="" expandable="false" expanded="true" class="fcrOutPanel" visible="{= ${ui>/topViewMode} === 'SUMMARY' }">
 									<content>
 										<suite:ChartContainer id="topSummaryChartContainer" showFullScreen="true" showPersonalization="false" autoAdjustHeight="false"
-											showLegendButton="false" title="Top 5 GL Summary" class="fcrChartContainer">
+											showLegendButton="false" title="Top 5 GL Summary (Tip: Click 'Apr' or 'Q1' headers to view charts)" class="fcrChartContainer">
 											<suite:content>
 												<!-- TABLE -->
 												<suite:ChartContainerContent icon="sap-icon://table-chart" title="Table View">
 													<suite:content>
-														<table:Table id="topSummaryTable" rows="{fcr>/topSummaryRows}" visibleRowCount="10" fixedColumnCount="2" selectionMode="None"
-															enableColumnReordering="true" enableCellFilter="true" class="fcrUiTable">
-															<table:columns>
-																<table:Column width="16rem">
-																	<table:label><Label text="G/L Group"/></table:label>
-																	<table:template><Text text="{fcr>glGroup}"/></table:template>
-																</table:Column>
-																<!--<table:Column width="20rem">-->
-																<!--	<table:label><Label text="G/L Group Text"/></table:label>-->
-																<!--	<table:template><Text text="{fcr>groupName}"/></table:template>-->
-																<!--</table:Column>-->
-																<table:Column width="10rem" hAlign="End">
-																	<table:label><Label text="Total"/></table:label>
-																	<table:template>
-																		<ObjectNumber number="{fcr>totalText}" state="{fcr>totalState}"/>
-																	</table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/p1Visible}" hAlign="End" sortProperty="p1">
-																	<table:label>
-																		<Link text="Apr" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="p1"/>
-																				<core:CustomData key="periodLabel" value="April"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>p1Text}"/></table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/p2Visible}" hAlign="End" sortProperty="p2">
-																	<table:label>
-																		<Link text="May" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="p2"/>
-																				<core:CustomData key="periodLabel" value="May"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>p2Text}"/></table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/p3Visible}" hAlign="End" sortProperty="p3">
-																	<table:label>
-																		<Link text="Jun" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="p3"/>
-																				<core:CustomData key="periodLabel" value="June"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>p3Text}"/></table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/p4Visible}" hAlign="End" sortProperty="p4">
-																	<table:label>
-																		<Link text="Jul" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="p4"/>
-																				<core:CustomData key="periodLabel" value="July"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>p4Text}"/></table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/p5Visible}" hAlign="End" sortProperty="p5">
-																	<table:label>
-																		<Link text="Aug" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="p5"/>
-																				<core:CustomData key="periodLabel" value="August"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>p5Text}"/></table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/p6Visible}" hAlign="End" sortProperty="p6">
-																	<table:label>
-																		<Link text="Sep" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="p6"/>
-																				<core:CustomData key="periodLabel" value="September"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>p6Text}"/></table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/p7Visible}" hAlign="End" sortProperty="p7">
-																	<table:label>
-																		<Link text="Oct" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="p7"/>
-																				<core:CustomData key="periodLabel" value="October"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>p7Text}"/></table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/p8Visible}" hAlign="End" sortProperty="p8">
-																	<table:label>
-																		<Link text="Nov" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="p8"/>
-																				<core:CustomData key="periodLabel" value="November"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>p8Text}"/></table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/p9Visible}" hAlign="End" sortProperty="p9">
-																	<table:label>
-																		<Link text="Dec" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="p9"/>
-																				<core:CustomData key="periodLabel" value="December"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>p9Text}"/></table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/p10Visible}" hAlign="End" sortProperty="p10">
-																	<table:label>
-																		<Link text="Jan" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="p10"/>
-																				<core:CustomData key="periodLabel" value="January"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>p10Text}"/></table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/p11Visible}" hAlign="End" sortProperty="p11">
-																	<table:label>
-																		<Link text="Feb" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="p11"/>
-																				<core:CustomData key="periodLabel" value="February"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>p11Text}"/></table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/p12Visible}" hAlign="End" sortProperty="p12">
-																	<table:label>
-																		<Link text="Mar" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="p12"/>
-																				<core:CustomData key="periodLabel" value="March"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>p12Text}"/></table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/q1Visible}" hAlign="End" sortProperty="q1">
-																	<table:label>
-																		<Link text="Q1" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="q1"/>
-																				<core:CustomData key="periodLabel" value="Quarter 1"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>q1Text}"/></table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/q2Visible}" hAlign="End" sortProperty="q2">
-																	<table:label>
-																		<Link text="Q2" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="q2"/>
-																				<core:CustomData key="periodLabel" value="Quarter 2"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>q2Text}"/></table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/q3Visible}" hAlign="End" sortProperty="q3">
-																	<table:label>
-																		<Link text="Q3" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="q3"/>
-																				<core:CustomData key="periodLabel" value="Quarter 3"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>q3Text}"/></table:template>
-																</table:Column>
-																<table:Column width="9rem" visible="{ui>/q4Visible}" hAlign="End" sortProperty="q4">
-																	<table:label>
-																		<Link text="Q4" press=".onPeriodHeaderClick">
-																			<customData>
-																				<core:CustomData key="periodKey" value="q4"/>
-																				<core:CustomData key="periodLabel" value="Quarter 4"/>
-																			</customData>
-																		</Link>
-																	</table:label>
-																	<table:template><ObjectNumber number="{fcr>q4Text}"/></table:template>
-																</table:Column>
-															</table:columns>
-														</table:Table>
+														<VBox>
+															<MessageStrip
+																text="Tip: Click on any month or quarter column header (e.g., 'Apr' or 'Q1') in the table below to view a Month/Quarter Wise detailed breakdown chart."
+																type="Information" showIcon="true" showCloseButton="true" class="sapUiSmallMarginBottom"/>
+															<table:Table id="topSummaryTable" rows="{fcr>/topSummaryRows}" visibleRowCount="8" fixedColumnCount="2" selectionMode="None"
+																enableColumnReordering="true" enableCellFilter="true" class="fcrUiTable">
+																<table:columns>
+																	<table:Column width="16rem">
+																		<table:label><Label text="G/L Group"/></table:label>
+																		<table:template><Text text="{fcr>glGroup}"/></table:template>
+																	</table:Column>
+																	<!--<table:Column width="20rem">-->
+																	<!--	<table:label><Label text="G/L Group Text"/></table:label>-->
+																	<!--	<table:template><Text text="{fcr>groupName}"/></table:template>-->
+																	<!--</table:Column>-->
+																	<table:Column width="10rem" hAlign="End">
+																		<table:label><Label text="Total"/></table:label>
+																		<table:template>
+																			<ObjectNumber number="{fcr>totalText}" state="{fcr>totalState}"/>
+																		</table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/p1Visible}" hAlign="End" sortProperty="p1">
+																		<table:label>
+																			<Link text="Apr" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="p1"/>
+																					<core:CustomData key="periodLabel" value="April"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>p1Text}"/></table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/p2Visible}" hAlign="End" sortProperty="p2">
+																		<table:label>
+																			<Link text="May" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="p2"/>
+																					<core:CustomData key="periodLabel" value="May"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>p2Text}"/></table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/p3Visible}" hAlign="End" sortProperty="p3">
+																		<table:label>
+																			<Link text="Jun" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="p3"/>
+																					<core:CustomData key="periodLabel" value="June"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>p3Text}"/></table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/p4Visible}" hAlign="End" sortProperty="p4">
+																		<table:label>
+																			<Link text="Jul" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="p4"/>
+																					<core:CustomData key="periodLabel" value="July"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>p4Text}"/></table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/p5Visible}" hAlign="End" sortProperty="p5">
+																		<table:label>
+																			<Link text="Aug" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="p5"/>
+																					<core:CustomData key="periodLabel" value="August"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>p5Text}"/></table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/p6Visible}" hAlign="End" sortProperty="p6">
+																		<table:label>
+																			<Link text="Sep" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="p6"/>
+																					<core:CustomData key="periodLabel" value="September"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>p6Text}"/></table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/p7Visible}" hAlign="End" sortProperty="p7">
+																		<table:label>
+																			<Link text="Oct" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="p7"/>
+																					<core:CustomData key="periodLabel" value="October"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>p7Text}"/></table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/p8Visible}" hAlign="End" sortProperty="p8">
+																		<table:label>
+																			<Link text="Nov" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="p8"/>
+																					<core:CustomData key="periodLabel" value="November"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>p8Text}"/></table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/p9Visible}" hAlign="End" sortProperty="p9">
+																		<table:label>
+																			<Link text="Dec" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="p9"/>
+																					<core:CustomData key="periodLabel" value="December"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>p9Text}"/></table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/p10Visible}" hAlign="End" sortProperty="p10">
+																		<table:label>
+																			<Link text="Jan" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="p10"/>
+																					<core:CustomData key="periodLabel" value="January"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>p10Text}"/></table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/p11Visible}" hAlign="End" sortProperty="p11">
+																		<table:label>
+																			<Link text="Feb" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="p11"/>
+																					<core:CustomData key="periodLabel" value="February"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>p11Text}"/></table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/p12Visible}" hAlign="End" sortProperty="p12">
+																		<table:label>
+																			<Link text="Mar" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="p12"/>
+																					<core:CustomData key="periodLabel" value="March"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>p12Text}"/></table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/q1Visible}" hAlign="End" sortProperty="q1">
+																		<table:label>
+																			<Link text="Q1" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="q1"/>
+																					<core:CustomData key="periodLabel" value="Quarter 1"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>q1Text}"/></table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/q2Visible}" hAlign="End" sortProperty="q2">
+																		<table:label>
+																			<Link text="Q2" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="q2"/>
+																					<core:CustomData key="periodLabel" value="Quarter 2"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>q2Text}"/></table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/q3Visible}" hAlign="End" sortProperty="q3">
+																		<table:label>
+																			<Link text="Q3" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="q3"/>
+																					<core:CustomData key="periodLabel" value="Quarter 3"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>q3Text}"/></table:template>
+																	</table:Column>
+																	<table:Column width="9rem" visible="{ui>/q4Visible}" hAlign="End" sortProperty="q4">
+																		<table:label>
+																			<Link text="Q4" press=".onPeriodHeaderClick">
+																				<customData>
+																					<core:CustomData key="periodKey" value="q4"/>
+																					<core:CustomData key="periodLabel" value="Quarter 4"/>
+																				</customData>
+																			</Link>
+																		</table:label>
+																		<table:template><ObjectNumber number="{fcr>q4Text}"/></table:template>
+																	</table:Column>
+																</table:columns>
+															</table:Table>
+														</VBox>
 													</suite:content>
 												</suite:ChartContainerContent>
 												<!-- CHART -->
