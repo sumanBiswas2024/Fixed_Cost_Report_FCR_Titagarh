@@ -186,68 +186,67 @@
 														<ObjectNumber number="{fcr>totalText}" state="{fcr>totalState}"/>
 													</table:template>
 												</table:Column>
-												<table:Column width="9rem" visible="{ui>/p1Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/p1Visible}" hAlign="End" sortProperty="p1">
 													<table:label><Label text="Apr"/></table:label>
 													<table:template><ObjectNumber number="{fcr>p1Text}"/></table:template>
 												</table:Column>
-												<table:Column width="9rem" visible="{ui>/p2Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/p2Visible}" hAlign="End" sortProperty="p2">
 													<table:label><Label text="May"/></table:label>
 													<table:template><ObjectNumber number="{fcr>p2Text}"/></table:template>
 												</table:Column>
-												<table:Column width="9rem" visible="{ui>/p3Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/p3Visible}" hAlign="End" sortProperty="p3">
 													<table:label><Label text="Jun"/></table:label>
 													<table:template><ObjectNumber number="{fcr>p3Text}"/></table:template>
 												</table:Column>
-												<table:Column width="9rem" visible="{ui>/p4Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/p4Visible}" hAlign="End" sortProperty="p4">
 													<table:label><Label text="Jul"/></table:label>
 													<table:template><ObjectNumber number="{fcr>p4Text}"/></table:template>
 												</table:Column>
-												<table:Column width="9rem" visible="{ui>/p5Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/p5Visible}" hAlign="End" sortProperty="p5">
 													<table:label><Label text="Aug"/></table:label>
 													<table:template><ObjectNumber number="{fcr>p5Text}"/></table:template>
 												</table:Column>
-												<table:Column width="9rem" visible="{ui>/p6Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/p6Visible}" hAlign="End" sortProperty="p6">
 													<table:label><Label text="Sep"/></table:label>
 													<table:template><ObjectNumber number="{fcr>p6Text}"/></table:template>
 												</table:Column>
-												<table:Column width="9rem" visible="{ui>/p7Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/p7Visible}" hAlign="End" sortProperty="p7">
 													<table:label><Label text="Oct"/></table:label>
 													<table:template><ObjectNumber number="{fcr>p7Text}"/></table:template>
 												</table:Column>
-												<table:Column width="9rem" visible="{ui>/p8Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/p8Visible}" hAlign="End" sortProperty="p8">
 													<table:label><Label text="Nov"/></table:label>
 													<table:template><ObjectNumber number="{fcr>p8Text}"/></table:template>
 												</table:Column>
-												<table:Column width="9rem" visible="{ui>/p9Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/p9Visible}" hAlign="End" sortProperty="p9">
 													<table:label><Label text="Dec"/></table:label>
 													<table:template><ObjectNumber number="{fcr>p9Text}"/></table:template>
 												</table:Column>
-												<table:Column width="9rem" visible="{ui>/p10Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/p10Visible}" hAlign="End" sortProperty="p10">
 													<table:label><Label text="Jan"/></table:label>
 													<table:template><ObjectNumber number="{fcr>p10Text}"/></table:template>
 												</table:Column>
-												<table:Column width="9rem" visible="{ui>/p11Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/p11Visible}" hAlign="End" sortProperty="p11">
 													<table:label><Label text="Feb"/></table:label>
 													<table:template><ObjectNumber number="{fcr>p11Text}"/></table:template>
 												</table:Column>
-												<table:Column width="9rem" visible="{ui>/p12Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/p12Visible}" hAlign="End" sortProperty="p12">
 													<table:label><Label text="Mar"/></table:label>
 													<table:template><ObjectNumber number="{fcr>p12Text}"/></table:template>
 												</table:Column>
-												<!--Quarter-->
-												<table:Column width="9rem" visible="{ui>/q1Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/q1Visible}" hAlign="End" sortProperty="q1">
 													<table:label><Label text="Q1"/></table:label>
 													<table:template><ObjectNumber number="{fcr>q1Text}"/></table:template>
 												</table:Column>
-												<table:Column width="9rem" visible="{ui>/q2Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/q2Visible}" hAlign="End" sortProperty="q2">
 													<table:label><Label text="Q2"/></table:label>
 													<table:template><ObjectNumber number="{fcr>q2Text}"/></table:template>
 												</table:Column>
-												<table:Column width="9rem" visible="{ui>/q3Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/q3Visible}" hAlign="End" sortProperty="q3">
 													<table:label><Label text="Q3"/></table:label>
 													<table:template><ObjectNumber number="{fcr>q3Text}"/></table:template>
 												</table:Column>
-												<table:Column width="9rem" visible="{ui>/q4Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/q4Visible}" hAlign="End" sortProperty="q4">
 													<table:label><Label text="Q4"/></table:label>
 													<table:template><ObjectNumber number="{fcr>q4Text}"/></table:template>
 												</table:Column>
@@ -561,68 +560,67 @@
 														<ObjectNumber number="{fcr>totalText}" state="{fcr>totalState}"/>
 													</table:template>
 												</table:Column>
-												<table:Column width="9rem" visible="{ui>/p1Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/p1Visible}" hAlign="End" sortProperty="p1">
 													<table:label><Label text="Apr"/></table:label>
 													<table:template><ObjectNumber number="{fcr>p1Text}"/></table:template>
 												</table:Column>
-												<table:Column width="9rem" visible="{ui>/p2Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/p2Visible}" hAlign="End" sortProperty="p2">
 													<table:label><Label text="May"/></table:label>
 													<table:template><ObjectNumber number="{fcr>p2Text}"/></table:template>
 												</table:Column>
-												<table:Column width="9rem" visible="{ui>/p3Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/p3Visible}" hAlign="End" sortProperty="p3">
 													<table:label><Label text="Jun"/></table:label>
 													<table:template><ObjectNumber number="{fcr>p3Text}"/></table:template>
 												</table:Column>
-												<table:Column width="9rem" visible="{ui>/p4Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/p4Visible}" hAlign="End" sortProperty="p4">
 													<table:label><Label text="Jul"/></table:label>
 													<table:template><ObjectNumber number="{fcr>p4Text}"/></table:template>
 												</table:Column>
-												<table:Column width="9rem" visible="{ui>/p5Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/p5Visible}" hAlign="End" sortProperty="p5">
 													<table:label><Label text="Aug"/></table:label>
 													<table:template><ObjectNumber number="{fcr>p5Text}"/></table:template>
 												</table:Column>
-												<table:Column width="9rem" visible="{ui>/p6Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/p6Visible}" hAlign="End" sortProperty="p6">
 													<table:label><Label text="Sep"/></table:label>
 													<table:template><ObjectNumber number="{fcr>p6Text}"/></table:template>
 												</table:Column>
-												<table:Column width="9rem" visible="{ui>/p7Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/p7Visible}" hAlign="End" sortProperty="p7">
 													<table:label><Label text="Oct"/></table:label>
 													<table:template><ObjectNumber number="{fcr>p7Text}"/></table:template>
 												</table:Column>
-												<table:Column width="9rem" visible="{ui>/p8Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/p8Visible}" hAlign="End" sortProperty="p8">
 													<table:label><Label text="Nov"/></table:label>
 													<table:template><ObjectNumber number="{fcr>p8Text}"/></table:template>
 												</table:Column>
-												<table:Column width="9rem" visible="{ui>/p9Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/p9Visible}" hAlign="End" sortProperty="p9">
 													<table:label><Label text="Dec"/></table:label>
 													<table:template><ObjectNumber number="{fcr>p9Text}"/></table:template>
 												</table:Column>
-												<table:Column width="9rem" visible="{ui>/p10Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/p10Visible}" hAlign="End" sortProperty="p10">
 													<table:label><Label text="Jan"/></table:label>
 													<table:template><ObjectNumber number="{fcr>p10Text}"/></table:template>
 												</table:Column>
-												<table:Column width="9rem" visible="{ui>/p11Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/p11Visible}" hAlign="End" sortProperty="p11">
 													<table:label><Label text="Feb"/></table:label>
 													<table:template><ObjectNumber number="{fcr>p11Text}"/></table:template>
 												</table:Column>
-												<table:Column width="9rem" visible="{ui>/p12Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/p12Visible}" hAlign="End" sortProperty="p12">
 													<table:label><Label text="Mar"/></table:label>
 													<table:template><ObjectNumber number="{fcr>p12Text}"/></table:template>
 												</table:Column>
-												<!--Quarter-->
-												<table:Column width="9rem" visible="{ui>/q1Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/q1Visible}" hAlign="End" sortProperty="q1">
 													<table:label><Label text="Q1"/></table:label>
 													<table:template><ObjectNumber number="{fcr>q1Text}"/></table:template>
 												</table:Column>
-												<table:Column width="9rem" visible="{ui>/q2Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/q2Visible}" hAlign="End" sortProperty="q2">
 													<table:label><Label text="Q2"/></table:label>
 													<table:template><ObjectNumber number="{fcr>q2Text}"/></table:template>
 												</table:Column>
-												<table:Column width="9rem" visible="{ui>/q3Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/q3Visible}" hAlign="End" sortProperty="q3">
 													<table:label><Label text="Q3"/></table:label>
 													<table:template><ObjectNumber number="{fcr>q3Text}"/></table:template>
 												</table:Column>
-												<table:Column width="9rem" visible="{ui>/q4Visible}" hAlign="End">
+												<table:Column width="9rem" visible="{ui>/q4Visible}" hAlign="End" sortProperty="q4">
 													<table:label><Label text="Q4"/></table:label>
 													<table:template><ObjectNumber number="{fcr>q4Text}"/></table:template>
 												</table:Column>
