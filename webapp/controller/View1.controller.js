@@ -155,34 +155,54 @@ sap.ui.define([
 		// _getBusyDialog: function() {
 		// 	if (!this._oBusyDialog) {
 		// 		this._oBusyDialog = new BusyDialog({
-		// 			title: "Initializing",
-		// 			text: "Please wait, it will take a few moments..."
+		// 			title: "Fetching Data",
+		// 			text: "Initializing report, please wait...",
+		// 			// showCancelButton: false, // Prevents users from interrupting the data fetch
+		// 			// customIcon: "sap-icon://loading", // Adds a familiar Fiori loading icon
+		// 			// customIconRotationSpeed: 1000 // Smooth, consistent rotation
+		// 			showCancelButton: false,
+		// 			customIcon: "sap-icon://synchronize",
+		// 			customIconRotationSpeed: 800
+
+		// 			// customClass: "fcrBusyDialog"
 		// 		});
+		// 		this._oBusyDialog.addStyleClass("fcrBusyDialog");
 		// 	}
+
+		// 	// Dynamically update the text based on current filters for better UX
+		// 	// var oFilters = this.getView().getModel("filters").getData();
+		// 	// this._oBusyDialog.setText("Preparing " + (oFilters.fiscalYear || "") + " data for your selection...");
+
 		// 	return this._oBusyDialog;
 		// },
-
 		_getBusyDialog: function() {
 			if (!this._oBusyDialog) {
-				this._oBusyDialog = new BusyDialog({
-					title: "Fetching Data",
-					text: "Initializing report, please wait...",
-					// showCancelButton: false, // Prevents users from interrupting the data fetch
-					// customIcon: "sap-icon://loading", // Adds a familiar Fiori loading icon
-					// customIconRotationSpeed: 1000 // Smooth, consistent rotation
-					showCancelButton: false,
-					customIcon: "sap-icon://synchronize",
-					customIconRotationSpeed: 800
-
-					// customClass: "fcrBusyDialog"
+				this._oBusyDialog = new sap.m.Dialog({
+					title: "Fetching Data", // Restored title!
+					contentWidth: "20rem",
+					escapeHandler: function(oPromise) { 
+						oPromise.reject(); // Prevents closing with the ESC key
+					},
+					content: [
+						new sap.m.VBox({
+							alignItems: "Center",
+							justifyContent: "Center",
+							items: [
+								// 1. Inject pure HTML for a modern CSS spinner
+								new sap.ui.core.HTML({
+									content: "<div class='fcrModernSpinner'></div>"
+								}).addStyleClass("sapUiMediumMarginTop sapUiSmallMarginBottom"),
+								
+								// 2. Your loading text
+								new sap.m.Text({ 
+									text: "Initializing report, please wait...",
+									textAlign: "Center"
+								}).addStyleClass("sapUiMediumMarginBottom sapUiSmallMarginTop")
+							]
+						})
+					]
 				});
-				this._oBusyDialog.addStyleClass("fcrBusyDialog");
 			}
-
-			// Dynamically update the text based on current filters for better UX
-			// var oFilters = this.getView().getModel("filters").getData();
-			// this._oBusyDialog.setText("Preparing " + (oFilters.fiscalYear || "") + " data for your selection...");
-
 			return this._oBusyDialog;
 		},
 
@@ -1282,8 +1302,8 @@ sap.ui.define([
 						},
 						gap: {
 							barSpacing: 2.0
-							// innerGroupSpacing: 3.0,
-							// groupSpacing: 3.0
+								// innerGroupSpacing: 3.0,
+								// groupSpacing: 3.0
 						}
 					},
 					interaction: {
@@ -1386,7 +1406,7 @@ sap.ui.define([
 					valueAxis: {
 						title: {
 							visible: true,
-							text: "Amount"
+							text: "Period Amount"
 						}
 					}
 				});
@@ -2271,7 +2291,7 @@ sap.ui.define([
 					}
 				};
 			}.bind(this));
-			
+
 			// ADDED: Find the Popover and connect it to the VizFrame
 			var oPopover = this.byId("periodChartPopover") || sap.ui.core.Fragment.byId(this.getView().getId(), "periodChartPopover");
 			if (oPopover) {
@@ -2334,7 +2354,7 @@ sap.ui.define([
 				valueAxis: {
 					title: {
 						visible: true,
-						text: "Amount"
+						text: "Period Amount"
 					}
 				}
 			});

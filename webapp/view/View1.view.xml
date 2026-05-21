@@ -514,12 +514,12 @@
 																		<viz.data:DimensionDefinition name="GL Account" value="{fcr>name}"/>
 																	</viz.data:dimensions>
 																	<viz.data:measures>
-																		<viz.data:MeasureDefinition name="Total" value="{fcr>value}"/>
+																		<viz.data:MeasureDefinition name="Total Amount" value="{fcr>value}"/>
 																	</viz.data:measures>
 																</viz.data:FlattenedDataset>
 															</viz:dataset>
 															<viz:feeds>
-																<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Total"/>
+																<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Total Amount"/>
 																<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="GL Account"/>
 															</viz:feeds>
 														</viz:VizFrame>
@@ -539,12 +539,12 @@
 																		<viz.data:DimensionDefinition name="GL Group" value="{fcr>gl}"/>
 																	</viz.data:dimensions>
 																	<viz.data:measures>
-																		<viz.data:MeasureDefinition name="Amount" value="{fcr>value}"/>
+																		<viz.data:MeasureDefinition name="Period Amount" value="{fcr>value}"/>
 																	</viz.data:measures>
 																</viz.data:FlattenedDataset>
 															</viz:dataset>
 															<viz:feeds>
-																<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Amount"/>
+																<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Period Amount"/>
 																<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="GL Group"/>
 																<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Period"/>
 																<!--<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="GL Group"/>-->
@@ -895,12 +895,12 @@
 																		<viz.data:DimensionDefinition name="GL Account" value="{fcr>name}"/>
 																	</viz.data:dimensions>
 																	<viz.data:measures>
-																		<viz.data:MeasureDefinition name="Total" value="{fcr>value}"/>
+																		<viz.data:MeasureDefinition name="Total Amount" value="{fcr>value}"/>
 																	</viz.data:measures>
 																</viz.data:FlattenedDataset>
 															</viz:dataset>
 															<viz:feeds>
-																<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Total"/>
+																<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Total Amount"/>
 																<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="GL Account"/>
 															</viz:feeds>
 														</viz:VizFrame>
@@ -920,12 +920,12 @@
 																		<viz.data:DimensionDefinition name="GL Group" value="{fcr>gl}"/>
 																	</viz.data:dimensions>
 																	<viz.data:measures>
-																		<viz.data:MeasureDefinition name="Amount" value="{fcr>value}"/>
+																		<viz.data:MeasureDefinition name="Period Amount" value="{fcr>value}"/>
 																	</viz.data:measures>
 																</viz.data:FlattenedDataset>
 															</viz:dataset>
 															<viz:feeds>
-																<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Amount"/>
+																<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Period Amount"/>
 																<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="GL Group"/>
 																<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Period"/>
 																<!--<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="GL Group"/>-->

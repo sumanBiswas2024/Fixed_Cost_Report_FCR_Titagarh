@@ -1166,3 +1166,57 @@
     font-weight: 600 !important;;
     font-size: 12px !important; /* Standard Fiori is usually 12px or 14px */
 }
+
+/* Creates a perfectly smooth, infinite spin for custom loading icons */
+.fcrSpinningIcon {
+    animation: fcrContinuousSpin 1.2s linear infinite !important;
+    display: inline-block; /* Required to allow transforms on font icons */
+}
+
+@keyframes fcrContinuousSpin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* ========================================================= */
+/* MODERN DUAL-RING SPINNER FOR BUSY DIALOG                  */
+/* ========================================================= */
+
+.fcrModernSpinner {
+    position: relative;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: 4px solid transparent;
+    border-top-color: #0a6ed1; /* Standard Fiori Dark Blue */
+    border-bottom-color: #0a6ed1;
+    /* Smooth, easing animation for the outer ring */
+    animation: fcrSpinOuter 1.5s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
+
+.fcrModernSpinner::before {
+    content: "";
+    position: absolute;
+    /* Inset the inner ring */
+    top: 4px; left: 4px; right: 4px; bottom: 4px;
+    border-radius: 50%;
+    border: 4px solid transparent;
+    border-left-color: #89baeb; /* Fiori Light Blue */
+    border-right-color: #89baeb;
+    /* Faster, linear animation for the inner ring */
+    animation: fcrSpinInner 1s linear infinite;
+}
+
+@keyframes fcrSpinOuter {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes fcrSpinInner {
+    0% { transform: rotate(360deg); }
+    100% { transform: rotate(-360deg); } /* Spins backwards */
+}
