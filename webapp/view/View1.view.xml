@@ -151,7 +151,7 @@
 							<VBox visible="{= ${ui>/allViewMode} === 'DETAIL' }">
 								<Panel headerText="All Details" expandable="false" expanded="true" class="fcrOutPanel" visible="{= ${ui>/allViewMode} === 'DETAIL' }">
 									<content>
-										<table:Table id="allDetailTable" rows="{fcr>/allDetailRows}" visibleRowCount="9" fixedColumnCount="3" selectionMode="None" enableColumnReordering="true"
+										<table:Table id="allDetailTable" rows="{fcr>/allDetailRows}" visibleRowCount="10" fixedColumnCount="3" selectionMode="None" enableColumnReordering="true"
 											enableCellFilter="true" class="fcrUiTable">
 											<table:columns>
 												<table:Column width="7rem" sortProperty="glAccount" filterProperty="glAccount">
@@ -268,7 +268,7 @@
 												<!-- ========================================================= -->
 												<suite:ChartContainerContent icon="sap-icon://table-chart" title="Table View">
 													<suite:content>
-														<table:Table id="allSummaryTable" rows="{fcr>/allSummaryRows}" visibleRowCount="8" fixedColumnCount="2" selectionMode="None" enableColumnReordering="true"
+														<table:Table id="allSummaryTable" rows="{fcr>/allSummaryRows}" visibleRowCount="10" fixedColumnCount="2" selectionMode="None" enableColumnReordering="true"
 															enableCellFilter="true" class="fcrUiTable">
 															<table:columns>
 																<table:Column width="16rem" sortProperty="glGroup" filterProperty="glGroup">
@@ -369,7 +369,7 @@
 												<!-- ========================================================= -->
 												<suite:ChartContainerContent icon="sap-icon://bar-chart" title="Total Chart View">
 													<suite:content>
-														<viz:VizFrame id="allSummaryChart" width="100%" height="420px" vizType="column" uiConfig="{applicationSet:'fiori'}">
+														<viz:VizFrame id="allSummaryChart" width="100%" height="380px" vizType="column" uiConfig="{applicationSet:'fiori'}">
 															<viz:dependents>
 																<viz:Popover id="allSummaryPopover"/>
 															</viz:dependents>
@@ -393,7 +393,7 @@
 												<!--All Trend Chart-->
 												<suite:ChartContainerContent icon="sap-icon://line-chart" title="Period Chart View">
 													<suite:content>
-														<viz:VizFrame id="allTrendChart" width="100%" height="420px" vizType="column" uiConfig="{applicationSet:'fiori'}">
+														<viz:VizFrame id="allTrendChart" width="100%" height="380px" vizType="column" uiConfig="{applicationSet:'fiori'}">
 															<viz:dependents>
 																<viz:Popover id="allTrendPopover"/>
 															</viz:dependents>
@@ -429,7 +429,7 @@
 							<VBox visible="{= ${ui>/topViewMode} === 'DETAIL' }">
 								<Panel headerText="Top 4 Details" expandable="false" expanded="true" class="fcrOutPanel" visible="{= ${ui>/topViewMode} === 'DETAIL' }">
 									<content>
-										<table:Table id="topDetailTable" rows="{fcr>/topDetailRows}" visibleRowCount="8" fixedColumnCount="3" selectionMode="None" enableColumnReordering="true"
+										<table:Table id="topDetailTable" rows="{fcr>/topDetailRows}" visibleRowCount="10" fixedColumnCount="3" selectionMode="None" enableColumnReordering="true"
 											enableCellFilter="true" class="fcrUiTable">
 											<table:columns>
 												<table:Column width="7rem">
@@ -530,7 +530,7 @@
 												<!-- TABLE -->
 												<suite:ChartContainerContent icon="sap-icon://table-chart" title="Table View">
 													<suite:content>
-														<table:Table id="topSummaryTable" rows="{fcr>/topSummaryRows}" visibleRowCount="8" fixedColumnCount="2" selectionMode="None" enableColumnReordering="true"
+														<table:Table id="topSummaryTable" rows="{fcr>/topSummaryRows}" visibleRowCount="10" fixedColumnCount="2" selectionMode="None" enableColumnReordering="true"
 															enableCellFilter="true" class="fcrUiTable">
 															<table:columns>
 																<table:Column width="16rem">
@@ -619,7 +619,7 @@
 												<!-- CHART -->
 												<suite:ChartContainerContent icon="sap-icon://bar-chart" title="Total Chart View">
 													<suite:content>
-														<viz:VizFrame id="topSummaryChart" width="100%" height="420px" vizType="column" uiConfig="{applicationSet:'fiori'}">
+														<viz:VizFrame id="topSummaryChart" width="100%" height="380px" vizType="column" uiConfig="{applicationSet:'fiori'}">
 															<viz:dependents>
 																<viz:Popover id="topSummaryPopover"/>
 															</viz:dependents>
@@ -643,7 +643,7 @@
 												<!--Top 5 Trend Chart-->
 												<suite:ChartContainerContent icon="sap-icon://line-chart" title="Period Chart View">
 													<suite:content>
-														<viz:VizFrame id="topTrendChart" width="100%" height="420px" vizType="column" uiConfig="{applicationSet:'fiori'}">
+														<viz:VizFrame id="topTrendChart" width="100%" height="380px" vizType="column" uiConfig="{applicationSet:'fiori'}">
 															<viz:dependents>
 																<viz:Popover id="topTrendPopover"/>
 															</viz:dependents>
