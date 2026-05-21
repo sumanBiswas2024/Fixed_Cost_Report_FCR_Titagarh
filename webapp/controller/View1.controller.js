@@ -1157,62 +1157,135 @@ sap.ui.define([
 			});
 		},
 
+		// _configureCharts: function() {
+		// 	["allSummaryChart", "topSummaryChart"].forEach(function(sChartId) {
+		// 		var oVizFrame = this.byId(sChartId);
+		// 		if (!oVizFrame || oVizFrame.data("configured")) {
+		// 			return;
+		// 		}
+		// 		oVizFrame.setVizProperties({
+		// 			// title: {
+		// 			// 	visible: false
+		// 			// },
+		// 			title: {
+		// 				visible: true,
+		// 				// Automatically sets the correct title based on the chart ID
+		// 				text: sChartId.includes("top") ? "Top 5 G/L Accounts by Total" : "All G/L Accounts by Total"
+		// 			},
+		// 			legend: {
+		// 				visible: true
+		// 			},
+		// 			plotArea: {
+		// 				dataLabel: {
+		// 					visible: true
+		// 				},
+		// 				drawingEffect: "glossy",
+		// 				colorPalette: this._paletteForChart(sChartId),
+		// 				animation: {
+		// 					dataLoading: true
+		// 				},
+		// 				gap: {
+		// 					barSpacing: 2.2
+		// 				}
+		// 			},
+		// 			// valueAxis: {
+		// 			// 	title: {
+		// 			// 		visible: true,
+		// 			// 		text: "Total"
+		// 			// 	}
+		// 			// },
+		// 			// categoryAxis: {
+		// 			// 	title: {
+		// 			// 		visible: true,
+		// 			// 		text: "G/L Group"
+		// 			// 	},
+		// 			// 	label: {
+		// 			// 		rotation: "45", // Rotates text so it doesn't overlap
+		// 			// 		truncate: false, // Disables the "..." truncation
+		// 			// 		style: {
+		// 			// 			maxWidth: "200" // Allows wider labels before wrapping
+		// 			// 		}
+		// 			// 	}
+		// 			// },
+		// 			// // This enables the detailed popover content
+		// 			// interaction: {
+		// 			// 	selectability: {
+		// 			// 		mode: "single"
+		// 			// 	}
+		// 			// }
+		// 			interaction: {
+		// 				selectability: {
+		// 					mode: "multiple"
+		// 				}
+		// 			},
+		// 			categoryAxis: {
+		// 				title: {
+		// 					visible: true,
+		// 					text: "G/L Group"
+		// 				},
+		// 				label: {
+		// 					visible: true,
+		// 					allowMultiline: true,
+		// 					linesOfWrap: 4,
+		// 					overlapBehavior: "wrap",
+		// 					rotation: 0,
+		// 					angle: 0,
+		// 					maxWidth: 200,
+		// 					truncatedLabelRatio: 0.9,
+		// 					style: {
+		// 						fontSize: "12px",
+		// 						fontWeight: "bold"
+		// 					}
+		// 				}
+		// 			},
+		// 			valueAxis: {
+		// 				label: {
+		// 					visible: true
+		// 				}
+		// 			}
+		// 		});
+		// 		oVizFrame.data("configured", true);
+		// 	}.bind(this));
+		// },
 		_configureCharts: function() {
 			["allSummaryChart", "topSummaryChart"].forEach(function(sChartId) {
 				var oVizFrame = this.byId(sChartId);
 				if (!oVizFrame || oVizFrame.data("configured")) {
 					return;
 				}
+
+				// 1. Generate the color rules dynamically for this specific chart
+				var aRules = this._dataPointRulesForChart(sChartId);
+
 				oVizFrame.setVizProperties({
-					// title: {
-					// 	visible: false
-					// },
 					title: {
 						visible: true,
 						// Automatically sets the correct title based on the chart ID
 						text: sChartId.includes("top") ? "Top 5 G/L Accounts by Total" : "All G/L Accounts by Total"
 					},
 					legend: {
-						visible: true
+						visible: false // Hidden since every bar gets a unique, specific color
 					},
 					plotArea: {
 						dataLabel: {
 							visible: true
 						},
 						drawingEffect: "glossy",
-						colorPalette: this._paletteForChart(sChartId),
+
+						// 2. REPLACED colorPalette with dataPointStyle
+						dataPointStyle: {
+							rules: aRules
+						},
+
 						animation: {
 							dataLoading: true
 						},
 						gap: {
-							barSpacing: 2.2
+							barSpacing: 2.0
+							// innerGroupSpacing: 3.0,
+							// groupSpacing: 3.0
 						}
 					},
-					// valueAxis: {
-					// 	title: {
-					// 		visible: true,
-					// 		text: "Total"
-					// 	}
-					// },
-					// categoryAxis: {
-					// 	title: {
-					// 		visible: true,
-					// 		text: "G/L Group"
-					// 	},
-					// 	label: {
-					// 		rotation: "45", // Rotates text so it doesn't overlap
-					// 		truncate: false, // Disables the "..." truncation
-					// 		style: {
-					// 			maxWidth: "200" // Allows wider labels before wrapping
-					// 		}
-					// 	}
-					// },
-					// // This enables the detailed popover content
-					// interaction: {
-					// 	selectability: {
-					// 		mode: "single"
-					// 	}
-					// }
 					interaction: {
 						selectability: {
 							mode: "multiple"
@@ -1226,7 +1299,7 @@ sap.ui.define([
 						label: {
 							visible: true,
 							allowMultiline: true,
-							linesOfWrap: 4,
+							linesOfWrap: 2,
 							overlapBehavior: "wrap",
 							rotation: 0,
 							angle: 0,
@@ -1247,62 +1320,6 @@ sap.ui.define([
 				oVizFrame.data("configured", true);
 			}.bind(this));
 		},
-
-		// _configureTrendChart: function() {
-		// 	var oVizFrame = this.byId("allTrendChart");
-		// 	if (!oVizFrame || oVizFrame.data("configured")) {
-		// 		return;
-		// 	}
-
-		// 	oVizFrame.setVizProperties({
-		// 		title: {
-		// 			visible: false
-		// 		},
-		// 		legend: {
-		// 			visible: true
-		// 		},
-		// 		plotArea: {
-		// 			dataLabel: {
-		// 				visible: true
-		// 			},
-		// 			drawingEffect: "glossy",
-		// 			colorPalette: this._paletteForChart("allTrendChart"),
-		// 			// FIX: Adjust the gap to make bars thicker and closer together
-		// 			gap: {
-		// 				innerGroupSpacing: 0.1, // Space between bars in the same month
-		// 				groupSpacing: 1.2 // Space between different months
-		// 			}
-		// 		},
-		// 		// Enables the Popover to work
-		// 		interaction: {
-		// 			selectability: {
-		// 				mode: "multiple"
-		// 			}
-		// 		},
-		// 		categoryAxis: {
-		// 			title: {
-		// 				visible: true,
-		// 				text: "Period & G/L Group"
-		// 			},
-		// 			label: {
-		// 				rotation: "45",
-		// 				allowMultiline: true,
-		// 				style: {
-		// 					fontSize: "11px",
-		// 					fontWeight: "bold"
-		// 				}
-		// 			}
-		// 		},
-		// 		valueAxis: {
-		// 			title: {
-		// 				visible: true,
-		// 				text: "Amount"
-		// 			}
-		// 		}
-		// 	});
-
-		// 	oVizFrame.data("configured", true);
-		// },
 
 		_configureTrendChart: function() {
 			["allTrendChart", "topTrendChart"].forEach(function(sChartId) {
@@ -2255,6 +2272,12 @@ sap.ui.define([
 				};
 			}.bind(this));
 			
+			// ADDED: Find the Popover and connect it to the VizFrame
+			var oPopover = this.byId("periodChartPopover") || sap.ui.core.Fragment.byId(this.getView().getId(), "periodChartPopover");
+			if (oPopover) {
+				oPopover.connect(oVizFrame.getVizUid());
+			}
+
 			// 1. Grab the month/quarter name the user just clicked
 			var sPeriodName = this.getView().getModel("ui").getProperty("/selectedPeriodLabel");
 

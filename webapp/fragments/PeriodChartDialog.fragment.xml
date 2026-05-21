@@ -9,6 +9,9 @@
 					<suite:ChartContainerContent icon="sap-icon://bar-chart" title="Bar Chart View">
 						<suite:content>
 							<viz:VizFrame id="periodVizFrame" width="100%" height="410px" vizType="column" uiConfig="{applicationSet:'fiori'}">
+								<viz:dependents>
+									<viz:Popover id="periodChartPopover"/>
+								</viz:dependents>
 								<viz:dataset>
 									<viz.data:FlattenedDataset data="{fcr>/periodChartData}">
 										<viz.data:dimensions>
