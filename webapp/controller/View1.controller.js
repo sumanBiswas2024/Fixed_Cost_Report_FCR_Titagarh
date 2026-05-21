@@ -180,7 +180,7 @@ sap.ui.define([
 				this._oBusyDialog = new sap.m.Dialog({
 					title: "Fetching Data", // Restored title!
 					contentWidth: "20rem",
-					escapeHandler: function(oPromise) { 
+					escapeHandler: function(oPromise) {
 						oPromise.reject(); // Prevents closing with the ESC key
 					},
 					content: [
@@ -192,9 +192,9 @@ sap.ui.define([
 								new sap.ui.core.HTML({
 									content: "<div class='fcrModernSpinner'></div>"
 								}).addStyleClass("sapUiMediumMarginTop sapUiSmallMarginBottom"),
-								
+
 								// 2. Your loading text
-								new sap.m.Text({ 
+								new sap.m.Text({
 									text: "Initializing report, please wait...",
 									textAlign: "Center"
 								}).addStyleClass("sapUiMediumMarginBottom sapUiSmallMarginTop")
@@ -867,6 +867,61 @@ sap.ui.define([
 
 				var aDetailRows = aDetailRaw.map(that._mapDetailRowFromOData.bind(that)).filter(Boolean);
 				var aSummaryRows = aSummaryRaw.map(that._mapSummaryRowFromOData.bind(that)).filter(Boolean);
+
+				// =========================================================
+				// MODERN CUSTOM "NO DATA" DIALOG
+				// =========================================================
+				if (aDetailRows.length === 0 && aSummaryRows.length === 0) {
+					if (!that._oNoDataDialog) {
+						that._oNoDataDialog = new sap.m.Dialog({
+							showHeader: false, // Hides the clunky top bar for a sleek look
+							contentWidth: "24rem",
+							content: [
+								new sap.m.VBox({
+									alignItems: "Center",
+									justifyContent: "Center",
+									items: [
+										// 1. Large, elegant warning/search icon
+										new sap.ui.core.Icon({
+											src: "sap-icon://search", // or "sap-icon://alert"
+											size: "4rem",
+											color: "#E9730C"
+										}).addStyleClass("fcrPulseIcon sapUiMediumMarginTop sapUiSmallMarginBottom"), // <-- ADDED fcrPulseIcon
+
+										// 2. Strong Title
+										new sap.m.Title({
+											text: "No Records Found",
+											level: "H2"
+										}).addStyleClass("sapUiSmallMarginBottom"),
+
+										// 3. Friendly, readable instructions
+										new sap.m.Text({
+											text: "We couldn't find any fixed cost records for your current parameters.",
+											textAlign: "Center"
+										}).addStyleClass("sapUiTinyMarginBottom")
+
+										// new sap.m.Text({
+										// 	text: "Try adjusting your Fiscal Year, Company Code, or clearing your specific GL/Profit Centre filters.",
+										// 	textAlign: "Center"
+										// })
+									]
+								}).addStyleClass("sapUiMediumMargin")
+							],
+							buttons: [
+								new sap.m.Button({
+									text: "Got it",
+									type: "Emphasized", // Solid blue button
+									press: function() {
+										that._oNoDataDialog.close();
+									}
+								})
+							]
+						});
+						that.getView().addDependent(that._oNoDataDialog);
+					}
+					that._oNoDataDialog.open();
+				}
+				// =========================================================
 
 				var aTopDetailRows = aDetailRows.slice().sort(that._sortByTotalDesc).slice(0, 5);
 				var aTopSummaryRows = aSummaryRows.slice().sort(that._sortByTotalDesc).slice(0, 5);
