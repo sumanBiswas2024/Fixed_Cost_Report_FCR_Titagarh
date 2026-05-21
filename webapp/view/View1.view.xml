@@ -166,14 +166,6 @@
 														<Text text="{fcr>glAccount}"/>
 													</table:template>
 												</table:Column>
-												<table:Column width="8rem" sortProperty="profitCentre" filterProperty="profitCentre" visible="false">
-													<table:label>
-														<Label text="Profit Centre"/>
-													</table:label>
-													<table:template>
-														<Text text="{fcr>profitCentre}"/>
-													</table:template>
-												</table:Column>
 												<table:Column width="14rem" sortProperty="glName" filterProperty="glName">
 													<table:label>
 														<Label text="G/L Acct Long Text"/>
@@ -286,14 +278,6 @@
 															<table:Table id="allSummaryTable" rows="{fcr>/allSummaryRows}" visibleRowCount="8" fixedColumnCount="2" selectionMode="None"
 																enableColumnReordering="true" enableCellFilter="true" class="fcrUiTable">
 																<table:columns>
-																	<table:Column width="8rem" sortProperty="profitCentre" filterProperty="profitCentre" visible="false">
-																		<table:label>
-																			<Label text="Profit Centre"/>
-																		</table:label>
-																		<table:template>
-																			<Text text="{fcr>profitCentre}"/>
-																		</table:template>
-																	</table:Column>
 																	<table:Column width="16rem" sortProperty="glGroup" filterProperty="glGroup">
 																		<table:label>
 																			<Label text="G/L Group"/>
@@ -567,28 +551,60 @@
 										<table:Table id="topDetailTable" rows="{fcr>/topDetailRows}" visibleRowCount="10" fixedColumnCount="3" selectionMode="None"
 											enableColumnReordering="true" enableCellFilter="true" class="fcrUiTable">
 											<table:columns>
-												<table:Column width="7rem">
-													<table:label><Label text="G/L Acct"/></table:label>
-													<table:template><Text text="{fcr>glAccount}"/></table:template>
-												</table:Column>
-												<table:Column width="8rem" sortProperty="profitCentre" filterProperty="profitCentre" visible="false">
+												<!--<table:Column width="7rem">-->
+												<!--	<table:label><Label text="G/L Acct"/></table:label>-->
+												<!--	<table:template><Text text="{fcr>glAccount}"/></table:template>-->
+												<!--</table:Column>-->
+												<!--<table:Column width="8rem" sortProperty="profitCentre" filterProperty="profitCentre" visible="false">-->
+												<!--	<table:label>-->
+												<!--		<Label text="Profit Centre"/>-->
+												<!--	</table:label>-->
+												<!--	<table:template>-->
+												<!--		<Text text="{fcr>profitCentre}"/>-->
+												<!--	</table:template>-->
+												<!--</table:Column>-->
+												<!--<table:Column width="14rem">-->
+												<!--	<table:label><Label text="G/L Acct Long Text"/></table:label>-->
+												<!--	<table:template><Text text="{fcr>glName}"/></table:template>-->
+												<!--</table:Column>-->
+												<!--<table:Column width="16rem">-->
+												<!--	<table:label><Label text="G/L Group"/></table:label>-->
+												<!--	<table:template><Text text="{fcr>glGroupText}"/></table:template>-->
+												<!--</table:Column>-->
+												<!--<table:Column width="10rem" hAlign="End">-->
+												<!--	<table:label><Label text="Total"/></table:label>-->
+												<!--	<table:template>-->
+												<!--		<ObjectNumber number="{fcr>totalText}" state="{fcr>totalState}"/>-->
+												<!--	</table:template>-->
+												<!--</table:Column>-->
+												<table:Column width="7rem" sortProperty="glAccount" filterProperty="glAccount">
 													<table:label>
-														<Label text="Profit Centre"/>
+														<Label text="G/L Acct"/>
 													</table:label>
 													<table:template>
-														<Text text="{fcr>profitCentre}"/>
+														<Text text="{fcr>glAccount}"/>
 													</table:template>
 												</table:Column>
-												<table:Column width="14rem">
-													<table:label><Label text="G/L Acct Long Text"/></table:label>
-													<table:template><Text text="{fcr>glName}"/></table:template>
+												<table:Column width="14rem" sortProperty="glName" filterProperty="glName">
+													<table:label>
+														<Label text="G/L Acct Long Text"/>
+													</table:label>
+													<table:template>
+														<Text text="{fcr>glName}"/>
+													</table:template>
 												</table:Column>
-												<table:Column width="16rem">
-													<table:label><Label text="G/L Group"/></table:label>
-													<table:template><Text text="{fcr>glGroupText}"/></table:template>
+												<table:Column width="16rem" sortProperty="glGroupText" filterProperty="glGroupText">
+													<table:label>
+														<Label text="G/L Group"/>
+													</table:label>
+													<table:template>
+														<Text text="{fcr>glGroupText}"/>
+													</table:template>
 												</table:Column>
-												<table:Column width="10rem" hAlign="End">
-													<table:label><Label text="Total"/></table:label>
+												<table:Column width="10rem" sortProperty="total" hAlign="End">
+													<table:label>
+														<Label text="Total"/>
+													</table:label>
 													<table:template>
 														<ObjectNumber number="{fcr>totalText}" state="{fcr>totalState}"/>
 													</table:template>
@@ -679,24 +695,48 @@
 															<table:Table id="topSummaryTable" rows="{fcr>/topSummaryRows}" visibleRowCount="8" fixedColumnCount="2" selectionMode="None"
 																enableColumnReordering="true" enableCellFilter="true" class="fcrUiTable">
 																<table:columns>
-																	<table:Column width="8rem" sortProperty="profitCentre" filterProperty="profitCentre" visible="false">
-																		<table:label>
-																			<Label text="Profit Centre"/>
-																		</table:label>
-																		<table:template>
-																			<Text text="{fcr>profitCentre}"/>
-																		</table:template>
-																	</table:Column>
-																	<table:Column width="16rem">
-																		<table:label><Label text="G/L Group"/></table:label>
-																		<table:template><Text text="{fcr>glGroup}"/></table:template>
-																	</table:Column>
+																	<!--<table:Column width="8rem" sortProperty="profitCentre" filterProperty="profitCentre" visible="false">-->
+																	<!--	<table:label>-->
+																	<!--		<Label text="Profit Centre"/>-->
+																	<!--	</table:label>-->
+																	<!--	<table:template>-->
+																	<!--		<Text text="{fcr>profitCentre}"/>-->
+																	<!--	</table:template>-->
+																	<!--</table:Column>-->
+																	<!--<table:Column width="16rem">-->
+																	<!--	<table:label><Label text="G/L Group"/></table:label>-->
+																	<!--	<table:template><Text text="{fcr>glGroup}"/></table:template>-->
+																	<!--</table:Column>-->
 																	<!--<table:Column width="20rem">-->
 																	<!--	<table:label><Label text="G/L Group Text"/></table:label>-->
 																	<!--	<table:template><Text text="{fcr>groupName}"/></table:template>-->
 																	<!--</table:Column>-->
-																	<table:Column width="10rem" hAlign="End">
-																		<table:label><Label text="Total"/></table:label>
+																	<!--<table:Column width="10rem" hAlign="End">-->
+																	<!--	<table:label><Label text="Total"/></table:label>-->
+																	<!--	<table:template>-->
+																	<!--		<ObjectNumber number="{fcr>totalText}" state="{fcr>totalState}"/>-->
+																	<!--	</table:template>-->
+																	<!--</table:Column>-->
+																	<table:Column width="16rem" sortProperty="glGroup" filterProperty="glGroup">
+																		<table:label>
+																			<Label text="G/L Group"/>
+																		</table:label>
+																		<table:template>
+																			<Text text="{fcr>glGroup}"/>
+																		</table:template>
+																	</table:Column>
+																	<!--<table:Column width="20rem" sortProperty="groupName" filterProperty="groupName">-->
+																	<!--	<table:label>-->
+																	<!--		<Label text="G/L Group Text"/>-->
+																	<!--	</table:label>-->
+																	<!--	<table:template>-->
+																	<!--		<Text text="{fcr>groupName}"/>-->
+																	<!--	</table:template>-->
+																	<!--</table:Column>-->
+																	<table:Column width="10rem" sortProperty="total" hAlign="End">
+																		<table:label>
+																			<Label text="Total"/>
+																		</table:label>
 																		<table:template>
 																			<ObjectNumber number="{fcr>totalText}" state="{fcr>totalState}"/>
 																		</table:template>
