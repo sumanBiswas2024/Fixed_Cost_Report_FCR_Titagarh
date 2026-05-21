@@ -1025,8 +1025,8 @@
 /* Give the main wrapper a minimum height so it doesn't shrink when the table is removed */
 
 .fcrContentSection {
-    min-height: 480px;
-    /*max-height: 400px;*/
+    /*min-height: 480px;*/
+    min-height: 460px;
 }
 
 
@@ -1034,7 +1034,8 @@
 
 .fcrOutPanel {
     /*min-height: 550px;*/
-    max-height: 480px;
+    /*max-height: 480px;*/
+    min-height: 460px;
     display: flex;
     flex-direction: column;
 }
