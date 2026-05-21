@@ -1,0 +1,37 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core" xmlns:viz="sap.viz.ui5.controls" xmlns:viz.data="sap.viz.ui5.data"
+	xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds" xmlns:suite="sap.suite.ui.commons">
+	<Dialog id="periodChartDialog" title="Fixed Costs for {ui>/selectedPeriodLabel}" contentWidth="1200px" contentHeight="500px"
+		resizable="true" draggable="true">
+		<content>
+			<suite:ChartContainer id="periodChartContainer" showFullScreen="true" showPersonalization="false" autoAdjustHeight="true"
+				showLegendButton="false">
+				<suite:content>
+					<suite:ChartContainerContent icon="sap-icon://bar-chart" title="Bar Chart View">
+						<suite:content>
+							<viz:VizFrame id="periodVizFrame" width="100%" height="410px" vizType="column" uiConfig="{applicationSet:'fiori'}">
+								<viz:dataset>
+									<viz.data:FlattenedDataset data="{fcr>/periodChartData}">
+										<viz.data:dimensions>
+											<viz.data:DimensionDefinition name="G/L Group" value="{fcr>glGroup}"/>
+										</viz.data:dimensions>
+										<viz.data:measures>
+											<viz.data:MeasureDefinition name="Amount" value="{fcr>value}"/>
+										</viz.data:measures>
+									</viz.data:FlattenedDataset>
+								</viz:dataset>
+								<viz:feeds>
+									<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Amount"/>
+									<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="G/L Group"/>
+									<!--<viz.feeds:FeedItem uid="color" type="Dimension" values="G/L Group"/>-->
+								</viz:feeds>
+							</viz:VizFrame>
+						</suite:content>
+					</suite:ChartContainerContent>
+				</suite:content>
+			</suite:ChartContainer>
+		</content>
+		<buttons>
+			<Button text="Close" press=".onClosePeriodChart"/>
+		</buttons>
+	</Dialog>
+</core:FragmentDefinition>

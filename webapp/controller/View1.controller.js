@@ -33,14 +33,14 @@ sap.ui.define([
 			this._oAmountFormat = NumberFormat.getFloatInstance({
 				groupingEnabled: true,
 				minFractionDigits: 2, // Forces exactly 2 decimal places (e.g., 100.00)
-				maxFractionDigits: 2  // Limits to maximum 2 decimal places
+				maxFractionDigits: 2 // Limits to maximum 2 decimal places
 			});
-			
+
 			// ADD THIS NEW FORMATTER FOR WHOLE NUMBERS:
 			this._oIntegerFormat = NumberFormat.getIntegerInstance({
 				groupingEnabled: true
 			});
-			
+
 			this._oPercentFormat = NumberFormat.getFloatInstance({
 				groupingEnabled: true,
 				minFractionDigits: 1,
@@ -2168,6 +2168,138 @@ sap.ui.define([
 				} else if (sId.includes("glGroupInput")) {
 					oFiltersModel.setProperty("/glGroups", []);
 				}
+			}
+		},
+
+		onPeriodHeaderClick: function(oEvent) {
+			// 1. Get which month/quarter was clicked from the Link's custom data
+			var oSource = oEvent.getSource();
+			var sPeriodKey = oSource.data("periodKey"); // e.g., "p1"
+			var sPeriodLabel = oSource.data("periodLabel"); // e.g., "April"
+
+			var oUiModel = this.getView().getModel("ui");
+			oUiModel.setProperty("/selectedPeriodLabel", sPeriodLabel);
+
+			// 2. Fetch the data from the currently active table (All GL or Top 5)
+			var sTab = oUiModel.getProperty("/selectedTab");
+			var sPath = sTab === "top" ? "/topSummaryRows" : "/allSummaryRows";
+			var aRows = this.getView().getModel("fcr").getProperty(sPath) || [];
+
+			// 3. Extract the data specifically for that month
+			var aChartData = [];
+			aRows.forEach(function(oRow) {
+				var iVal = oRow[sPeriodKey] || 0;
+				if (iVal !== 0) {
+					aChartData.push({
+						glGroup: oRow.groupName || oRow.glGroup,
+						value: iVal
+					});
+				}
+			});
+
+			// Sort from highest to lowest cost for a cleaner chart
+			aChartData.sort(function(a, b) {
+				return b.value - a.value;
+			});
+
+			this.getView().getModel("fcr").setProperty("/periodChartData", aChartData);
+
+			// 4. Open the Fragment Dialog (Compatible with ALL older SAPUI5 versions)
+			if (!this._oPeriodChartDialog) {
+				// Use xmlfragment instead of Fragment.load
+				this._oPeriodChartDialog = sap.ui.xmlfragment(
+					this.getView().getId(),
+					"Z_Fixed_Cost_Report_FCR.fragments.PeriodChartDialog", // Ensure this path is exactly right
+					this
+				);
+				this.getView().addDependent(this._oPeriodChartDialog);
+			}
+
+			this._updateAndOpenPeriodChart(aChartData);
+		},
+
+		_updateAndOpenPeriodChart: function(aChartData) {
+			// Bulletproof way to find the VizFrame inside a fragment
+			var oVizFrame = this.byId("periodVizFrame") || sap.ui.core.Fragment.byId(this.getView().getId(), "periodVizFrame");
+
+			if (!oVizFrame) {
+				console.error("VizFrame not found in the dialog!");
+				return;
+			}
+
+			// Generate colors
+			var aRules = aChartData.map(function(oData) {
+				return {
+					dataContext: {
+						"G/L Group": oData.glGroup
+					},
+					properties: {
+						color: this._colorForKey(oData.glGroup)
+					}
+				};
+			}.bind(this));
+
+			// Apply the styling, thick bars (gaps), and chart configurations
+			oVizFrame.setVizProperties({
+				title: {
+					visible: false
+				},
+				legend: {
+					visible: false
+				},
+
+				plotArea: {
+					dataLabel: {
+						visible: true
+					},
+					drawingEffect: "glossy",
+					dataPointStyle: {
+						rules: aRules
+					},
+					animation: {
+						dataLoading: true
+					},
+					gap: {
+						barSpacing: 0.4
+					}
+				},
+				categoryAxis: {
+
+					title: {
+						visible: true,
+						text: "G/L Group"
+					},
+
+					label: {
+						visible: true,
+						allowMultiline: true,
+						linesOfWrap: 2,
+						overlapBehavior: "wrap",
+						rotation: 0,
+						angle: 0,
+						maxWidth: 200,
+						truncatedLabelRatio: 0.9,
+						style: {
+							fontSize: "11px",
+							fontWeight: "bold"
+						}
+					}
+				},
+				valueAxis: {
+					title: {
+						visible: true,
+						text: "Amount"
+					}
+				}
+			});
+
+			// Open the popup
+			this._oPeriodChartDialog.open();
+		},
+
+		onClosePeriodChart: function() {
+			if (this._oPeriodChartDialog) {
+				this._oPeriodChartDialog.close();
 			}
 		}
 	});
