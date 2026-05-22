@@ -1572,7 +1572,7 @@ sap.ui.define([
 					valueAxis: {
 						label: {
 							visible: true,
-							text: "Total Amount (in Lacs)"
+							text: "Total Amount (in Lakhs)"
 						}
 					}
 				});
@@ -1645,7 +1645,7 @@ sap.ui.define([
 					valueAxis: {
 						title: {
 							visible: true,
-							text: "Period Amount (Lacs)"
+							text: "Period Amount (Lakhs)"
 						}
 					}
 				});
@@ -2442,7 +2442,7 @@ sap.ui.define([
 			// 2. Add Total
 			a.push({
 				key: "total",
-				label: "Total (in Lacs)"
+				label: "Total (in Lakhs)"
 			});
 
 			// 3. Add visible Month columns (p1-p12)
@@ -2641,7 +2641,7 @@ sap.ui.define([
 			// 	valueAxis: {
 			// 		title: {
 			// 			visible: true,
-			// 			text: "Period Amount (Lacs)"
+			// 			text: "Period Amount (Lakhs)"
 			// 		}
 			// 	}
 			// });
@@ -2723,7 +2723,7 @@ sap.ui.define([
 				valueAxis: {
 					title: {
 						visible: true,
-						text: "Period Amount(Lacs)"
+						text: "Period Amount(Lakhs)"
 					},
 
 					label: {

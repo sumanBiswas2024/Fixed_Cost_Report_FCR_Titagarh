@@ -18,12 +18,12 @@
 											<viz.data:DimensionDefinition name="G/L Group" value="{fcr>glGroup}"/>
 										</viz.data:dimensions>
 										<viz.data:measures>
-											<viz.data:MeasureDefinition name="Period Amount(Lacs)" value="{fcr>value}"/>
+											<viz.data:MeasureDefinition name="Period Amount(Lakhs)" value="{fcr>value}"/>
 										</viz.data:measures>
 									</viz.data:FlattenedDataset>
 								</viz:dataset>
 								<viz:feeds>
-									<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Period Amount(Lacs)"/>
+									<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Period Amount(Lakhs)"/>
 									<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="G/L Group"/>
 									<!--<viz.feeds:FeedItem uid="color" type="Dimension" values="G/L Group"/>-->
 								</viz:feeds>
