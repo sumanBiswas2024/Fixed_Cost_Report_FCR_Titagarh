@@ -1,7 +1,7 @@
 <core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core" xmlns:viz="sap.viz.ui5.controls" xmlns:viz.data="sap.viz.ui5.data"
 	xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds" xmlns:suite="sap.suite.ui.commons">
-	<Dialog id="periodChartDialog" title="Fixed Costs for {ui>/selectedPeriodLabel}" contentWidth="1200px" contentHeight="500px"
-		resizable="true" draggable="true">
+	<Dialog id="periodChartDialog" title="Fixed Costs for {ui>/selectedPeriodLabel}" contentWidth="95%" contentHeight="580px" resizable="true"
+		draggable="true">
 		<content>
 			<suite:ChartContainer id="periodChartContainer" showFullScreen="true" showPersonalization="false" autoAdjustHeight="true"
 				showLegendButton="false">
@@ -18,12 +18,12 @@
 											<viz.data:DimensionDefinition name="G/L Group" value="{fcr>glGroup}"/>
 										</viz.data:dimensions>
 										<viz.data:measures>
-											<viz.data:MeasureDefinition name="Period Amount" value="{fcr>value}"/>
+											<viz.data:MeasureDefinition name="Period Amount(Lacs)" value="{fcr>value}"/>
 										</viz.data:measures>
 									</viz.data:FlattenedDataset>
 								</viz:dataset>
 								<viz:feeds>
-									<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Period Amount"/>
+									<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Period Amount(Lacs)"/>
 									<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="G/L Group"/>
 									<!--<viz.feeds:FeedItem uid="color" type="Dimension" values="G/L Group"/>-->
 								</viz:feeds>

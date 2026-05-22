@@ -1142,11 +1142,11 @@ sap.ui.define([
 				s = s.replace(/[, ]/g, "");
 				n = parseFloat(s);
 			}
-			
+
 			if (isNaN(n)) {
 				return 0;
 			}
-			
+
 			// ==========================================
 			// CONVERT TO LACS (Divide by 1,00,000)
 			// ==========================================
@@ -1363,6 +1363,14 @@ sap.ui.define([
 					legend: {
 						visible: false // Hidden since every bar gets a unique, specific color
 					},
+					layout: {
+						padding: {
+							bottom: 140,
+							left: 20,
+							right: 20,
+							top: 20
+						}
+					},
 					plotArea: {
 						dataLabel: {
 							visible: true
@@ -1394,16 +1402,34 @@ sap.ui.define([
 							text: "G/L Group"
 						},
 						label: {
+							// visible: true,
+							// allowMultiline: true,
+							// linesOfWrap: 2,
+							// overlapBehavior: "wrap",
+							// rotation: 0,
+							// angle: 0,
+							// maxWidth: 200,
+							// truncatedLabelRatio: 0.9,
+							// style: {
+							// 	fontSize: "12px",
+							// 	fontWeight: "bold"
+							// }
 							visible: true,
+
 							allowMultiline: true,
-							linesOfWrap: 2,
+							linesOfWrap: 3,
+
 							overlapBehavior: "wrap",
-							rotation: 0,
-							angle: 0,
-							maxWidth: 200,
-							truncatedLabelRatio: 0.9,
+
+							rotation: true,
+							angle: 30,
+
+							maxWidth: 220,
+
+							truncatedLabelRatio: 1,
+
 							style: {
-								fontSize: "12px",
+								fontSize: "11px",
 								fontWeight: "bold"
 							}
 						}
@@ -1621,23 +1647,49 @@ sap.ui.define([
 			return aColors;
 		},
 
+		// _colorForKey: function(sKey) {
+		// 	// Vibrant Fiori chart colors for maximum contrast
+		// 	var aColors = [
+		// 		"#5899DA", "#E8743B", "#19A979", "#ED4A7B", "#945ECF",
+		// 		"#13A4B4", "#525DF4", "#BF399E", "#6C8893", "#EE6868",
+		// 		"#2F6497", "#E48F29", "#29846E", "#D54366", "#734F96",
+		// 		"#00A6A6", "#F1B500", "#7A1C7D", "#A6A6A6", "#007D34"
+		// 	];
+
+		// 	var s = String(sKey || "");
+		// 	var hash = 0;
+		// 	for (var i = 0; i < s.length; i++) {
+		// 		hash = ((hash << 5) - hash) + s.charCodeAt(i);
+		// 		hash |= 0;
+		// 	}
+		// 	var index = Math.abs(hash) % aColors.length;
+		// 	return aColors[index];
+		// },
 		_colorForKey: function(sKey) {
-			// Vibrant Fiori chart colors for maximum contrast
-			var aColors = [
-				"#5899DA", "#E8743B", "#19A979", "#ED4A7B", "#945ECF",
-				"#13A4B4", "#525DF4", "#BF399E", "#6C8893", "#EE6868",
-				"#2F6497", "#E48F29", "#29846E", "#D54366", "#734F96",
-				"#00A6A6", "#F1B500", "#7A1C7D", "#A6A6A6", "#007D34"
-			];
+			// 1. Initialize our color memory map if it doesn't exist yet
+			if (!this._mColorMap) {
+				this._mColorMap = {};
+				this._iColorCounter = 0;
+			}
 
 			var s = String(sKey || "");
-			var hash = 0;
-			for (var i = 0; i < s.length; i++) {
-				hash = ((hash << 5) - hash) + s.charCodeAt(i);
-				hash |= 0;
+
+			// 2. If we have NEVER seen this G/L Group before, assign a new distinct color
+			if (!this._mColorMap[s]) {
+				
+				// Multiply our exact sequence number (0, 1, 2...) by the Golden Angle (137.5)
+				// This guarantees every new color is as far away from the previous colors as physically possible!
+				var h = Math.floor(this._iColorCounter * 137.5) % 360;
+				
+				// Save it (Saturation 80% for vibrant, Lightness 45% for deep/readable)
+				this._mColorMap[s] = "hsl(" + h + ", 80%, 45%)";
+				
+				// Increment the counter for the next completely new group
+				this._iColorCounter++;
 			}
-			var index = Math.abs(hash) % aColors.length;
-			return aColors[index];
+
+			// 3. Return the guaranteed consistent color for this G/L Group
+			return this._mColorMap[s];
 		},
 
 		_buildDetailPivotRows: function(aRows) {
@@ -2380,33 +2432,108 @@ sap.ui.define([
 			var sPeriodName = this.getView().getModel("ui").getProperty("/selectedPeriodLabel");
 
 			// Apply the styling, thick bars (gaps), and chart configurations
+			// oVizFrame.setVizProperties({
+			// 	// title: {
+			// 	// 	visible: false
+			// 	// },
+			// 	title: {
+			// 		visible: true,
+			// 		text: "G/L Group Totals for " + sPeriodName // Results in: "G/L Group Totals for April"
+			// 	},
+			// 	legend: {
+			// 		visible: false
+			// 	},
+
+			// 	plotArea: {
+			// 		dataLabel: {
+			// 			visible: true
+			// 		},
+			// 		drawingEffect: "glossy",
+			// 		dataPointStyle: {
+			// 			rules: aRules
+			// 		},
+			// 		animation: {
+			// 			dataLoading: true
+			// 		},
+			// 		gap: {
+			// 			barSpacing: 0.4
+			// 		}
+			// 	},
+			// 	categoryAxis: {
+
+			// 		title: {
+			// 			visible: true,
+			// 			text: "G/L Group"
+			// 		},
+
+			// 		label: {
+			// 			visible: true,
+			// 			allowMultiline: true,
+			// 			linesOfWrap: 2,
+			// 			overlapBehavior: "wrap",
+			// 			rotation: 0,
+			// 			angle: 0,
+			// 			maxWidth: 200,
+			// 			truncatedLabelRatio: 0.9,
+			// 			style: {
+			// 				fontSize: "12px",
+			// 				fontWeight: "bold"
+			// 			}
+			// 		}
+			// 	},
+			// 	valueAxis: {
+			// 		title: {
+			// 			visible: true,
+			// 			text: "Period Amount (Lacs)"
+			// 		}
+			// 	}
+			// });
+
 			oVizFrame.setVizProperties({
-				// title: {
-				// 	visible: false
-				// },
+
 				title: {
 					visible: true,
-					text: "G/L Group Totals for " + sPeriodName // Results in: "G/L Group Totals for April"
+					text: "G/L Group Totals for " + sPeriodName
 				},
+
 				legend: {
 					visible: false
 				},
 
+				layout: {
+					padding: {
+						bottom: 140,
+						left: 20,
+						right: 20,
+						top: 20
+					}
+				},
+
 				plotArea: {
+
+					drawingEffect: "glossy",
+
 					dataLabel: {
 						visible: true
+						// style: {
+						// 	fontSize: "11px"
+						// }
 					},
-					drawingEffect: "glossy",
+
 					dataPointStyle: {
 						rules: aRules
 					},
+
 					animation: {
 						dataLoading: true
 					},
+
 					gap: {
-						barSpacing: 0.4
+						barSpacing: 0.8,
+						groupSpacing: 10
 					}
 				},
+
 				categoryAxis: {
 
 					title: {
@@ -2416,23 +2543,36 @@ sap.ui.define([
 
 					label: {
 						visible: true,
+
 						allowMultiline: true,
-						linesOfWrap: 2,
+						linesOfWrap: 3,
+
 						overlapBehavior: "wrap",
-						rotation: 0,
-						angle: 0,
-						maxWidth: 200,
-						truncatedLabelRatio: 0.9,
+
+						rotation: true,
+						angle: 30,
+
+						maxWidth: 220,
+
+						truncatedLabelRatio: 1,
+
 						style: {
-							fontSize: "12px",
+							fontSize: "11px",
 							fontWeight: "bold"
 						}
 					}
 				},
+
 				valueAxis: {
 					title: {
 						visible: true,
-						text: "Period Amount (Lacs)"
+						text: "Period Amount(Lacs)"
+					},
+
+					label: {
+						style: {
+							fontSize: "11px"
+						}
 					}
 				}
 			});
