@@ -153,7 +153,8 @@
 						<VBox visible="{= ${ui>/selectedTab} === 'all' }">
 							<!-- DETAIL TABLE -->
 							<VBox visible="{= ${ui>/allViewMode} === 'DETAIL' }">
-								<Panel headerText="All Details (Amounts in Lacs)" expandable="false" expanded="true" class="fcrOutPanel" visible="{= ${ui>/allViewMode} === 'DETAIL' }">
+								<Panel headerText="All Details (Amounts in Lacs)" expandable="false" expanded="true" class="fcrOutPanel"
+									visible="{= ${ui>/allViewMode} === 'DETAIL' }">
 									<content>
 										<table:Table id="allDetailTable" rows="{fcr>/allDetailRows}" visibleRowCount="10" fixedColumnCount="3" selectionMode="None"
 											enableColumnReordering="true" enableCellFilter="true" class="fcrUiTable">
@@ -275,8 +276,12 @@
 															<MessageStrip
 																text="Tip: Click on any month or quarter column header (e.g., 'Apr' or 'Q1') in the table below to view a Month/Quarter Wise detailed breakdown chart."
 																type="Information" showIcon="true" showCloseButton="false" class="sapUiSmallMarginBottom"/>
-															<table:Table id="allSummaryTable" rows="{fcr>/allSummaryRows}" visibleRowCount="8" fixedColumnCount="2" selectionMode="None"
-																enableColumnReordering="true" enableCellFilter="true" class="fcrUiTable">
+															<table:Table id="allSummaryTable" rows="{fcr>/allSummaryRows}" visibleRowCount="8" fixedColumnCount="2" selectionMode="Single"
+																selectionBehavior="RowOnly" rowSelectionChange=".onSummaryRowSelect" enableColumnReordering="true" enableCellFilter="true"
+																class="fcrUiTable">
+																<table:rowSettingsTemplate>
+																	<table:RowSettings highlight="{ parts: [ {path: 'fcr>glGroup'}, {path: 'ui>/allDrillDownGl'} ], formatter: '.formatRowHighlight' }"/>
+																</table:rowSettingsTemplate>
 																<table:columns>
 																	<table:Column width="16rem" sortProperty="glGroup" filterProperty="glGroup">
 																		<table:label>
@@ -546,7 +551,8 @@
 						<VBox visible="{= ${ui>/selectedTab} === 'top' }">
 							<!-- DETAIL TABLE -->
 							<VBox visible="{= ${ui>/topViewMode} === 'DETAIL' }">
-								<Panel headerText="Top 5 Details (Amounts in Lacs)" expandable="false" expanded="true" class="fcrOutPanel" visible="{= ${ui>/topViewMode} === 'DETAIL' }">
+								<Panel headerText="Top 5 Details (Amounts in Lacs)" expandable="false" expanded="true" class="fcrOutPanel"
+									visible="{= ${ui>/topViewMode} === 'DETAIL' }">
 									<content>
 										<table:Table id="topDetailTable" rows="{fcr>/topDetailRows}" visibleRowCount="10" fixedColumnCount="3" selectionMode="None"
 											enableColumnReordering="true" enableCellFilter="true" class="fcrUiTable">
@@ -692,8 +698,12 @@
 															<MessageStrip
 																text="Tip: Click on any month or quarter column header (e.g., 'Apr' or 'Q1') in the table below to view a Month/Quarter Wise detailed breakdown chart."
 																type="Information" showIcon="true" showCloseButton="false" class="sapUiSmallMarginBottom"/>
-															<table:Table id="topSummaryTable" rows="{fcr>/topSummaryRows}" visibleRowCount="8" fixedColumnCount="2" selectionMode="None"
-																enableColumnReordering="true" enableCellFilter="true" class="fcrUiTable">
+															<table:Table id="topSummaryTable" rows="{fcr>/topSummaryRows}" visibleRowCount="8" fixedColumnCount="2" selectionMode="Single"
+																selectionBehavior="RowOnly" rowSelectionChange=".onSummaryRowSelect" enableColumnReordering="true" enableCellFilter="true"
+																class="fcrUiTable">
+																<table:rowSettingsTemplate>
+																	<table:RowSettings highlight="{ parts: [ {path: 'fcr>glGroup'}, {path: 'ui>/topDrillDownGl'} ], formatter: '.formatRowHighlight' }"/>
+																</table:rowSettingsTemplate>
 																<table:columns>
 																	<!--<table:Column width="8rem" sortProperty="profitCentre" filterProperty="profitCentre" visible="false">-->
 																	<!--	<table:label>-->

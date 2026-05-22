@@ -316,39 +316,119 @@ sap.ui.define([
 			}.bind(this), 0);
 		},
 
-		onViewModeChange: function(oEvent) {
-			var sKey = "";
-			var oSource = oEvent.getSource();
-			if (oSource && oSource.getSelectedKey) {
-				sKey = oSource.getSelectedKey() || "";
-			}
-			if (!sKey) {
-				sKey = oEvent.getParameter("key") || "";
-			}
-			if (!sKey) {
-				var oItem = oEvent.getParameter("item");
-				sKey = oItem && oItem.getKey ? (oItem.getKey() || "") : "";
+		onSummaryRowSelect: function(oEvent) {
+			var oTable = oEvent.getSource();
+			var iSelectedIndex = oTable.getSelectedIndex();
+
+			// 1. If the index is -1, it means the row was unselected, so we do nothing
+			if (iSelectedIndex === -1) {
+				return;
 			}
 
-			var oUi = this.getView().getModel("ui");
+			// 2. Get the data context of the highlighted row
+			var oContext = oTable.getContextByIndex(iSelectedIndex);
+			if (!oContext) {
+				return;
+			}
 
-			if (oUi.getProperty("/selectedTab") === "all") {
+			// 3. Grab the G/L Group name from that row
+			var sClickedGlGroup = oContext.getProperty("glGroup");
 
-				oUi.setProperty("/allViewMode", sKey);
+			// 4. Find out which tab we are currently on ("all" or "top")
+			var oUiModel = this.getView().getModel("ui");
+			var sTab = oUiModel.getProperty("/selectedTab");
 
+			// 5. Save this specific G/L Group as our active "Drill-Down" filter
+			oUiModel.setProperty("/" + sTab + "DrillDownGl", sClickedGlGroup);
+
+			// 6. Switch the segmented button to the DETAIL view
+			if (sTab === "all") {
+				oUiModel.setProperty("/allViewMode", "DETAIL");
 			} else {
-
-				oUi.setProperty("/topViewMode", sKey);
-
+				oUiModel.setProperty("/topViewMode", "DETAIL");
 			}
 
-			// Drop focus from the button to prevent browser scroll-anchoring jumps
-			if (document.activeElement) {
-				document.activeElement.blur();
-			}
-
+			// 7. Apply the filter to the Detail Table
+			this._applyTableFilters(sTab);
+			
+			// =========================================================
+			// FIX: Tell the KPIs to recalculate using the new filtered rows!
+			// =========================================================
 			this._updateKpisFromActive();
 
+			sap.m.MessageToast.show("Filtered Details for: " + sClickedGlGroup, {
+				width: "25em",
+				duration: 4000, // Stays on screen for 4 seconds (default is 3000)
+				my: "center bottom", // Alignment of the toast
+				at: "center bottom", // Alignment of the toast relative to the screen
+				of: window, // Where to anchor it
+				offset: "0 -50"
+			});
+		},
+
+		// onViewModeChange: function(oEvent) {
+		// 	var sKey = "";
+		// 	var oSource = oEvent.getSource();
+		// 	if (oSource && oSource.getSelectedKey) {
+		// 		sKey = oSource.getSelectedKey() || "";
+		// 	}
+		// 	if (!sKey) {
+		// 		sKey = oEvent.getParameter("key") || "";
+		// 	}
+		// 	if (!sKey) {
+		// 		var oItem = oEvent.getParameter("item");
+		// 		sKey = oItem && oItem.getKey ? (oItem.getKey() || "") : "";
+		// 	}
+
+		// 	var oUi = this.getView().getModel("ui");
+
+		// 	if (oUi.getProperty("/selectedTab") === "all") {
+
+		// 		oUi.setProperty("/allViewMode", sKey);
+
+		// 	} else {
+
+		// 		oUi.setProperty("/topViewMode", sKey);
+
+		// 	}
+
+		// 	// Drop focus from the button to prevent browser scroll-anchoring jumps
+		// 	if (document.activeElement) {
+		// 		document.activeElement.blur();
+		// 	}
+
+		// 	this._updateKpisFromActive();
+
+		// },
+		onViewModeChange: function(oEvent) {
+			var sKey = oEvent.getSource().getSelectedKey() || oEvent.getParameter("key") || (oEvent.getParameter("item") && oEvent.getParameter(
+				"item").getKey());
+			var oUi = this.getView().getModel("ui");
+			var sTab = oUi.getProperty("/selectedTab");
+
+			// ==========================================================
+			// THE RESET TRICK: If the user manually clicks the "DETAIL" 
+			// segmented button, clear the drill-down filter to show ALL rows again!
+			// ==========================================================
+			if (sKey === "DETAIL") {
+				oUi.setProperty("/" + sTab + "DrillDownGl", "");
+				this._applyTableFilters(sTab);
+
+				// Optional: Clear the row selection highlighting in the summary table
+				var oSummaryTable = this.byId(sTab + "SummaryTable");
+				if (oSummaryTable) {
+					oSummaryTable.clearSelection();
+				}
+			}
+
+			if (sTab === "all") {
+				oUi.setProperty("/allViewMode", sKey);
+			} else {
+				oUi.setProperty("/topViewMode", sKey);
+			}
+
+			if (document.activeElement) document.activeElement.blur();
+			this._updateKpisFromActive();
 		},
 		onSegmentTabChange: function(oEvent) {
 
@@ -968,7 +1048,55 @@ sap.ui.define([
 			that._refreshChartStyling();
 			that._updateKpisFromActive();
 		},
+		_applyTableFilters: function(sTab) {
+			var oUi = this.getView().getModel("ui");
+			var sSearchQuery = (oUi.getProperty("/globalSearch") || "").trim();
+			var sDrillDownGl = oUi.getProperty("/" + sTab + "DrillDownGl") || "";
 
+			var aDetailFilters = [];
+
+			// 1. Add Global Search condition
+			if (sSearchQuery) {
+				aDetailFilters.push(new sap.ui.model.Filter({
+					filters: [
+						new sap.ui.model.Filter("glAccount", sap.ui.model.FilterOperator.Contains, sSearchQuery),
+						new sap.ui.model.Filter("glName", sap.ui.model.FilterOperator.Contains, sSearchQuery),
+						new sap.ui.model.Filter("glGroup", sap.ui.model.FilterOperator.Contains, sSearchQuery),
+						new sap.ui.model.Filter("glGroupText", sap.ui.model.FilterOperator.Contains, sSearchQuery)
+					],
+					and: false
+				}));
+			}
+
+			// 2. Add Drill-Down condition (Clicked Row)
+			if (sDrillDownGl) {
+				aDetailFilters.push(new sap.ui.model.Filter("glGroup", sap.ui.model.FilterOperator.EQ, sDrillDownGl));
+			}
+
+			// 3. Combine them using AND
+			var oFinalDetailFilter = aDetailFilters.length > 0 ? new sap.ui.model.Filter({
+				filters: aDetailFilters,
+				and: true
+			}) : [];
+
+			// 4. Apply to the Detail Table
+			var oDetailTable = this.byId(sTab + "DetailTable");
+			if (oDetailTable && oDetailTable.getBinding("rows")) {
+				oDetailTable.getBinding("rows").filter(oFinalDetailFilter);
+			}
+
+			// 5. Apply ONLY the Global Search to the Summary Table (Summary doesn't filter itself on drill-down)
+			var oSummaryTable = this.byId(sTab + "SummaryTable");
+			if (oSummaryTable && oSummaryTable.getBinding("rows")) {
+				var oSummaryFilter = sSearchQuery ? new sap.ui.model.Filter({
+					filters: [
+						new sap.ui.model.Filter("glGroup", sap.ui.model.FilterOperator.Contains, sSearchQuery)
+					],
+					and: false
+				}) : [];
+				oSummaryTable.getBinding("rows").filter(oSummaryFilter);
+			}
+		},
 		_mapDetailRowFromOData: function(o) {
 			if (!o) {
 				return null;
@@ -1676,14 +1804,14 @@ sap.ui.define([
 
 			// 2. If we have NEVER seen this G/L Group before, assign a new distinct color
 			if (!this._mColorMap[s]) {
-				
+
 				// Multiply our exact sequence number (0, 1, 2...) by the Golden Angle (137.5)
 				// This guarantees every new color is as far away from the previous colors as physically possible!
 				var h = Math.floor(this._iColorCounter * 137.5) % 360;
-				
+
 				// Save it (Saturation 80% for vibrant, Lightness 45% for deep/readable)
 				this._mColorMap[s] = "hsl(" + h + ", 80%, 45%)";
-				
+
 				// Increment the counter for the next completely new group
 				this._iColorCounter++;
 			}
@@ -1922,6 +2050,11 @@ sap.ui.define([
 			aTargets.forEach(function(oTable) {
 				fnApply(oTable, aAppFilters);
 			});
+
+			// Instead of filtering here, we just call our unified filter function
+			this._applyTableFilters("all");
+			this._applyTableFilters("top");
+
 			this._syncChartsFromTables();
 			this._updateKpisFromActive();
 		},
@@ -2515,9 +2648,9 @@ sap.ui.define([
 
 					dataLabel: {
 						visible: true
-						// style: {
-						// 	fontSize: "11px"
-						// }
+							// style: {
+							// 	fontSize: "11px"
+							// }
 					},
 
 					dataPointStyle: {
@@ -2585,6 +2718,15 @@ sap.ui.define([
 			if (this._oPeriodChartDialog) {
 				this._oPeriodChartDialog.close();
 			}
+		},
+		// =========================================================
+		// CUSTOM ROW COLOR FORMATTER
+		// =========================================================
+		formatRowHighlight: function(sRowGlGroup, sClickedGlGroup) {
+			if (sRowGlGroup && sClickedGlGroup && sRowGlGroup === sClickedGlGroup) {
+				return "Information"; // This forces the Fiori blue highlight color!
+			}
+			return "None"; // Leaves other rows uncolored
 		}
 	});
 });

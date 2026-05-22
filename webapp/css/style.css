@@ -1247,3 +1247,27 @@
         opacity: 0.85;
     }
 }
+
+/* ========================================================= */
+/* FORCE GRID TABLE ROW SELECTION HIGHLIGHT                  */
+/* ========================================================= */
+
+/* Target the selected row in your specific tables */
+.fcrUiTable .sapUiTableRowSel,
+.fcrUiTable .sapUiTableRowSel > td {
+    background-color: #E5F0FA !important; /* Standard Fiori Selection Blue */
+}
+
+/* Make sure the text cells let the blue background show through */
+.fcrUiTable .sapUiTableRowSel .sapUiTableCell,
+.fcrUiTable .sapUiTableRowSel .sapUiTableCell > span,
+.fcrUiTable .sapUiTableRowSel .sapUiTableCell > div {
+    background-color: transparent !important;
+}
+
+/* Optional: Add a subtle hover effect so users know it's clickable */
+.fcrUiTable .sapUiTableRowHvr,
+.fcrUiTable .sapUiTableRowHvr > td {
+    background-color: #F4F4F4 !important;
+    cursor: pointer;
+}
