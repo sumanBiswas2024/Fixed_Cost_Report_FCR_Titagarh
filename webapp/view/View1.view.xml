@@ -85,7 +85,7 @@
 						<layout:Grid defaultSpan="XL4 L4 M4 S12" hSpacing="1" vSpacing="1" class="fcrKpiGrid">
 							<VBox class="fcrKpi fcrKpiA">
 								<Text text="Total Cost Amount"/>
-								<ObjectNumber number="{ui>/totalActual}" unit="INR" state="Information"/>
+								<ObjectNumber number="{ui>/totalActual}" unit="INR (Lacs)" state="Information"/>
 							</VBox>
 							<!--<VBox class="fcrKpi fcrKpiB">-->
 							<!--	<Text text="Budget (not bound)"/>-->
@@ -98,10 +98,10 @@
 							<VBox class="fcrKpi fcrKpiB">
 								<Text text="Max GL Total"/>
 								<!--<ObjectNumber number="{ui>/totalVariance}" unit="INR" state="{ui>/varianceState}"/>-->
-								<ObjectNumber number="{ui>/totalVariance}" unit="INR"/>
+								<ObjectNumber number="{ui>/totalVariance}" unit="INR (Lacs)"/>
 							</VBox>
 							<VBox class="fcrKpi fcrKpiP">
-								<Text text="Records"/>
+								<Text text="No. of GL"/>
 								<ObjectNumber number="{ui>/recordCount}"/>
 							</VBox>
 						</layout:Grid>
@@ -153,7 +153,7 @@
 						<VBox visible="{= ${ui>/selectedTab} === 'all' }">
 							<!-- DETAIL TABLE -->
 							<VBox visible="{= ${ui>/allViewMode} === 'DETAIL' }">
-								<Panel headerText="All Details" expandable="false" expanded="true" class="fcrOutPanel" visible="{= ${ui>/allViewMode} === 'DETAIL' }">
+								<Panel headerText="All Details (Amounts in Lacs)" expandable="false" expanded="true" class="fcrOutPanel" visible="{= ${ui>/allViewMode} === 'DETAIL' }">
 									<content>
 										<table:Table id="allDetailTable" rows="{fcr>/allDetailRows}" visibleRowCount="10" fixedColumnCount="3" selectionMode="None"
 											enableColumnReordering="true" enableCellFilter="true" class="fcrUiTable">
@@ -264,7 +264,7 @@
 								<Panel headerText="" expandable="false" expanded="true" class="fcrOutPanel" visible="{= ${ui>/allViewMode} === 'SUMMARY' }">
 									<content>
 										<suite:ChartContainer id="allSummaryChartContainer" showFullScreen="true" showPersonalization="false" autoAdjustHeight="false"
-											showLegendButton="false" title="All Fixed Cost Summary " class="fcrChartContainer">
+											showLegendButton="false" title="All Fixed Cost Summary (Amounts in Lacs) " class="fcrChartContainer">
 											<suite:content>
 												<!-- ========================================================= -->
 												<!-- TABLE VIEW -->
@@ -498,12 +498,12 @@
 																		<viz.data:DimensionDefinition name="GL Account" value="{fcr>name}"/>
 																	</viz.data:dimensions>
 																	<viz.data:measures>
-																		<viz.data:MeasureDefinition name="Total Amount" value="{fcr>value}"/>
+																		<viz.data:MeasureDefinition name="Total Amount(Lacs)" value="{fcr>value}"/>
 																	</viz.data:measures>
 																</viz.data:FlattenedDataset>
 															</viz:dataset>
 															<viz:feeds>
-																<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Total Amount"/>
+																<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Total Amount(Lacs)"/>
 																<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="GL Account"/>
 															</viz:feeds>
 														</viz:VizFrame>
@@ -523,12 +523,12 @@
 																		<viz.data:DimensionDefinition name="GL Group" value="{fcr>gl}"/>
 																	</viz.data:dimensions>
 																	<viz.data:measures>
-																		<viz.data:MeasureDefinition name="Period Amount" value="{fcr>value}"/>
+																		<viz.data:MeasureDefinition name="Period Amount(Lacs)" value="{fcr>value}"/>
 																	</viz.data:measures>
 																</viz.data:FlattenedDataset>
 															</viz:dataset>
 															<viz:feeds>
-																<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Period Amount"/>
+																<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Period Amount(Lacs)"/>
 																<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="GL Group"/>
 																<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Period"/>
 																<!--<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="GL Group"/>-->
@@ -546,7 +546,7 @@
 						<VBox visible="{= ${ui>/selectedTab} === 'top' }">
 							<!-- DETAIL TABLE -->
 							<VBox visible="{= ${ui>/topViewMode} === 'DETAIL' }">
-								<Panel headerText="Top 5 Details" expandable="false" expanded="true" class="fcrOutPanel" visible="{= ${ui>/topViewMode} === 'DETAIL' }">
+								<Panel headerText="Top 5 Details (Amounts in Lacs)" expandable="false" expanded="true" class="fcrOutPanel" visible="{= ${ui>/topViewMode} === 'DETAIL' }">
 									<content>
 										<table:Table id="topDetailTable" rows="{fcr>/topDetailRows}" visibleRowCount="10" fixedColumnCount="3" selectionMode="None"
 											enableColumnReordering="true" enableCellFilter="true" class="fcrUiTable">
@@ -683,7 +683,7 @@
 								<Panel headerText="" expandable="false" expanded="true" class="fcrOutPanel" visible="{= ${ui>/topViewMode} === 'SUMMARY' }">
 									<content>
 										<suite:ChartContainer id="topSummaryChartContainer" showFullScreen="true" showPersonalization="false" autoAdjustHeight="false"
-											showLegendButton="false" title="Top 5 GL Summary" class="fcrChartContainer">
+											showLegendButton="false" title="Top 5 GL Summary (Amounts in Lacs)" class="fcrChartContainer">
 											<suite:content>
 												<!-- TABLE -->
 												<suite:ChartContainerContent icon="sap-icon://table-chart" title="Table View">
@@ -935,12 +935,12 @@
 																		<viz.data:DimensionDefinition name="GL Account" value="{fcr>name}"/>
 																	</viz.data:dimensions>
 																	<viz.data:measures>
-																		<viz.data:MeasureDefinition name="Total Amount" value="{fcr>value}"/>
+																		<viz.data:MeasureDefinition name="Total Amount(Lacs)" value="{fcr>value}"/>
 																	</viz.data:measures>
 																</viz.data:FlattenedDataset>
 															</viz:dataset>
 															<viz:feeds>
-																<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Total Amount"/>
+																<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Total Amount(Lacs)"/>
 																<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="GL Account"/>
 															</viz:feeds>
 														</viz:VizFrame>
@@ -960,12 +960,12 @@
 																		<viz.data:DimensionDefinition name="GL Group" value="{fcr>gl}"/>
 																	</viz.data:dimensions>
 																	<viz.data:measures>
-																		<viz.data:MeasureDefinition name="Period Amount" value="{fcr>value}"/>
+																		<viz.data:MeasureDefinition name="Period Amount(Lacs)" value="{fcr>value}"/>
 																	</viz.data:measures>
 																</viz.data:FlattenedDataset>
 															</viz:dataset>
 															<viz:feeds>
-																<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Period Amount"/>
+																<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Period Amount(Lacs)"/>
 																<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="GL Group"/>
 																<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Period"/>
 																<!--<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="GL Group"/>-->

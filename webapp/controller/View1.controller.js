@@ -1117,19 +1117,41 @@ sap.ui.define([
 			return p;
 		},
 
+		// _parseAmount: function(v) {
+		// 	if (v === null || v === undefined) {
+		// 		return 0;
+		// 	}
+		// 	if (typeof v === "number") {
+		// 		return v;
+		// 	}
+		// 	var s = String(v);
+		// 	s = s.replace(/[, ]/g, "");
+		// 	var n = parseFloat(s);
+		// 	return isNaN(n) ? 0 : n;
+		// },
+
 		_parseAmount: function(v) {
 			if (v === null || v === undefined) {
 				return 0;
 			}
+			var n = 0;
 			if (typeof v === "number") {
-				return v;
+				n = v;
+			} else {
+				var s = String(v);
+				s = s.replace(/[, ]/g, "");
+				n = parseFloat(s);
 			}
-			var s = String(v);
-			s = s.replace(/[, ]/g, "");
-			var n = parseFloat(s);
-			return isNaN(n) ? 0 : n;
+			
+			if (isNaN(n)) {
+				return 0;
+			}
+			
+			// ==========================================
+			// CONVERT TO LACS (Divide by 1,00,000)
+			// ==========================================
+			return n / 100000;
 		},
-
 		_odataLiteral: function(sValue) {
 			return String(sValue || "").replace(/'/g, "''");
 		},
@@ -1388,7 +1410,8 @@ sap.ui.define([
 					},
 					valueAxis: {
 						label: {
-							visible: true
+							visible: true,
+							text: "Total Amount (in Lacs)"
 						}
 					}
 				});
@@ -1461,7 +1484,7 @@ sap.ui.define([
 					valueAxis: {
 						title: {
 							visible: true,
-							text: "Period Amount"
+							text: "Period Amount (Lacs)"
 						}
 					}
 				});
@@ -2210,7 +2233,7 @@ sap.ui.define([
 			// 2. Add Total
 			a.push({
 				key: "total",
-				label: "Total"
+				label: "Total (in Lacs)"
 			});
 
 			// 3. Add visible Month columns (p1-p12)
@@ -2409,7 +2432,7 @@ sap.ui.define([
 				valueAxis: {
 					title: {
 						visible: true,
-						text: "Period Amount"
+						text: "Period Amount (Lacs)"
 					}
 				}
 			});
