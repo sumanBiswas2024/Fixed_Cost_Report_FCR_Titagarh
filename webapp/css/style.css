@@ -48,7 +48,7 @@
 
 .fcrField {
     gap: 0.2rem;
-    border-radius:1.5rem;
+    border-radius: 1.5rem;
 }
 
 
@@ -129,14 +129,31 @@
 
 /* KPI CARD */
 
+
 /*.fcrKpi {*/
+
+
 /*    min-height: 5.5rem;*/
+
+
 /*    padding: 1rem 1.2rem;*/
+
+
 /*    border-radius: 0.8rem;*/
+
+
 /*    background: #ffffff;*/
+
+
 /*    border: 1px solid #e2e8f0;*/
+
+
 /*    box-shadow: 0 0.2rem 0.7rem rgba(0, 0, 0, 0.05);*/
+
+
 /*    flex: 1;*/
+
+
 /*}*/
 
 
@@ -418,12 +435,16 @@
     padding: 0.75rem 1rem;
     background: #ffffff;
 }
+
+
 /* Make all input labels in the parameter and toolbar sections bold and larger */
+
 .fcrParamGrid .sapMLabel,
 .fcrModeBlock .sapMLabel {
     font-weight: bold !important;
     font-size: 15px !important;
-    color: #333333; /* Optional: Makes the text slightly darker for better readability */
+    color: #333333;
+    /* Optional: Makes the text slightly darker for better readability */
 }
 
 .fcrParamRow {
@@ -635,9 +656,10 @@
     margin-top: 0;
 }
 
-.sapUiRespGrid.sapUiRespGridHSpace1{
-	padding-top: 1rem;
+.sapUiRespGrid.sapUiRespGridHSpace1 {
+    padding-top: 1rem;
 }
+
 
 /* 1. Base Card Styling & Animation Ready */
 
@@ -695,7 +717,9 @@
     background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
 }
 
+
 /* Style for the GL Group Name inside the KPI Card */
+
 .fcrKpiSubText {
     font-size: 1rem !important;
     font-weight: 600;
@@ -1124,16 +1148,20 @@
 
 
 /* 1. Base Dialog Modernization */
+
 .fcrBusyDialog.sapMBusyDialog {
     border-radius: 1.5rem !important;
     background: rgba(255, 255, 255, 0.95) !important;
-    backdrop-filter: blur(15px) !important; /* The 'Glass' effect */
+    backdrop-filter: blur(15px) !important;
+    /* The 'Glass' effect */
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
     border: 1px solid rgba(255, 255, 255, 0.3) !important;
     padding: 1rem !important;
 }
 
+
 /* 2. Styling the Title text */
+
 .fcrBusyDialog .sapMBusyDialogTitle {
     color: #0f172a !important;
     font-weight: 800 !important;
@@ -1141,37 +1169,53 @@
     margin-bottom: 0.5rem !important;
 }
 
+
 /* 3. Styling the loading text */
+
 .fcrBusyDialog .sapMBusyDialogText {
     color: #64748b !important;
     font-weight: 500 !important;
 }
 
+
 /* 4. Fix for the Icon not showing/spinning */
+
 .fcrBusyDialog .sapMBusyDialogIcon {
-    color: #0ea5e9 !important; /* Matches your Sky Blue KPI theme */
+    color: #0ea5e9 !important;
+    /* Matches your Sky Blue KPI theme */
     font-size: 2rem !important;
     /* Optional: If you want the sync icon to rotate */
     animation: rotate 1.5s linear infinite;
 }
 
 @keyframes rotate {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
+
 /* Make all table headers in the FCR app bold and larger */
+
 .fcrUiTable .sapUiTableColHdrCnt .sapMLabel,
 .fcrUiTable .sapUiTableColHdrCnt .sapMLnk {
     /*font-weight: bold !important;*/
-    font-weight: 600 !important;;
-    font-size: 12px !important; /* Standard Fiori is usually 12px or 14px */
+    font-weight: 600 !important;
+    ;
+    font-size: 12px !important;
+    /* Standard Fiori is usually 12px or 14px */
 }
 
+
 /* Creates a perfectly smooth, infinite spin for custom loading icons */
+
 .fcrSpinningIcon {
     animation: fcrContinuousSpin 1.2s linear infinite !important;
-    display: inline-block; /* Required to allow transforms on font icons */
+    display: inline-block;
+    /* Required to allow transforms on font icons */
 }
 
 @keyframes fcrContinuousSpin {
@@ -1183,8 +1227,13 @@
     }
 }
 
+
 /* ========================================================= */
+
+
 /* MODERN DUAL-RING SPINNER FOR BUSY DIALOG                  */
+
+
 /* ========================================================= */
 
 .fcrModernSpinner {
@@ -1193,7 +1242,8 @@
     height: 45px;
     border-radius: 50%;
     border: 4px solid transparent;
-    border-top-color: #0a6ed1; /* Standard Fiori Dark Blue */
+    border-top-color: #0a6ed1;
+    /* Standard Fiori Dark Blue */
     border-bottom-color: #0a6ed1;
     /* Smooth, easing animation for the outer ring */
     animation: fcrSpinOuter 1.5s cubic-bezier(0.5, 0, 0.5, 1) infinite;
@@ -1203,33 +1253,52 @@
     content: "";
     position: absolute;
     /* Inset the inner ring */
-    top: 4px; left: 4px; right: 4px; bottom: 4px;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    bottom: 4px;
     border-radius: 50%;
     border: 4px solid transparent;
-    border-left-color: #89baeb; /* Fiori Light Blue */
+    border-left-color: #89baeb;
+    /* Fiori Light Blue */
     border-right-color: #89baeb;
     /* Faster, linear animation for the inner ring */
     animation: fcrSpinInner 1s linear infinite;
 }
 
 @keyframes fcrSpinOuter {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 @keyframes fcrSpinInner {
-    0% { transform: rotate(360deg); }
-    100% { transform: rotate(-360deg); } /* Spins backwards */
+    0% {
+        transform: rotate(360deg);
+    }
+    100% {
+        transform: rotate(-360deg);
+    }
+    /* Spins backwards */
 }
 
+
 /* ========================================================= */
+
+
 /* NO DATA DIALOG - PULSING ICON ANIMATION                   */
+
+
 /* ========================================================= */
 
 .fcrPulseIcon {
     /* Runs a 2.5-second animation in an infinite loop */
     animation: fcrGentlePulse 2.5s infinite ease-in-out;
-    display: inline-block; /* Required for CSS transforms on icons */
+    display: inline-block;
+    /* Required for CSS transforms on icons */
 }
 
 @keyframes fcrGentlePulse {
@@ -1248,26 +1317,272 @@
     }
 }
 
+
 /* ========================================================= */
+
+
 /* FORCE GRID TABLE ROW SELECTION HIGHLIGHT                  */
+
+
 /* ========================================================= */
+
 
 /* Target the selected row in your specific tables */
+
 .fcrUiTable .sapUiTableRowSel,
 .fcrUiTable .sapUiTableRowSel > td {
-    background-color: #E5F0FA !important; /* Standard Fiori Selection Blue */
+    background-color: #E5F0FA !important;
+    /* Standard Fiori Selection Blue */
 }
 
+
 /* Make sure the text cells let the blue background show through */
+
 .fcrUiTable .sapUiTableRowSel .sapUiTableCell,
 .fcrUiTable .sapUiTableRowSel .sapUiTableCell > span,
 .fcrUiTable .sapUiTableRowSel .sapUiTableCell > div {
     background-color: transparent !important;
 }
 
+
 /* Optional: Add a subtle hover effect so users know it's clickable */
+
 .fcrUiTable .sapUiTableRowHvr,
 .fcrUiTable .sapUiTableRowHvr > td {
     background-color: #F4F4F4 !important;
     cursor: pointer;
+}
+
+
+/* ========================================================= */
+
+
+/* MODERN HORIZONTAL KPI CARDS                               */
+
+
+/* ========================================================= */
+
+.fcrKpiGrid {
+    margin-top: 0;
+}
+
+.fcrModernCard {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 4rem;
+    padding: 1rem 1.25rem !important;
+    /* Tighter padding */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    gap: 1rem;
+    box-sizing: border-box;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    /* ADD THESE TWO LINES TO FORCE EQUAL SIZES */
+    height: 6.5rem !important;
+    min-height: 6.5rem !important;
+    max-height: 6.5rem !important;
+    width: 100%;
+}
+
+.fcrModernCard:hover {
+    /*box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);*/
+    /*transform: translateY(-2px);*/
+    z-index: 10;
+    transform: translateY(0px);
+}
+
+
+/* --- COMPACT ICON WITH BACKGROUND --- */
+
+.fcrModernIconWrap {
+    justify-content: center;
+    align-items: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 0.8rem;
+    flex-shrink: 0;
+}
+
+.fcrModernIcon {
+    font-size: 1.75rem !important;
+}
+
+
+/* 1. Soft, premium gradients for the entire card */
+
+.fcrCardBgBlue {
+    background: linear-gradient(135deg, #c5deef 0%, #e0f2fe 100%) !important;
+    border-color: #99d6f5 !important;
+}
+
+.fcrCardBgPurple {
+    background: linear-gradient(135deg, #e3c8fd 0%, #f3e8ff 100%) !important;
+    border-color: #cfacf5 !important;
+}
+
+
+/* The soft gold background gradient for the whole card */
+
+.fcrCardBgAmber {
+    background: linear-gradient(135deg, #e9dca5 0%, #fef8c7 100%) !important;
+    border-color: #f9e389 !important;
+}
+
+/* ========================================================= */
+/* KPI HOVER EFFECTS                                         */
+/* ========================================================= */
+
+/* 1. Hover for Blue Card */
+.fcrCardBgBlue:hover {
+    /* Darkens the gradient stops slightly */
+    background: linear-gradient(135deg, #aed2ea 0%, #cceafc 100%) !important;
+    border-color: #81c5e8 !important;
+}
+
+/* 2. Hover for Purple Card */
+.fcrCardBgPurple:hover {
+    background: linear-gradient(135deg, #d3b0f5 0%, #e8d0f7 100%) !important;
+    border-color: #b58ae8 !important;
+}
+
+/* 3. Hover for Amber Card */
+.fcrCardBgAmber:hover {
+    background: linear-gradient(135deg, #e0d18d 0%, #fdf0a6 100%) !important;
+    border-color: #f1d368 !important;
+}
+
+
+/* Make the icon box white so it pops */
+
+
+/*.fcrIconBgAmber {*/
+
+
+/*    background-color: #ffffff !important;*/
+
+
+/*    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06); */
+
+
+/*}*/
+
+
+/* The vibrant amber/orange color for the icon itself */
+
+.fcrIconAmber {
+    color: #d97706 !important;
+}
+
+
+/* 2. Change the Icon boxes to White so they stand out against the colored cards */
+
+.fcrIconBgBlue,
+.fcrIconBgPurple,
+.fcrIconBgTeal,
+.fcrIconBgAmber {
+    background-color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    /* Adds a tiny shadow so the icon floats */
+}
+
+
+/* --- ICON COLORS --- */
+
+.fcrIconAmber {
+    color: #d97706 !important;
+}
+
+.fcrIconBlue {
+    color: #0284c7 !important;
+}
+
+
+/* Brought this back! */
+
+.fcrIconPurple {
+    color: #7c3aed !important;
+}
+
+
+/* Brought this back! */
+
+
+/* --- TEXT STYLING --- */
+
+.fcrModernDataWrap {
+    flex: 1;
+    overflow: hidden;
+}
+
+.fcrModernTitle {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #1f2937;
+}
+
+.fcrModernSubtitle {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-bottom: 0.6rem;
+}
+
+.fcrModernValueLine {
+    gap: 0.35rem;
+}
+
+.fcrModernValue {
+    font-weight: 800;
+    font-size: 1.85rem;
+    line-height: 1;
+}
+
+.fcrTextGreen {
+    color: #16a34a !important;
+}
+
+.fcrTextBlue {
+    color: #0284c7 !important;
+}
+
+.fcrTextDark {
+    color: #d54d4d !important;
+}
+
+
+/* --- TWO-LINE CLAMP FOR LONG NAMES --- */
+
+.fcrGlNameText {
+    font-size: 1.25rem !important;
+    line-height: 1.2;
+    margin-bottom: 0.25rem;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.fcrModernUnit {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #4b5563;
+}
+
+.fcrModernBottomStat {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #4b5563;
+}
+
+/* The Number: Bold and Colored */
+.fcrModernAmountColored {
+    font-size: 0.85rem !important;
+    font-weight: 800 !important;
+    color: #16a34a  !important; /* Your desired dark color */
+}
+
+/* The Unit: Neutral color (doesn't take the colored class) */
+.fcrModernUnitText {
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    color: #4b5563 !important; /* Standard grey for units */
 }

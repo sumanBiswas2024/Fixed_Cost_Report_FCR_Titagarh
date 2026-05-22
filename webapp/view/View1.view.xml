@@ -82,28 +82,71 @@
 					<VBox class="">
 						<!-- KPI CARDS -->
 						<!--<HBox class="fcrKpiStickyWrap" wrap="Wrap">-->
+						<!--<layout:Grid defaultSpan="XL4 L4 M4 S12" hSpacing="1" vSpacing="1" class="fcrKpiGrid">-->
+						<!--	<VBox class="fcrKpi fcrKpiA">-->
+						<!--		<Text text="Total Cost Amount"/>-->
+						<!--		<ObjectNumber number="{ui>/totalActual}" unit="INR (Lacs)" state="Information"/>-->
+						<!--	</VBox>-->
+						<!--<VBox class="fcrKpi fcrKpiB">-->
+						<!--	<Text text="Budget (not bound)"/>-->
+						<!--	<ObjectNumber number="{ui>/totalBudget}" unit="INR"/>-->
+						<!--</VBox>-->
+						<!--<VBox class="fcrKpi fcrKpiB">-->
+						<!--	<Text text="Max GL Group"/>-->
+						<!--	<Text text="{ui>/maxGlGroupName}" class="fcrKpiSubText"/>-->
+						<!--</VBox>-->
+						<!--	<VBox class="fcrKpi fcrKpiB">-->
+						<!--		<Text text="Max GL Total"/>-->
+						<!--<ObjectNumber number="{ui>/totalVariance}" unit="INR" state="{ui>/varianceState}"/>-->
+						<!--		<ObjectNumber number="{ui>/totalVariance}" unit="INR (Lacs)"/>-->
+						<!--	</VBox>-->
+						<!--	<VBox class="fcrKpi fcrKpiP">-->
+						<!--		<Text text="No. of GL"/>-->
+						<!--		<ObjectNumber number="{ui>/recordCount}"/>-->
+						<!--	</VBox>-->
+						<!--</layout:Grid>-->
 						<layout:Grid defaultSpan="XL4 L4 M4 S12" hSpacing="1" vSpacing="1" class="fcrKpiGrid">
-							<VBox class="fcrKpi fcrKpiA">
-								<Text text="Total Cost Amount"/>
-								<ObjectNumber number="{ui>/totalActual}" unit="INR (Lacs)" state="Information"/>
-							</VBox>
-							<!--<VBox class="fcrKpi fcrKpiB">-->
-							<!--	<Text text="Budget (not bound)"/>-->
-							<!--	<ObjectNumber number="{ui>/totalBudget}" unit="INR"/>-->
-							<!--</VBox>-->
-							<!--<VBox class="fcrKpi fcrKpiB">-->
-							<!--	<Text text="Max GL Group"/>-->
-							<!--	<Text text="{ui>/maxGlGroupName}" class="fcrKpiSubText"/>-->
-							<!--</VBox>-->
-							<VBox class="fcrKpi fcrKpiB">
-								<Text text="Max GL Total"/>
-								<!--<ObjectNumber number="{ui>/totalVariance}" unit="INR" state="{ui>/varianceState}"/>-->
-								<ObjectNumber number="{ui>/totalVariance}" unit="INR (Lacs)"/>
-							</VBox>
-							<VBox class="fcrKpi fcrKpiP">
-								<Text text="No. of GL"/>
-								<ObjectNumber number="{ui>/recordCount}"/>
-							</VBox>
+							<HBox class="fcrModernCard fcrCardBgBlue" alignItems="Center">
+								<VBox class="fcrModernIconWrap fcrIconBgBlue">
+									<core:Icon src="sap-icon://money-bills" class="fcrModernIcon fcrIconBlue"/>
+								</VBox>
+								<VBox class="fcrModernDataWrap">
+									<Text text="Total Expenditure" class="fcrModernTitle"/>
+									<!--<Text text="(Selected Period)" class="fcrModernSubtitle"/>-->
+									<HBox alignItems="Baseline" class="fcrModernValueLine">
+										<Text text="{ui>/totalActual}" class="fcrModernValue fcrTextGreen"/>
+										<Text text="Lacs INR" class="fcrModernUnit"/>
+									</HBox>
+								</VBox>
+							</HBox>
+							<HBox class="fcrModernCard fcrCardBgPurple" alignItems="Center">
+								<VBox class="fcrModernIconWrap fcrIconBgPurple">
+									<core:Icon src="sap-icon://favorite" class="fcrModernIcon fcrIconPurple"/>
+								</VBox>
+								<VBox class="fcrModernDataWrap">
+									<Text text="Highest Spending G/L Group" class="fcrModernTitle"/>
+									<!--<Text text="(Selected Period)" class="fcrModernSubtitle"/>-->
+									<!--<Text text="{ui>/maxGlGroupName}" class="fcrModernValue fcrTextBlue fcrGlNameText"/>-->
+									<!--<Text text="{ui>/totalVariance} Lacs INR" class="fcrModernBottomStat"/>-->
+									<Text text="{ui>/maxGlGroupName}" tooltip="{ui>/maxGlGroupName}" class="fcrModernValue fcrTextBlue fcrGlNameText"/>
+									<HBox alignItems="Baseline" class="fcrModernValueLine">
+										<Text text="{ui>/totalVariance}" class="fcrModernAmountColored"/>
+										<Text text=" Lacs INR" class="fcrModernUnitText"/>
+									</HBox>
+								</VBox>
+							</HBox>
+							<HBox class="fcrModernCard fcrCardBgAmber" alignItems="Center">
+								<VBox class="fcrModernIconWrap fcrIconBgAmber">
+									<core:Icon src="sap-icon://bullet-text" class="fcrModernIcon fcrIconAmber"/>
+								</VBox>
+								<VBox class="fcrModernDataWrap">
+									<Text text="No. of G/L Accounts" class="fcrModernTitle"/>
+									<!--<Text text="(Selected Period)" class="fcrModernSubtitle"/>-->
+									<HBox alignItems="Baseline" class="fcrModernValueLine">
+										<Text text="{ui>/recordCount}" class="fcrModernValue fcrTextDark"/>
+									</HBox>
+								</VBox>
+							</HBox>
 						</layout:Grid>
 						<!--</HBox>-->
 						<!-- SEGMENT TOOLBAR -->

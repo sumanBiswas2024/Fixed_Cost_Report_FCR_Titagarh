@@ -1285,23 +1285,31 @@ sap.ui.define([
 		},
 
 		// _updateTotalsFromPivot: function(aRows, bMarkRun) {
-		// 	var iTotal = aRows.reduce(function(iSum, oRow) {
-		// 		return iSum + (oRow.total || 0);
-		// 	}, 0);
+		// 	var iTotal = 0;
 		// 	var iMax = 0;
-		// 	if (aRows && aRows.length) {
-		// 		iMax = aRows.reduce(function(iBest, oRow) {
-		// 			return Math.max(iBest, Math.abs(oRow.total || 0));
-		// 		}, 0);
-		// 	}
-		// 	var oUiModel = this.getView().getModel("ui");
+		// 	var sTopGroupName = "None";
+		// 	var iTopGroupValue = 0;
 
+		// 	aRows.forEach(function(oRow) {
+		// 		var val = oRow.total || 0;
+		// 		iTotal += val;
+
+		// 		// Identify the row with the largest absolute total
+		// 		if (Math.abs(val) > iMax) {
+		// 			iMax = Math.abs(val);
+		// 			// If it's a detail row, use glName; if summary, use groupName
+		// 			sTopGroupName = oRow.glName || oRow.groupName || "Unknown";
+		// 			iTopGroupValue = val;
+		// 		}
+		// 	});
+
+		// 	var oUiModel = this.getView().getModel("ui");
 		// 	oUiModel.setProperty("/totalActual", this._formatAmount(iTotal));
-		// 	oUiModel.setProperty("/totalBudget", this._formatAmount(0));
+		// 	oUiModel.setProperty("/maxGlGroupName", sTopGroupName); // New property
+		// 	oUiModel.setProperty("/maxGlGroupValue", this._formatAmount(iTopGroupValue)); // New property
 		// 	oUiModel.setProperty("/totalVariance", this._formatAmount(iMax));
-		// 	oUiModel.setProperty("/variancePct", this._formatPercent(0));
-		// 	oUiModel.setProperty("/varianceState", this._varianceState(iMax));
-		// 	oUiModel.setProperty("/recordCount", this._formatAmount(aRows.length));
+		// 	// oUiModel.setProperty("/recordCount", this._formatAmount(aRows.length));
+		// 	oUiModel.setProperty("/recordCount", this._oIntegerFormat.format(aRows.length));
 
 		// 	if (bMarkRun) {
 		// 		oUiModel.setProperty("/lastRunText", "Last run just now");
@@ -1320,18 +1328,17 @@ sap.ui.define([
 				// Identify the row with the largest absolute total
 				if (Math.abs(val) > iMax) {
 					iMax = Math.abs(val);
-					// If it's a detail row, use glName; if summary, use groupName
-					sTopGroupName = oRow.glName || oRow.groupName || "Unknown";
+					// FIX: Always use the G/L Group name, never the individual Account name
+					sTopGroupName = oRow.glGroupText || oRow.groupName || oRow.glGroup || "Unknown";
 					iTopGroupValue = val;
 				}
 			});
 
 			var oUiModel = this.getView().getModel("ui");
 			oUiModel.setProperty("/totalActual", this._formatAmount(iTotal));
-			oUiModel.setProperty("/maxGlGroupName", sTopGroupName); // New property
-			oUiModel.setProperty("/maxGlGroupValue", this._formatAmount(iTopGroupValue)); // New property
+			oUiModel.setProperty("/maxGlGroupName", sTopGroupName); 
+			oUiModel.setProperty("/maxGlGroupValue", this._formatAmount(iTopGroupValue)); 
 			oUiModel.setProperty("/totalVariance", this._formatAmount(iMax));
-			// oUiModel.setProperty("/recordCount", this._formatAmount(aRows.length));
 			oUiModel.setProperty("/recordCount", this._oIntegerFormat.format(aRows.length));
 
 			if (bMarkRun) {
@@ -2182,21 +2189,38 @@ sap.ui.define([
 			if (!oTable) {
 				return;
 			}
+			
 			var sPath = "/" + sTab + (sMode === "SUMMARY" ? "SummaryRows" : "DetailRows");
 			var aRows = this._getFilteredTableObjects(oTable, "fcr", sPath);
 			var iTotal = 0;
 			var iMax = 0;
+			
+			// FIX: Track the top group name during live filtering!
+			var sTopGroupName = "None";
+			var iTopGroupValue = 0;
+
 			for (var i = 0; i < aRows.length; i++) {
 				var v = aRows[i].total || 0;
 				iTotal += v;
-				iMax = Math.max(iMax, Math.abs(v));
+				
+				if (Math.abs(v) > iMax) {
+					iMax = Math.abs(v);
+					// FIX: Capture the new highest Group Name from the filtered data
+					sTopGroupName = aRows[i].glGroupText || aRows[i].groupName || aRows[i].glGroup || "Unknown";
+					iTopGroupValue = v;
+				}
 			}
+			
 			oUi.setProperty("/totalActual", this._formatAmount(iTotal));
 			oUi.setProperty("/totalBudget", this._formatAmount(0));
 			oUi.setProperty("/totalVariance", this._formatAmount(iMax));
+			
+			// FIX: Push the newly found Highest Name & Value to the KPI card!
+			oUi.setProperty("/maxGlGroupName", sTopGroupName);
+			oUi.setProperty("/maxGlGroupValue", this._formatAmount(iTopGroupValue));
+			
 			oUi.setProperty("/variancePct", this._formatPercent(0));
 			oUi.setProperty("/varianceState", this._varianceState(iMax));
-			// oUi.setProperty("/recordCount", this._formatAmount(aRows.length));
 			oUi.setProperty("/recordCount", this._oIntegerFormat.format(aRows.length));
 		},
 
