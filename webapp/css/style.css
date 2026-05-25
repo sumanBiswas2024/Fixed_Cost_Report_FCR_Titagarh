@@ -361,10 +361,17 @@
 /*    font-size: 0.8rem;*/
 /*}*/
 .fcrSubtitle {
-    color: #009d1c;
-    font-size: 0.8rem;
+    color: #0284c7;
+    font-size: 1rem;
     font-weight: bold;
     margin-left: 20px
+}
+.fcrSubtitleText {
+    margin-left: 20px;
+    font-weight: normal;
+    font-size: 1.125rem;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #333333;
 }
 
 .fcrInfoIcon {
@@ -1597,4 +1604,8 @@
     font-size: 0.85rem !important;
     font-weight: 600 !important;
     color: #4b5563 !important; /* Standard grey for units */
+}
+
+.sapMTB-Transparent-CTX.sapMTB {
+     padding-left: 0rem; 
 }
