@@ -209,7 +209,7 @@
 							</HBox>
 						</HBox>
 						<HBox alignItems="Center">
-							<Text text="Parameters Selected - " class="fcrSubtitleText"/>
+							<Text text="Selected Parameters : " class="fcrSubtitleText"/>
 							<Text text="{ui>/periodText}" class="fcrSubtitle sapUiTinyMarginBegin"/>
 						</HBox>
 					</VBox>
