@@ -278,10 +278,10 @@ sap.ui.define([
 
 		onReset: function() {
 			this.getView().getModel("filters").setData({
-				// companyCode: "1100", // Default to 1100
-				// fiscalYear: "2026", // Default to 2026
-				companyCode: "",
-				fiscalYear: "",
+				companyCode: "1100", // Default to 1100
+				fiscalYear: "2026", // Default to 2026
+				// companyCode: "",
+				// fiscalYear: "",
 				fromPeriod: "",
 				toPeriod: "",
 				profitCenters: [],
@@ -290,6 +290,7 @@ sap.ui.define([
 			});
 			this._clearSearch();
 			this._syncPeriodSelectorState();
+			this._refreshSelectionTexts();
 			// Do not auto-fetch on reset; user will press Run Report.
 			MessageToast.show("Reset All Parameters");
 			// this._applyFilters(true);
@@ -608,6 +609,7 @@ sap.ui.define([
 						press: function() {
 							oFiltersModel.setProperty(sFilterPropPath, sSelected || "");
 							this._syncPeriodSelectorState();
+							this._refreshSelectionTexts();
 							oDialog.close();
 						}.bind(this)
 					}),
@@ -934,6 +936,7 @@ sap.ui.define([
 
 							oFiltersModel.setProperty("/" + sFilterPath, aSelected);
 							this._syncPeriodSelectorState();
+							this._refreshSelectionTexts();
 							oDialog.close();
 						}.bind(this)
 					}),
@@ -1464,6 +1467,9 @@ sap.ui.define([
 
 		_updatePeriodText: function(oFilters, aPeriods) {
 			var sPeriodText;
+			var aQs = (oFilters.quarters || []).map(function(o) {
+				return o.key;
+			});
 			var sProfitText = oFilters.profitCenters.length ? oFilters.profitCenters.length + " profit centres" : "All profit centres";
 			var sGlText = oFilters.glGroups.length ? oFilters.glGroups.length + " GL groups" : "All GL groups";
 			var sFromText = this.formatLookupText(oFilters.fromPeriod, this.getView().getModel("lookups").getProperty("/periods"));
@@ -1471,6 +1477,15 @@ sap.ui.define([
 
 			if ((oFilters.fromPeriod || "").trim() && (oFilters.toPeriod || "").trim()) {
 				sPeriodText = sFromText + " to " + sToText;
+			} else if (aQs.length) {
+				// Show exactly what the user selected (e.g. "Q1 & Q3"), not the derived period span.
+				if (aQs.length === 1) {
+					sPeriodText = aQs[0];
+				} else if (aQs.length === 2) {
+					sPeriodText = aQs[0] + " & " + aQs[1];
+				} else {
+					sPeriodText = aQs.slice(0, -1).join(", ") + " & " + aQs[aQs.length - 1];
+				}
 			} else if (aPeriods.length) {
 				sPeriodText = "Periods " + Math.min.apply(null, aPeriods) + " to " + Math.max.apply(null, aPeriods);
 			} else {
@@ -2148,6 +2163,17 @@ sap.ui.define([
 			return aPeriods;
 		},
 
+		_refreshSelectionTexts: function() {
+			var oFilters = this.getView().getModel("filters").getData();
+			var aSelectedQuarters = (oFilters.quarters || []).map(function(o) {
+				return o.key;
+			});
+			var aPeriods = this._resolveSelectedPeriods(oFilters, aSelectedQuarters);
+
+			this._updateSelectedValuesText(oFilters);
+			this._updatePeriodText(oFilters, aPeriods);
+		},
+
 		_syncPeriodVisibility: function(aPeriods, aSelectedQuarters) {
 			var oUiModel = this.getView().getModel("ui");
 			var bQuarterSelected = (aSelectedQuarters && aSelectedQuarters.length > 0);
@@ -2702,6 +2728,7 @@ sap.ui.define([
 				}
 			}
 			this._syncPeriodSelectorState();
+			this._refreshSelectionTexts();
 		},
 
 		onPeriodHeaderClick: function(oEvent) {
