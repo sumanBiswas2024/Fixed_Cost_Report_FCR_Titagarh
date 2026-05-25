@@ -52,10 +52,31 @@
 											<core:Item key="{yearModel>key}" text="{yearModel>text}"/>
 										</ComboBox>
 									</VBox>
+									<!--<VBox class="fcrField fcrFieldQtr">-->
+									<!--	<Label text="Quarter" required="false"/>-->
+									<!--	<MultiInput id="quarterInput" value="{path: 'filters>/quarters', formatter: '.formatTokenKeys'}" showValueHelp="true" valueHelpOnly="true"-->
+									<!--		tokenUpdate=".onTokenUpdate" valueHelpRequest=".onQuarterValueHelp" placeholder="Select Quarters" enabled="{ui>/quarterEnabled}"-->
+									<!--		valueState="{ui>/quarterState}" tooltip="Choose either Quarter or From/To Period. Do not use both together."/>-->
+									<!--</VBox>-->
+									<VBox class="fcrField fcrFieldQtr">
+										<Label text="From Period"/>
+										<Input id="fromPeriodInput" value="{parts:[{path:'filters>/fromPeriod'},{path:'lookups>/periods'}], formatter: '.formatLookupText'}"
+											showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onFromPeriodValueHelp" placeholder="Select From Period"
+											enabled="{ui>/periodEnabled}" valueState="{ui>/fromPeriodState}"
+											tooltip="Choose either From/To Period or Quarter. Do not use both together."/>
+									</VBox>
+									<VBox class="fcrField fcrFieldQtr">
+										<Label text="To Period"/>
+										<Input id="toPeriodInput" value="{parts:[{path:'filters>/toPeriod'},{path:'lookups>/periods'}], formatter: '.formatLookupText'}"
+											showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onToPeriodValueHelp" placeholder="Select To Period"
+											enabled="{ui>/periodEnabled}" valueState="{ui>/toPeriodState}"
+											tooltip="Choose either From/To Period or Quarter. Do not use both together."/>
+									</VBox>
 									<VBox class="fcrField fcrFieldQtr">
 										<Label text="Quarter" required="false"/>
 										<MultiInput id="quarterInput" value="{path: 'filters>/quarters', formatter: '.formatTokenKeys'}" showValueHelp="true" valueHelpOnly="true"
-											tokenUpdate=".onTokenUpdate" valueHelpRequest=".onQuarterValueHelp" placeholder="Select Quarters"/>
+											tokenUpdate=".onTokenUpdate" valueHelpRequest=".onQuarterValueHelp" placeholder="Select Quarters" enabled="{ui>/quarterEnabled}"
+											valueState="{ui>/quarterState}" tooltip="Choose either Quarter or From/To Period. Do not use both together."/>
 									</VBox>
 									<VBox class="fcrField fcrFieldPc">
 										<Label text="Profit Centre"/>

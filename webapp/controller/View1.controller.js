@@ -64,6 +64,8 @@ sap.ui.define([
 				// fiscalYear: "",
 				companyCode: "1100", // Default to 1100
 				fiscalYear: "2026", // Default to 2026
+				fromPeriod: "",
+				toPeriod: "",
 				profitCenters: [],
 				glGroups: [],
 				quarters: [] // Stays empty to mean "All Quarters" or select by default
@@ -85,7 +87,8 @@ sap.ui.define([
 				}, {
 					key: "Q4",
 					text: "Q4 - Period 10 to 12"
-				}]
+				}],
+				periods: this._createPeriodLookups()
 			}), "lookups");
 
 			this.getView().setModel(new JSONModel({
@@ -111,6 +114,10 @@ sap.ui.define([
 				fiscalYearStateText: "",
 				quarterState: "None",
 				quarterStateText: "",
+				fromPeriodState: "None",
+				toPeriodState: "None",
+				quarterEnabled: true,
+				periodEnabled: true,
 				selectedValuesText: "",
 				p1Visible: true,
 				p2Visible: true,
@@ -147,6 +154,8 @@ sap.ui.define([
 					details: (oErr && oErr.message) ? oErr.message : String(oErr || "")
 				});
 			});
+
+			this._syncPeriodSelectorState();
 
 			// Load data automatically on initial load since we now have defaults
 			this._applyFilters(false);
@@ -218,6 +227,22 @@ sap.ui.define([
 			}).join(", ");
 		},
 
+		formatLookupText: function(sKey, aItems) {
+			var sValue = String(sKey || "");
+			var aLookup = aItems || [];
+			var oMatch;
+
+			if (!sValue) {
+				return "";
+			}
+
+			oMatch = aLookup.filter(function(oItem) {
+				return String(oItem.key) === sValue;
+			})[0];
+
+			return oMatch ? oMatch.text : sValue;
+		},
+
 		onAfterRendering: function() {
 			this._configureCharts();
 			this._configureTrendChart(); // Configures the new Trend Chart
@@ -257,11 +282,14 @@ sap.ui.define([
 				// fiscalYear: "2026", // Default to 2026
 				companyCode: "",
 				fiscalYear: "",
+				fromPeriod: "",
+				toPeriod: "",
 				profitCenters: [],
 				glGroups: [],
 				quarters: []
 			});
 			this._clearSearch();
+			this._syncPeriodSelectorState();
 			// Do not auto-fetch on reset; user will press Run Report.
 			MessageToast.show("Reset All Parameters");
 			// this._applyFilters(true);
@@ -269,6 +297,14 @@ sap.ui.define([
 
 		onQuarterValueHelp: function() {
 			this._openMultiSelectValueHelp("Quarter", "quarters", "quarters");
+		},
+
+		onFromPeriodValueHelp: function() {
+			this._openSingleSelectValueHelp("From Period", "periods", "/fromPeriod");
+		},
+
+		onToPeriodValueHelp: function() {
+			this._openSingleSelectValueHelp("To Period", "periods", "/toPeriod");
 		},
 
 		onFiscalYearChange: function(oEvent) {
@@ -511,8 +547,8 @@ sap.ui.define([
 				items: {
 					path: "lookups>/" + sLookupPath,
 					template: new StandardListItem({
-						title: "{lookups>key}",
-						description: "{lookups>text}"
+						title: sLookupPath === "periods" ? "{lookups>text}" : "{lookups>key}",
+						description: sLookupPath === "periods" ? "{lookups>description}" : "{lookups>text}"
 					})
 				}
 			});
@@ -571,6 +607,7 @@ sap.ui.define([
 						type: "Emphasized",
 						press: function() {
 							oFiltersModel.setProperty(sFilterPropPath, sSelected || "");
+							this._syncPeriodSelectorState();
 							oDialog.close();
 						}.bind(this)
 					}),
@@ -588,6 +625,68 @@ sap.ui.define([
 
 			oView.addDependent(oDialog);
 			oDialog.open();
+		},
+
+		_createPeriodLookups: function() {
+			return [{
+				key: "1",
+				text: "April",
+				description: "1"
+			}, {
+				key: "2",
+				text: "May",
+				description: "2"
+			}, {
+				key: "3",
+				text: "June",
+				description: "3"
+			}, {
+				key: "4",
+				text: "July",
+				description: "4"
+			}, {
+				key: "5",
+				text: "August",
+				description: "5"
+			}, {
+				key: "6",
+				text: "September",
+				description: "6"
+			}, {
+				key: "7",
+				text: "October",
+				description: "7"
+			}, {
+				key: "8",
+				text: "November",
+				description: "8"
+			}, {
+				key: "9",
+				text: "December",
+				description: "9"
+			}, {
+				key: "10",
+				text: "January",
+				description: "10"
+			}, {
+				key: "11",
+				text: "February",
+				description: "11"
+			}, {
+				key: "12",
+				text: "March",
+				description: "12"
+			}];
+		},
+
+		_syncPeriodSelectorState: function() {
+			var oFilters = this.getView().getModel("filters").getData();
+			var oUiModel = this.getView().getModel("ui");
+			var bQuarterSelected = !!((oFilters.quarters || []).length);
+			var bPeriodSelected = !!((oFilters.fromPeriod || "").trim() || (oFilters.toPeriod || "").trim());
+
+			oUiModel.setProperty("/quarterEnabled", !bPeriodSelected);
+			oUiModel.setProperty("/periodEnabled", !bQuarterSelected);
 		},
 
 		_initOData: function() {
@@ -753,7 +852,6 @@ sap.ui.define([
 			var oFiltersModel = oView.getModel("filters");
 			var aCurrent = oFiltersModel.getProperty("/" + sFilterPath) || [];
 			var mSelected = {};
-			var sF4Kind = (mOptions && mOptions.f4Kind) ? mOptions.f4Kind : "";
 
 			aCurrent.forEach(function(oItem) {
 				mSelected[oItem.key] = true;
@@ -835,6 +933,7 @@ sap.ui.define([
 							});
 
 							oFiltersModel.setProperty("/" + sFilterPath, aSelected);
+							this._syncPeriodSelectorState();
 							oDialog.close();
 						}.bind(this)
 					}),
@@ -864,10 +963,7 @@ sap.ui.define([
 			var aSelectedQuarters = (oFilters.quarters || []).map(function(o) {
 				return o.key;
 			});
-			var aPeriods = [];
-			aSelectedQuarters.forEach(function(sQ) {
-				aPeriods = aPeriods.concat(that._mQuarterPeriods[sQ] || []);
-			}.bind(that));
+			var aPeriods = that._resolveSelectedPeriods(oFilters, aSelectedQuarters);
 
 			var aProfitCenters = (oFilters.profitCenters || []).map(function(oItem) {
 				return oItem.key;
@@ -877,8 +973,7 @@ sap.ui.define([
 			});
 
 			// Fix: If no specific quarters are selected, keep columns active for all months (1 to 12)
-			// that._syncPeriodVisibility(aPeriods);
-			this._syncPeriodVisibility(aSelectedQuarters);
+			this._syncPeriodVisibility(aPeriods, aSelectedQuarters);
 			that._updateSelectedValuesText(oFilters);
 			that._updatePeriodText(oFilters, aPeriods);
 
@@ -911,6 +1006,11 @@ sap.ui.define([
 						return "gl_ac_group eq '" + that._odataLiteral(s) + "'";
 					}.bind(that)).join(" or ") + ")");
 				}
+				if (aPeriods.length) {
+					aDetailFilters.push("(" + aPeriods.map(function(iPeriod) {
+						return that._buildMonatFilter(iPeriod);
+					}).join(" or ") + ")");
+				}
 
 				var sDetailFilter = aDetailFilters.join(" and ");
 
@@ -930,6 +1030,11 @@ sap.ui.define([
 					aSummaryFilters.push("(" + aGl.map(function(s) {
 						return "gl_ac_group eq '" + that._odataLiteral(s) + "'";
 					}.bind(that)).join(" or ") + ")");
+				}
+				if (aPeriods.length) {
+					aSummaryFilters.push("(" + aPeriods.map(function(iPeriod) {
+						return that._buildMonatFilter(iPeriod);
+					}).join(" or ") + ")");
 				}
 				var sSummaryFilter = aSummaryFilters.join(" and ");
 
@@ -1284,6 +1389,17 @@ sap.ui.define([
 			return String(sValue || "").replace(/'/g, "''");
 		},
 
+		_buildMonatFilter: function(iPeriod) {
+			var sPlain = String(parseInt(iPeriod, 10));
+			var sPadded = sPlain.length === 1 ? "0" + sPlain : sPlain;
+
+			if (sPlain === sPadded) {
+				return "monat eq '" + this._odataLiteral(sPlain) + "'";
+			}
+
+			return "(monat eq '" + this._odataLiteral(sPlain) + "' or monat eq '" + this._odataLiteral(sPadded) + "')";
+		},
+
 		// _updateTotalsFromPivot: function(aRows, bMarkRun) {
 		// 	var iTotal = 0;
 		// 	var iMax = 0;
@@ -1347,10 +1463,19 @@ sap.ui.define([
 		},
 
 		_updatePeriodText: function(oFilters, aPeriods) {
-			var sPeriodText = aPeriods.length ? "Periods " + Math.min.apply(null, aPeriods) + " to " + Math.max.apply(null, aPeriods) :
-				"All periods";
+			var sPeriodText;
 			var sProfitText = oFilters.profitCenters.length ? oFilters.profitCenters.length + " profit centres" : "All profit centres";
 			var sGlText = oFilters.glGroups.length ? oFilters.glGroups.length + " GL groups" : "All GL groups";
+			var sFromText = this.formatLookupText(oFilters.fromPeriod, this.getView().getModel("lookups").getProperty("/periods"));
+			var sToText = this.formatLookupText(oFilters.toPeriod, this.getView().getModel("lookups").getProperty("/periods"));
+
+			if ((oFilters.fromPeriod || "").trim() && (oFilters.toPeriod || "").trim()) {
+				sPeriodText = sFromText + " to " + sToText;
+			} else if (aPeriods.length) {
+				sPeriodText = "Periods " + Math.min.apply(null, aPeriods) + " to " + Math.max.apply(null, aPeriods);
+			} else {
+				sPeriodText = "All periods";
+			}
 
 			this.getView().getModel("ui").setProperty("/periodText",
 				"Company " + (oFilters.companyCode || "-") + " | FY " + (oFilters.fiscalYear || "-") + " | " +
@@ -1943,6 +2068,13 @@ sap.ui.define([
 			var oUiModel = this.getView().getModel("ui");
 			var bOk = true;
 			var aMissing = [];
+			var aSelectedQuarters = (oFilters.quarters || []).map(function(o) {
+				return o.key;
+			});
+			var sFrom = String(oFilters.fromPeriod || "").trim();
+			var sTo = String(oFilters.toPeriod || "").trim();
+			var bQuarterSelected = aSelectedQuarters.length > 0;
+			var bPeriodSelected = !!(sFrom || sTo);
 
 			if (!(oFilters.companyCode || "").trim()) {
 				oUiModel.setProperty("/companyCodeState", "Error");
@@ -1960,23 +2092,80 @@ sap.ui.define([
 				oUiModel.setProperty("/fiscalYearState", "None");
 			}
 
+			oUiModel.setProperty("/quarterState", "None");
+			oUiModel.setProperty("/fromPeriodState", "None");
+			oUiModel.setProperty("/toPeriodState", "None");
+
+			if (bQuarterSelected && bPeriodSelected) {
+				oUiModel.setProperty("/quarterState", "Error");
+				oUiModel.setProperty("/fromPeriodState", "Error");
+				oUiModel.setProperty("/toPeriodState", "Error");
+				aMissing.push("Use either Quarter or From/To Period");
+				bOk = false;
+			}
+
+			if (bPeriodSelected && (!sFrom || !sTo)) {
+				oUiModel.setProperty("/fromPeriodState", !sFrom ? "Error" : "None");
+				oUiModel.setProperty("/toPeriodState", !sTo ? "Error" : "None");
+				aMissing.push("Both From Period and To Period");
+				bOk = false;
+			}
+
+			if (sFrom && sTo && parseInt(sFrom, 10) > parseInt(sTo, 10)) {
+				oUiModel.setProperty("/fromPeriodState", "Error");
+				oUiModel.setProperty("/toPeriodState", "Error");
+				aMissing.push("From Period must be before or equal to To Period");
+				bOk = false;
+			}
+
 			if (!bOk) {
 				MessageBox.error("Please fill mandatory field(s): " + aMissing.join(", ") + ".");
 			}
 			return bOk;
 		},
 
-		// Fix: Synchronize monthly column visibilities correctly when aPeriods is empty
-		_syncPeriodVisibility: function(aSelectedQuarters) {
-			var oUiModel = this.getView().getModel("ui");
-			var bQuarterSelected = (aSelectedQuarters && aSelectedQuarters.length > 0);
+		_resolveSelectedPeriods: function(oFilters, aSelectedQuarters) {
+			var aPeriods = [];
+			var iFrom;
+			var iTo;
+			var i;
 
-			// Hide/Show Month columns (p1 - p12)
-			for (var i = 1; i <= 12; i++) {
-				oUiModel.setProperty("/p" + i + "Visible", !bQuarterSelected);
+			if (aSelectedQuarters && aSelectedQuarters.length) {
+				aSelectedQuarters.forEach(function(sQ) {
+					aPeriods = aPeriods.concat(this._mQuarterPeriods[sQ] || []);
+				}.bind(this));
+				return aPeriods;
 			}
 
-			// Hide/Show Quarter columns (q1 - q4)
+			if ((oFilters.fromPeriod || "").trim() && (oFilters.toPeriod || "").trim()) {
+				iFrom = parseInt(oFilters.fromPeriod, 10);
+				iTo = parseInt(oFilters.toPeriod, 10);
+				for (i = iFrom; i <= iTo; i++) {
+					aPeriods.push(i);
+				}
+			}
+
+			return aPeriods;
+		},
+
+		_syncPeriodVisibility: function(aPeriods, aSelectedQuarters) {
+			var oUiModel = this.getView().getModel("ui");
+			var bQuarterSelected = (aSelectedQuarters && aSelectedQuarters.length > 0);
+			var bExplicitPeriods = !bQuarterSelected && aPeriods && aPeriods.length > 0;
+			var i;
+
+			// Month columns
+			for (i = 1; i <= 12; i++) {
+				if (bQuarterSelected) {
+					oUiModel.setProperty("/p" + i + "Visible", false);
+				} else if (bExplicitPeriods) {
+					oUiModel.setProperty("/p" + i + "Visible", aPeriods.indexOf(i) !== -1);
+				} else {
+					oUiModel.setProperty("/p" + i + "Visible", true);
+				}
+			}
+
+			// Quarter columns
 			oUiModel.setProperty("/q1Visible", bQuarterSelected && aSelectedQuarters.indexOf("Q1") !== -1);
 			oUiModel.setProperty("/q2Visible", bQuarterSelected && aSelectedQuarters.indexOf("Q2") !== -1);
 			oUiModel.setProperty("/q3Visible", bQuarterSelected && aSelectedQuarters.indexOf("Q3") !== -1);
@@ -1993,8 +2182,11 @@ sap.ui.define([
 			var aQ = (oFilters.quarters || []).map(function(o) {
 				return o.key;
 			});
+			var sFromText = this.formatLookupText(oFilters.fromPeriod, this.getView().getModel("lookups").getProperty("/periods"));
+			var sToText = this.formatLookupText(oFilters.toPeriod, this.getView().getModel("lookups").getProperty("/periods"));
 			var sText = "CC: " + (oFilters.companyCode || "-") + " | FY: " + (oFilters.fiscalYear || "-") +
-				" | Q: " + (aQ.join(", ") || "-") + " | PC: " + (aPc.join(", ") || "All") + " | GL: " + (aGlg.join(", ") || "All");
+				" | Q: " + (aQ.join(", ") || "-") + " | From: " + (sFromText || "-") + " | To: " + (sToText || "-") +
+				" | PC: " + (aPc.join(", ") || "All") + " | GL: " + (aGlg.join(", ") || "All");
 			this.getView().getModel("ui").setProperty("/selectedValuesText", sText);
 		},
 		onUniversalSearch: function(oEvent) {
@@ -2509,6 +2701,7 @@ sap.ui.define([
 					oFiltersModel.setProperty("/glGroups", []);
 				}
 			}
+			this._syncPeriodSelectorState();
 		},
 
 		onPeriodHeaderClick: function(oEvent) {
