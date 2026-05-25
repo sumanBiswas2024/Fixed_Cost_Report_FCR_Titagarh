@@ -77,16 +77,16 @@ sap.ui.define([
 				glGroups: [],
 				quarters: [{
 					key: "Q1",
-					text: "Q1 - Period 1 to 3"
+					text: "Q1 - Period April to June"
 				}, {
 					key: "Q2",
-					text: "Q2 - Period 4 to 6"
+					text: "Q2 - Period July to September"
 				}, {
 					key: "Q3",
-					text: "Q3 - Period 7 to 9"
+					text: "Q3 - Period October to December"
 				}, {
 					key: "Q4",
-					text: "Q4 - Period 10 to 12"
+					text: "Q4 - Period January to March"
 				}],
 				periods: this._createPeriodLookups()
 			}), "lookups");
