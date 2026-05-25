@@ -19,7 +19,7 @@
 				"type": "OData",
 				"settings": {
 					"odataVersion": "2.0",
-					"localUri": "localService/metadata.xml"
+					"localUri": "localService/ZO_FCR_SRV/metadata.xml"
 				}
 			}
 		}
