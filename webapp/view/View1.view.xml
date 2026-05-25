@@ -17,7 +17,7 @@
 									<core:Icon src="sap-icon://expense-report" size="1.5rem" class="sapUiTinyMarginEnd" color="#0a6ed1"/>
 									<Title text="Fixed Cost Report" level="H1" class="fcrTitle"/>
 								</HBox>
-								<Text text="{ui>/periodText}" class="fcrSubtitle"/>
+								<!--<Text text="{ui>/periodText}" class="fcrSubtitle"/>-->
 							</VBox>
 							<ObjectStatus text="{ui>/lastRunText}" state="Success" icon="sap-icon://sys-enter-2" class="fcrRunStatus"/>
 						</HBox>
@@ -207,6 +207,9 @@
 								<SearchField width="18rem" placeholder="Search..." liveChange="onUniversalSearch" class="fcrToolbarSearch"/>
 								<Button icon="sap-icon://excel-attachment" tooltip="Export" class="fcrToolbarExport sapUiTinyMarginBegin" press="onExport"/>
 							</HBox>
+						</HBox>
+						<HBox alignItems="Center">
+							<Text text="{ui>/periodText}" class="fcrSubtitle"/>
 						</HBox>
 					</VBox>
 					<!-- =====================================================

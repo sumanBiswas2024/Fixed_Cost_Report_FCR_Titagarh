@@ -356,9 +356,21 @@
     color: #0284c7;
 }
 
+/*.fcrSubtitle {*/
+/*    color: #64748b;*/
+/*    font-size: 0.8rem;*/
+/*}*/
 .fcrSubtitle {
-    color: #64748b;
+    color: #009d1c;
     font-size: 0.8rem;
+    font-weight: bold;
+    margin-left: 20px
+}
+
+.fcrInfoIcon {
+    color: #009d1c;
+    font-size: 1rem;
+    line-height: 1;
 }
 
 
