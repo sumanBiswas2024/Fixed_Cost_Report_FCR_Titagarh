@@ -2062,10 +2062,10 @@ sap.ui.define([
 
 		_varianceState: function(iVariance) {
 			if (iVariance > 0) {
-				return "Error";
+				return "Success";
 			}
 			if (iVariance < 0) {
-				return "Success";
+				return "Error";
 			}
 			return "None";
 		},

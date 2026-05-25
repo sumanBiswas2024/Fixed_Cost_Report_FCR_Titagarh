@@ -161,7 +161,7 @@
 									<core:Icon src="sap-icon://bullet-text" class="fcrModernIcon fcrIconAmber"/>
 								</VBox>
 								<VBox class="fcrModernDataWrap">
-									<Text text="No. of G/L Accounts" class="fcrModernTitle"/>
+									<Text text="No. of G/L Groups" class="fcrModernTitle"/>
 									<!--<Text text="(Selected Period)" class="fcrModernSubtitle"/>-->
 									<HBox alignItems="Baseline" class="fcrModernValueLine">
 										<Text text="{ui>/recordCount}" class="fcrModernValue fcrTextDark"/>
