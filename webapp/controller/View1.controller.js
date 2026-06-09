@@ -147,6 +147,9 @@ sap.ui.define([
 				varianceState: "None",
 				recordCount: "0"
 			}), "ui");
+			
+			// ADD THIS LINE: This ensures the dialog renders properly on top of the view
+			this.getView().addDependent(this._oBusyDialog);
 
 			// Initialize OData metadata/value-helps, but do not load report data until "Run Report".
 			this._initOData().catch(function(oErr) {
@@ -244,6 +247,8 @@ sap.ui.define([
 						})
 					]
 				});
+				// ADD THIS LINE: This ensures the dialog renders properly on top of the view
+				this.getView().addDependent(this._oBusyDialog);
 			}
 			return this._oBusyDialog;
 		},

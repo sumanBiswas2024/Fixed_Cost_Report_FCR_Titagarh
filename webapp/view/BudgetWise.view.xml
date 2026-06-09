@@ -38,7 +38,7 @@
 								</ComboBox>
 							</VBox>
 							<VBox class="fcrField fcrFieldQtr">
-								<Label text="Period" required="true"/>
+								<Label text="Period" required="false"/>
 								<Input value="{parts:[{path:'filters>/period'},{path:'lookups>/periods'}], formatter: '.formatLookupText'}" showValueHelp="true"
 									valueHelpOnly="true" valueHelpRequest=".onBudgetPeriodValueHelp" placeholder="Select Period" valueState="{ui>/periodState}"/>
 							</VBox>
@@ -144,56 +144,56 @@
 									<suite:content>
 										<table:Table id="budgetTable" rows="{fcr>/budgetRows}" visibleRowCount="10" fixedColumnCount="2" selectionMode="None"
 											enableColumnReordering="true" enableCellFilter="true" class="fcrUiTable">
-											<table:columns>
-												<table:Column width="8rem" sortProperty="glAccount" filterProperty="glAccount">
-													<table:label>
-														<Label text="G/L Account"/>
-													</table:label>
-													<table:template>
-														<Text text="{fcr>glAccount}"/>
-													</table:template>
-												</table:Column>
-												<table:Column width="16rem" sortProperty="glName" filterProperty="glName">
-													<table:label>
-														<Label text="G/L Name"/>
-													</table:label>
-													<table:template>
-														<Text text="{fcr>glName}"/>
-													</table:template>
-												</table:Column>
-												<table:Column width="10rem" sortProperty="lastYearBudget" filterProperty="lastYearBudget" hAlign="End">
-													<table:label>
-														<Label text="Last Year Budget"/>
-													</table:label>
-													<table:template>
-														<ObjectNumber number="{fcr>lastYearBudgetText}"/>
-													</table:template>
-												</table:Column>
-												<table:Column width="10rem" sortProperty="currentYearBudget" filterProperty="currentYearBudget" hAlign="End">
-													<table:label>
-														<Label text="Current Year Budget"/>
-													</table:label>
-													<table:template>
-														<ObjectNumber number="{fcr>currentYearBudgetText}"/>
-													</table:template>
-												</table:Column>
-												<table:Column width="11rem" sortProperty="lastTwoMonthsBudget" filterProperty="lastTwoMonthsBudget" hAlign="End">
-													<table:label>
-														<Label text="Last Two Months Budget"/>
-													</table:label>
-													<table:template>
-														<ObjectNumber number="{fcr>lastTwoMonthsBudgetText}"/>
-													</table:template>
-												</table:Column>
-												<table:Column width="10rem" sortProperty="currentMonthBudget" filterProperty="currentMonthBudget" hAlign="End">
-													<table:label>
-														<Label text="Current Month Budget"/>
-													</table:label>
-													<table:template>
-														<ObjectNumber number="{fcr>currentMonthBudgetText}"/>
-													</table:template>
-												</table:Column>
-											</table:columns>
+											<!--<table:columns>-->
+											<!--	<table:Column width="8rem" sortProperty="glAccount" filterProperty="glAccount">-->
+											<!--		<table:label>-->
+											<!--			<Label text="G/L Account"/>-->
+											<!--		</table:label>-->
+											<!--		<table:template>-->
+											<!--			<Text text="{fcr>glAccount}"/>-->
+											<!--		</table:template>-->
+											<!--	</table:Column>-->
+											<!--	<table:Column width="16rem" sortProperty="glName" filterProperty="glName">-->
+											<!--		<table:label>-->
+											<!--			<Label text="G/L Name"/>-->
+											<!--		</table:label>-->
+											<!--		<table:template>-->
+											<!--			<Text text="{fcr>glName}"/>-->
+											<!--		</table:template>-->
+											<!--	</table:Column>-->
+											<!--	<table:Column width="10rem" sortProperty="lastYearBudget" filterProperty="lastYearBudget" hAlign="End">-->
+											<!--		<table:label>-->
+											<!--			<Label text="Last Year Budget"/>-->
+											<!--		</table:label>-->
+											<!--		<table:template>-->
+											<!--			<ObjectNumber number="{fcr>lastYearBudgetText}"/>-->
+											<!--		</table:template>-->
+											<!--	</table:Column>-->
+											<!--	<table:Column width="10rem" sortProperty="currentYearBudget" filterProperty="currentYearBudget" hAlign="End">-->
+											<!--		<table:label>-->
+											<!--			<Label text="Current Year Budget"/>-->
+											<!--		</table:label>-->
+											<!--		<table:template>-->
+											<!--			<ObjectNumber number="{fcr>currentYearBudgetText}"/>-->
+											<!--		</table:template>-->
+											<!--	</table:Column>-->
+											<!--	<table:Column width="11rem" sortProperty="lastTwoMonthsBudget" filterProperty="lastTwoMonthsBudget" hAlign="End">-->
+											<!--		<table:label>-->
+											<!--			<Label text="Last Two Months Budget"/>-->
+											<!--		</table:label>-->
+											<!--		<table:template>-->
+											<!--			<ObjectNumber number="{fcr>lastTwoMonthsBudgetText}"/>-->
+											<!--		</table:template>-->
+											<!--	</table:Column>-->
+											<!--	<table:Column width="10rem" sortProperty="currentMonthBudget" filterProperty="currentMonthBudget" hAlign="End">-->
+											<!--		<table:label>-->
+											<!--			<Label text="Current Month Budget"/>-->
+											<!--		</table:label>-->
+											<!--		<table:template>-->
+											<!--			<ObjectNumber number="{fcr>currentMonthBudgetText}"/>-->
+											<!--		</table:template>-->
+											<!--	</table:Column>-->
+											<!--</table:columns>-->
 										</table:Table>
 									</suite:content>
 								</suite:ChartContainerContent>

@@ -72,6 +72,9 @@ sap.ui.define([
 				maxGlGroupValue: "0",
 				lastTwoMonthsTotal: "0"
 			}), "ui");
+			
+			// ADD THIS LINE: This ensures the dialog renders properly on top of the view
+			this.getView().addDependent(this._oBusyDialog);
 
 			this._initOData().catch(function(oErr) {
 				MessageBox.error("Unable to initialize OData service ZO_FCR_SRV.", {
@@ -213,7 +216,7 @@ sap.ui.define([
 			var oUiModel = this.getView().getModel("ui");
 			var bOk = true;
 			var aMissing = [];
-			var sPeriod = String(oFilters.period || "").trim();
+			// var sPeriod = String(oFilters.period || "").trim();
 
 			oUiModel.setProperty("/companyCodeState", "None");
 			oUiModel.setProperty("/fiscalYearState", "None");
@@ -231,11 +234,11 @@ sap.ui.define([
 				bOk = false;
 			}
 
-			if (!sPeriod) {
-				oUiModel.setProperty("/periodState", "Error");
-				aMissing.push("Period");
-				bOk = false;
-			}
+			// if (!sPeriod) {
+			// 	oUiModel.setProperty("/periodState", "Error");
+			// 	aMissing.push("Period");
+			// 	bOk = false;
+			// }
 
 			if (!bOk) {
 				MessageBox.error("Please fill mandatory field(s): " + aMissing.join(", ") + ".");
@@ -436,7 +439,7 @@ sap.ui.define([
 		_updateBudgetPeriodText: function() {
 			var oFilters = this.getView().getModel("filters").getData();
 			var aPeriods = this.getView().getModel("lookups").getProperty("/periods");
-			var sPeriodText = this.formatLookupText(oFilters.period, aPeriods) || "Select period";
+			var sPeriodText = this.formatLookupText(oFilters.period, aPeriods) || "All periods";
 			var sProfitText = oFilters.profitCenters.length ? oFilters.profitCenters.length + " profit centres" : "All profit centres";
 			var sGlText = oFilters.glGroups.length ? oFilters.glGroups.length + " GL groups" : "All GL groups";
 
