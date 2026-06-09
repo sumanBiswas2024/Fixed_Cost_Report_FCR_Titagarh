@@ -166,7 +166,7 @@ sap.ui.define([
 		onBack: function() {
 			var oShared = this.getOwnerComponent().getModel("shared");
 			var sMainReportType = (oShared && oShared.getProperty("/mainReportType")) || "all";
-			this._getBusyDialog().open();
+			// this._getBusyDialog().open();
 			this.getOwnerComponent().getRouter().navTo("main");
 			oShared.setProperty("/mainReportType", sMainReportType);
 		},
@@ -182,7 +182,7 @@ sap.ui.define([
 				return;
 			}
 
-			this._getBusyDialog().open();
+			// this._getBusyDialog().open();
 			this.getOwnerComponent().getModel("shared").setProperty("/mainReportType", sKey || "all");
 			this.getOwnerComponent().getRouter().navTo("main");
 		},

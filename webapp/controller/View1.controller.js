@@ -147,7 +147,7 @@ sap.ui.define([
 				varianceState: "None",
 				recordCount: "0"
 			}), "ui");
-			
+
 			// ADD THIS LINE: This ensures the dialog renders properly on top of the view
 			this.getView().addDependent(this._oBusyDialog);
 
@@ -160,13 +160,26 @@ sap.ui.define([
 			});
 
 			this._syncPeriodSelectorState();
-			this.getOwnerComponent().getRouter().getRoute("main").attachPatternMatched(this._onMainRouteMatched, this);
+			// this.getOwnerComponent().getRouter().getRoute("main").attachPatternMatched(this._onMainRouteMatched, this);
+			var oRouter = this.getOwnerComponent().getRouter();
+			if (oRouter && oRouter.getRoute("main")) {
+				oRouter.getRoute("main").attachPatternMatched(this._onMainRouteMatched, this);
+			}
 
 			// Load data automatically on initial load since we now have defaults
 			this._applyFilters(false);
 		},
 
 		_onMainRouteMatched: function() {
+
+			this.getView().addDependent(this._getBusyDialog());
+
+			// 2. Check if we have standard filters set up, then run the report
+			var sCompanyCode = this.getView().getModel("filters").getProperty("/companyCode");
+			if (sCompanyCode) {
+				this._applyFilters(false);
+			}
+
 			var oShared = this.getOwnerComponent().getModel("shared");
 			var sReportType = (oShared && oShared.getProperty("/mainReportType")) || "all";
 			var oUi = this.getView().getModel("ui");
@@ -425,7 +438,7 @@ sap.ui.define([
 
 			// 7. Apply the filter to the Detail Table
 			this._applyTableFilters(sTab);
-			
+
 			// =========================================================
 			// FIX: Tell the KPIs to recalculate using the new filtered rows!
 			// =========================================================
@@ -1493,8 +1506,8 @@ sap.ui.define([
 
 			var oUiModel = this.getView().getModel("ui");
 			oUiModel.setProperty("/totalActual", this._formatAmount(iTotal));
-			oUiModel.setProperty("/maxGlGroupName", sTopGroupName); 
-			oUiModel.setProperty("/maxGlGroupValue", this._formatAmount(iTopGroupValue)); 
+			oUiModel.setProperty("/maxGlGroupName", sTopGroupName);
+			oUiModel.setProperty("/maxGlGroupValue", this._formatAmount(iTopGroupValue));
 			oUiModel.setProperty("/totalVariance", this._formatAmount(iMax));
 			oUiModel.setProperty("/recordCount", this._oIntegerFormat.format(aRows.length));
 
@@ -2445,12 +2458,12 @@ sap.ui.define([
 			if (!oTable) {
 				return;
 			}
-			
+
 			var sPath = "/" + sTab + (sMode === "SUMMARY" ? "SummaryRows" : "DetailRows");
 			var aRows = this._getFilteredTableObjects(oTable, "fcr", sPath);
 			var iTotal = 0;
 			var iMax = 0;
-			
+
 			// FIX: Track the top group name during live filtering!
 			var sTopGroupName = "None";
 			var iTopGroupValue = 0;
@@ -2458,7 +2471,7 @@ sap.ui.define([
 			for (var i = 0; i < aRows.length; i++) {
 				var v = aRows[i].total || 0;
 				iTotal += v;
-				
+
 				if (Math.abs(v) > iMax) {
 					iMax = Math.abs(v);
 					// FIX: Capture the new highest Group Name from the filtered data
@@ -2466,15 +2479,15 @@ sap.ui.define([
 					iTopGroupValue = v;
 				}
 			}
-			
+
 			oUi.setProperty("/totalActual", this._formatAmount(iTotal));
 			oUi.setProperty("/totalBudget", this._formatAmount(0));
 			oUi.setProperty("/totalVariance", this._formatAmount(iMax));
-			
+
 			// FIX: Push the newly found Highest Name & Value to the KPI card!
 			oUi.setProperty("/maxGlGroupName", sTopGroupName);
 			oUi.setProperty("/maxGlGroupValue", this._formatAmount(iTopGroupValue));
-			
+
 			oUi.setProperty("/variancePct", this._formatPercent(0));
 			oUi.setProperty("/varianceState", this._varianceState(iMax));
 			oUi.setProperty("/recordCount", this._oIntegerFormat.format(aRows.length));
