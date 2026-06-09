@@ -101,6 +101,7 @@ sap.ui.define([
 			}), "fcr");
 
 			this.getView().setModel(new JSONModel({
+				reportType: "all",
 				selectedTab: "all",
 				allViewMode: "DETAIL",
 				topViewMode: "DETAIL",
@@ -156,9 +157,41 @@ sap.ui.define([
 			});
 
 			this._syncPeriodSelectorState();
+			this.getOwnerComponent().getRouter().getRoute("main").attachPatternMatched(this._onMainRouteMatched, this);
 
 			// Load data automatically on initial load since we now have defaults
 			this._applyFilters(false);
+		},
+
+		_onMainRouteMatched: function() {
+			var oShared = this.getOwnerComponent().getModel("shared");
+			var sReportType = (oShared && oShared.getProperty("/mainReportType")) || "all";
+			var oUi = this.getView().getModel("ui");
+			if (sReportType !== "all" && sReportType !== "top") {
+				sReportType = "all";
+			}
+
+			oUi.setProperty("/reportType", sReportType);
+			oUi.setProperty("/selectedTab", sReportType);
+			this._getBusyDialog().close();
+			this._updateKpisFromActive();
+		},
+
+		onOpenBudgetWise: function() {
+			this._getBusyDialog().open();
+			this.getOwnerComponent().getModel("shared").setData({
+				mainReportType: this.getView().getModel("ui").getProperty("/selectedTab") || "all",
+				budgetNavigation: {
+					companyCode: this.getView().getModel("filters").getProperty("/companyCode"),
+					fiscalYear: this.getView().getModel("filters").getProperty("/fiscalYear"),
+					profitCenters: this.getView().getModel("filters").getProperty("/profitCenters"),
+					glGroups: this.getView().getModel("filters").getProperty("/glGroups"),
+					fromPeriod: this.getView().getModel("filters").getProperty("/fromPeriod"),
+					toPeriod: this.getView().getModel("filters").getProperty("/toPeriod"),
+					quarters: this.getView().getModel("filters").getProperty("/quarters")
+				}
+			});
+			this.getOwnerComponent().getRouter().navTo("budgetWise");
 		},
 
 		// _getBusyDialog: function() {
@@ -467,8 +500,7 @@ sap.ui.define([
 			if (document.activeElement) document.activeElement.blur();
 			this._updateKpisFromActive();
 		},
-		onSegmentTabChange: function(oEvent) {
-
+		onReportTypeChange: function(oEvent) {
 			var sKey = "";
 			var oSource = oEvent.getSource();
 			if (oSource && oSource.getSelectedKey) {
@@ -482,12 +514,13 @@ sap.ui.define([
 				sKey = oItem && oItem.getKey ? (oItem.getKey() || "") : "";
 			}
 
-			this.getView()
-				.getModel("ui")
-				.setProperty("/selectedTab", sKey);
-
+			this.getOwnerComponent().getModel("shared").setProperty("/mainReportType", sKey);
+			this.getView().getModel("ui").setProperty("/selectedTab", sKey);
 			this._updateKpisFromActive();
+		},
 
+		onSegmentTabChange: function(oEvent) {
+			this.onReportTypeChange(oEvent);
 		},
 
 		onAllSearch: function(oEvent) {

@@ -1,10 +1,8 @@
 <mvc:View controllerName="Z_Fixed_Cost_Report_FCR.controller.View1" xmlns:mvc="sap.ui.core.mvc" xmlns:core="sap.ui.core"
 	xmlns:layout="sap.ui.layout" xmlns:table="sap.ui.table" xmlns:viz="sap.viz.ui5.controls" xmlns:viz.data="sap.viz.ui5.data"
 	xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds" xmlns:suite="sap.suite.ui.commons" xmlns="sap.m" displayBlock="true">
-	<App class="fcrApp">
-		<pages>
-			<Page showHeader="false" enableScrolling="true" class="fcrPageShell">
-				<content>
+	<Page showHeader="false" enableScrolling="true" class="fcrPageShell">
+		<content>
 					<!-- =====================================================
      REPORT PARAMETERS
 ===================================================== -->
@@ -19,7 +17,10 @@
 								</HBox>
 								<!--<Text text="{ui>/periodText}" class="fcrSubtitle"/>-->
 							</VBox>
-							<ObjectStatus text="{ui>/lastRunText}" state="Success" icon="sap-icon://sys-enter-2" class="fcrRunStatus"/>
+							<HBox alignItems="Center">
+								<Button text="Budget Wise" icon="sap-icon://money-bills" type="Emphasized" press=".onOpenBudgetWise" class="fcrBtnRun"/>
+								<!--<ObjectStatus text="{ui>/lastRunText}" state="Success" icon="sap-icon://sys-enter-2" class="fcrRunStatus"/>-->
+							</HBox>
 						</HBox>
 						<VBox class="fcrParamWrap">
 							<HBox class="fcrParamHeader" alignItems="Center" justifyContent="SpaceBetween">
@@ -1059,8 +1060,6 @@
 							</VBox>
 						</VBox>
 					</VBox>
-				</content>
-			</Page>
-		</pages>
-	</App>
+		</content>
+	</Page>
 </mvc:View>

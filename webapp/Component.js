@@ -1,8 +1,9 @@
 sap.ui.define([
 	"sap/ui/core/UIComponent",
 	"sap/ui/Device",
+	"sap/ui/model/json/JSONModel",
 	"Z_Fixed_Cost_Report_FCR/model/models"
-], function(UIComponent, Device, models) {
+], function(UIComponent, Device, JSONModel, models) {
 	"use strict";
 
 	return UIComponent.extend("Z_Fixed_Cost_Report_FCR.Component", {
@@ -22,6 +23,11 @@ sap.ui.define([
 
 			// set the device model
 			this.setModel(models.createDeviceModel(), "device");
+			this.setModel(new JSONModel({
+				mainReportType: "all",
+				budgetNavigation: null
+			}), "shared");
+			this.getRouter().initialize();
 		}
 	});
 });

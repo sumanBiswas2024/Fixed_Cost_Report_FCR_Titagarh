@@ -46,8 +46,9 @@
 	},
 	"sap.ui5": {
 		"rootView": {
-			"viewName": "Z_Fixed_Cost_Report_FCR.view.View1",
-			"type": "XML"
+			"viewName": "Z_Fixed_Cost_Report_FCR.view.App",
+			"type": "XML",
+			"id": "app"
 		},
 		"dependencies": {
 			"minUI5Version": "1.52.0",
@@ -91,6 +92,36 @@
 					"uri": "css/style.css"
 				}
 			]
+		},
+		"routing": {
+			"config": {
+				"routerClass": "sap.m.routing.Router",
+				"viewType": "XML",
+				"viewPath": "Z_Fixed_Cost_Report_FCR.view",
+				"controlId": "app",
+				"controlAggregation": "pages",
+				"async": true
+			},
+			"routes": [
+				{
+					"name": "main",
+					"pattern": "",
+					"target": "main"
+				},
+				{
+					"name": "budgetWise",
+					"pattern": "budget-wise",
+					"target": "budgetWise"
+				}
+			],
+			"targets": {
+				"main": {
+					"viewName": "View1"
+				},
+				"budgetWise": {
+					"viewName": "BudgetWise"
+				}
+			}
 		}
 	},
 	"sap.platform.abap": {
