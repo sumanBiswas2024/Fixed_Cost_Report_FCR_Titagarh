@@ -151,13 +151,13 @@ sap.ui.define([
 			// ADD THIS LINE: This ensures the dialog renders properly on top of the view
 			this.getView().addDependent(this._oBusyDialog);
 
-			// Initialize OData metadata/value-helps, but do not load report data until "Run Report".
-			this._initOData().catch(function(oErr) {
-				// Keep the UI usable even if the service isn't reachable in the current environment.
-				MessageBox.error("Unable to initialize OData service ZO_FCR_SRV.", {
-					details: (oErr && oErr.message) ? oErr.message : String(oErr || "")
-				});
-			});
+			// // Initialize OData metadata/value-helps, but do not load report data until "Run Report".
+			// this._initOData().catch(function(oErr) {
+			// 	// Keep the UI usable even if the service isn't reachable in the current environment.
+			// 	MessageBox.error("Unable to initialize OData service ZO_FCR_SRV.", {
+			// 		details: (oErr && oErr.message) ? oErr.message : String(oErr || "")
+			// 	});
+			// });
 
 			this._syncPeriodSelectorState();
 			// this.getOwnerComponent().getRouter().getRoute("main").attachPatternMatched(this._onMainRouteMatched, this);
@@ -167,17 +167,20 @@ sap.ui.define([
 			}
 
 			// Load data automatically on initial load since we now have defaults
-			this._applyFilters(false);
+			// this._applyFilters(false);
 		},
 
 		_onMainRouteMatched: function() {
-
+			var that = this;
 			this.getView().addDependent(this._getBusyDialog());
 
 			// 2. Check if we have standard filters set up, then run the report
 			var sCompanyCode = this.getView().getModel("filters").getProperty("/companyCode");
 			if (sCompanyCode) {
-				this._applyFilters(false);
+				// this._applyFilters(false);
+				setTimeout(function() {
+					that._applyFilters(false);
+				}, 50);
 			}
 
 			var oShared = this.getOwnerComponent().getModel("shared");
@@ -189,7 +192,7 @@ sap.ui.define([
 
 			oUi.setProperty("/reportType", sReportType);
 			oUi.setProperty("/selectedTab", sReportType);
-			this._getBusyDialog().close();
+			// this._getBusyDialog().close();
 			this._updateKpisFromActive();
 		},
 
