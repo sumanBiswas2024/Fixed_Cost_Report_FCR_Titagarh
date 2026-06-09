@@ -345,6 +345,7 @@
     border-left: 0.4rem solid #0284c7;
     border-radius: 0.5rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    padding-right: 15px;
 }
 
 .fcrTitle {
@@ -1609,3 +1610,38 @@
 .sapMTB-Transparent-CTX.sapMTB {
      padding-left: 0rem; 
 }
+
+/* ========================================================= */
+
+
+/* Budget layout                               */
+
+
+/* ========================================================= */
+
+
+.navBackButton{
+	background-color: #ffffff !important;
+}
+
+.fcrBtnBudget .sapMBtnInner {
+    background: #0284c7 !important;
+    color: white !important;
+    border-radius: 8px !important;
+    padding: 0 1rem;
+    border: none !important;
+    box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
+}
+
+.fcrBtnBudget:hover .sapMBtnInner {
+    background: #0369a1 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);
+}
+
+.fcrBtnBudget:active .sapMBtnInner {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
+}
+
+

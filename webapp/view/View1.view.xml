@@ -18,7 +18,7 @@
 								<!--<Text text="{ui>/periodText}" class="fcrSubtitle"/>-->
 							</VBox>
 							<HBox alignItems="Center">
-								<Button text="Budget Wise" icon="sap-icon://money-bills" type="Emphasized" press=".onOpenBudgetWise" class="fcrBtnRun"/>
+								<Button text="Budget Wise" icon="sap-icon://money-bills" type="Emphasized" press=".onOpenBudgetWise" class="fcrBtnBudget"/>
 								<!--<ObjectStatus text="{ui>/lastRunText}" state="Success" icon="sap-icon://sys-enter-2" class="fcrRunStatus"/>-->
 							</HBox>
 						</HBox>

@@ -6,7 +6,7 @@
 			<VBox id="paramSection" class="fcrParamWrap">
 				<HBox class="fcrHeader" alignItems="Center" justifyContent="SpaceBetween" wrap="Wrap">
 					<HBox alignItems="Center">
-						<Button icon="sap-icon://nav-back" type="Transparent" press=".onBack" tooltip="Back" class="sapUiTinyMarginEnd"/>
+						<Button icon="sap-icon://nav-back" type="Transparent" press=".onBack" tooltip="Back" class="sapUiTinyMarginEnd navBackButton"/>
 						<VBox class="fcrHeaderText">
 							<HBox alignItems="Center">
 								<core:Icon src="sap-icon://money-bills" size="1.5rem" class="sapUiTinyMarginEnd" color="#0a6ed1"/>
