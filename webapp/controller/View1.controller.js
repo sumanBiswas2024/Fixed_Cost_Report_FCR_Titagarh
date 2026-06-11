@@ -150,6 +150,8 @@ sap.ui.define([
 
 			// ADD THIS LINE: This ensures the dialog renders properly on top of the view
 			this.getView().addDependent(this._oBusyDialog);
+			
+			this._bIsInitiallyLoaded = false;
 
 			// // Initialize OData metadata/value-helps, but do not load report data until "Run Report".
 			// this._initOData().catch(function(oErr) {
@@ -173,15 +175,24 @@ sap.ui.define([
 		_onMainRouteMatched: function() {
 			var that = this;
 			this.getView().addDependent(this._getBusyDialog());
+			
+			if (this._bIsInitiallyLoaded) {
+				return;
+			}
 
 			// 2. Check if we have standard filters set up, then run the report
 			var sCompanyCode = this.getView().getModel("filters").getProperty("/companyCode");
+			
+			// Prevent Initial Data Load
+			
 			if (sCompanyCode) {
 				// this._applyFilters(false);
 				setTimeout(function() {
 					that._applyFilters(false);
+					that._bIsInitiallyLoaded = true;
 				}, 50);
 			}
+			// Prevent Initial Data Load
 
 			var oShared = this.getOwnerComponent().getModel("shared");
 			var sReportType = (oShared && oShared.getProperty("/mainReportType")) || "all";

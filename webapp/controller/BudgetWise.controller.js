@@ -162,40 +162,40 @@ sap.ui.define([
 		_createPeriodItems: function() {
 			return [{
 				key: "1",
-				text: "1 - April"
+				text: "April"
 			}, {
 				key: "2",
-				text: "2 - May"
+				text: "May"
 			}, {
 				key: "3",
-				text: "3 - June"
+				text: "June"
 			}, {
 				key: "4",
-				text: "4 - July"
+				text: "uly"
 			}, {
 				key: "5",
-				text: "5 - August"
+				text: "August"
 			}, {
 				key: "6",
-				text: "6 - September"
+				text: "September"
 			}, {
 				key: "7",
-				text: "7 - October"
+				text: "October"
 			}, {
 				key: "8",
-				text: "8 - November"
+				text: "November"
 			}, {
 				key: "9",
-				text: "9 - December"
+				text: "December"
 			}, {
 				key: "10",
-				text: "10 - January"
+				text: "January"
 			}, {
 				key: "11",
-				text: "11 - February"
+				text: "February"
 			}, {
 				key: "12",
-				text: "12 - March"
+				text: "March"
 			}];
 		},
 
@@ -272,11 +272,11 @@ sap.ui.define([
 			this.getView().getModel("filters").setData({
 				companyCode: "1100",
 				fiscalYear: String(new Date().getFullYear()),
-				period: "1",
-				glGroup: "GLG-1000",
-				glAccount: "400100",
-				costCenterGroup: "CCG-02",
-				costCenter: "CC1001"
+				period: "",
+				glGroup: [],
+				glAccount: [],
+				costCenterGroup: [],
+				costCenter: []
 			});
 
 			this._clearValueStates();
@@ -520,7 +520,7 @@ sap.ui.define([
 			var oMatch;
 
 			if (!sValue) {
-				return "-";
+				return "";
 			}
 
 			oMatch = (aItems || []).filter(function(oItem) {
