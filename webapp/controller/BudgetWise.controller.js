@@ -1,5 +1,5 @@
 sap.ui.define([
-	"sap/ui/core/mvc/Controller",
+	"Z_Fixed_Cost_Report_FCR/controller/View1.controller", // Inherit View1 for OData & Dialogs
 	"sap/ui/model/json/JSONModel",
 	"sap/ui/core/format/NumberFormat",
 	"sap/m/Button",
@@ -12,11 +12,14 @@ sap.ui.define([
 	"sap/m/MessageToast",
 	"sap/m/MessageBox",
 	"sap/ui/core/util/File"
-], function(Controller, JSONModel, NumberFormat, Button, Dialog, List, StandardListItem, SearchField, Filter, FilterOperator, MessageToast, MessageBox, File) {
+], function(View1Controller, JSONModel, NumberFormat, Button, Dialog, List, StandardListItem, SearchField, Filter, FilterOperator,
+	MessageToast, MessageBox, File) {
 	"use strict";
 
-	return Controller.extend("Z_Fixed_Cost_Report_FCR.controller.BudgetWise", {
+	return View1Controller.extend("Z_Fixed_Cost_Report_FCR.controller.BudgetWise", {
 		onInit: function() {
+			this._bIsInitiallyLoaded = false; // Prevents reloading on Nav Back
+
 			this._oAmountFormat = NumberFormat.getFloatInstance({
 				groupingEnabled: true,
 				minFractionDigits: 2,
@@ -34,46 +37,26 @@ sap.ui.define([
 			this._mValueHelpData = {
 				fiscalYear: this._createFiscalYearItems(),
 				period: this._createPeriodItems()
-				// glGroup: [
-				// 	{ key: "GLG-1000", text: "GLG-1000 - Admin Expenses" },
-				// 	{ key: "GLG-2000", text: "GLG-2000 - Plant Expenses" },
-				// 	{ key: "GLG-3000", text: "GLG-3000 - Sales Expenses" }
-				// ],
-				// glAccount: [
-				// 	{ key: "400100", text: "400100 - Salaries" },
-				// 	{ key: "400200", text: "400200 - Repairs" },
-				// 	{ key: "400300", text: "400300 - Travel" }
-				// ],
-				// costCenterGroup: [
-				// 	{ key: "CCG-01", text: "CCG-01 - Factory Support" },
-				// 	{ key: "CCG-02", text: "CCG-02 - Administration" },
-				// 	{ key: "CCG-03", text: "CCG-03 - Commercial" }
-				// ],
-				// costCenter: [
-				// 	{ key: "CC1001", text: "CC1001 - Head Office" },
-				// 	{ key: "CC2001", text: "CC2001 - Plant A" },
-				// 	{ key: "CC3001", text: "CC3001 - Sales North" }
-				// ]
 			};
 
 			this.getView().setModel(new JSONModel({
 				companyCode: "1100",
 				fiscalYear: String(new Date().getFullYear()),
 				period: "",
-				glGroup: [],
-				glAccount: [],
-				costCenterGroup: [],
-				costCenter: []
+				glGroup: "",
+				glAccount: "",
+				costCenterGroup: "",
+				costCenter: ""
 			}), "filters");
 
 			this.getView().setModel(new JSONModel({
-				companyCodes: this._mValueHelpData.companyCode,
+				companyCodes: this._mValueHelpData.companyCode || [],
 				fiscalYears: this._mValueHelpData.fiscalYear,
 				periods: this._mValueHelpData.period,
-				glGroups: this._mValueHelpData.glGroup,
-				glAccounts: this._mValueHelpData.glAccount,
-				costCenterGroups: this._mValueHelpData.costCenterGroup,
-				costCenters: this._mValueHelpData.costCenter
+				glGroups: [],
+				glAccounts: [],
+				costCenterGroups: [],
+				costCenters: []
 			}), "lookups");
 
 			this.getView().setModel(new JSONModel({
@@ -109,18 +92,30 @@ sap.ui.define([
 				recordCount: "0"
 			}), "ui");
 
-			this._seedDemoData();
 			this._syncModeState("GL");
 			this._updateSelectedParametersText();
-			this._updateKpisFromActiveMode();
 
 			this.getOwnerComponent().getRouter().getRoute("budgetWise").attachPatternMatched(this._onBudgetRouteMatched, this);
 		},
 
 		_onBudgetRouteMatched: function() {
-			this._syncModeState(this.getView().getModel("ui").getProperty("/reportType") || "GL");
+			var oUi = this.getView().getModel("ui");
+			this._syncModeState(oUi.getProperty("/reportType") || "GL");
 			this._updateSelectedParametersText();
-			this._updateKpisFromActiveMode();
+
+			if (!this._bIsInitiallyLoaded) {
+				this.getView().addDependent(this._getBusyDialog());
+				var sCompanyCode = this.getView().getModel("filters").getProperty("/companyCode");
+				if (sCompanyCode) {
+					var that = this;
+					setTimeout(function() {
+						that._fetchBudgetData(false);
+						that._bIsInitiallyLoaded = true;
+					}, 50);
+				}
+			} else {
+				this._updateKpisFromActiveMode();
+			}
 		},
 
 		onAfterRendering: function() {
@@ -128,12 +123,189 @@ sap.ui.define([
 			this._configureChart("budgetNonGlChart", "Budget by Cost Center Group");
 		},
 
+		// =========================================================
+		// BACKEND DATA FETCHING LOGIC
+		// =========================================================
+
+		_fetchBudgetData: function(bMarkRun) {
+			var that = this;
+			var oFilters = this.getView().getModel("filters").getData();
+			var oUi = this.getView().getModel("ui");
+			var oBudget = this.getView().getModel("budget");
+			var bGlMode = oUi.getProperty("/isGlMode");
+
+			this._getBusyDialog().open();
+
+			setTimeout(function() {
+				var pReady = that._initOData(); // Inherited safely from View1
+
+				pReady.then(function() {
+					var aFilters = [];
+
+					// Standard Filters
+					if (oFilters.companyCode) aFilters.push("bukrs eq '" + that._odataLiteral(oFilters.companyCode) + "'");
+					if (oFilters.fiscalYear) aFilters.push("ryear eq '" + that._odataLiteral(oFilters.fiscalYear) + "'");
+					if (oFilters.period) aFilters.push("period eq '" + that._odataLiteral(oFilters.period) + "'");
+					if (oFilters.costCenter) aFilters.push("kostl eq '" + that._odataLiteral(oFilters.costCenter) + "'");
+					if (oFilters.costCenterGroup) aFilters.push("kostl_grp eq '" + that._odataLiteral(oFilters.costCenterGroup) + "'");
+
+					// GL Specific Filters
+					if (bGlMode) {
+						if (oFilters.glAccount) aFilters.push("hkont eq '" + that._odataLiteral(oFilters.glAccount) + "'");
+						if (oFilters.glGroup) aFilters.push("gl_ac_group eq '" + that._odataLiteral(oFilters.glGroup) + "'");
+					}
+
+					var sFilterString = aFilters.join(" and ");
+
+					// IMPORTANT: Update these string names to exactly match your Backend OData EntitySets
+					var sEntitySet = bGlMode ? "/es_budget_glset" : "/es_budget_nonglset";
+
+					return that._readODataPaged(sEntitySet, sFilterString ? {
+						"$filter": sFilterString
+					} : {}, 50000);
+				}).then(function(aResults) {
+					var aRawData = aResults || [];
+					var aMappedRows = [];
+
+					if (bGlMode) {
+						aMappedRows = aRawData.map(that._mapGlRow.bind(that)).filter(Boolean);
+						oBudget.setProperty("/glRows", aMappedRows);
+						oBudget.setProperty("/glChartRows", that._createBudgetChartRows(aMappedRows, "GL"));
+					} else {
+						aMappedRows = aRawData.map(that._mapNonGlRow.bind(that)).filter(Boolean);
+						oBudget.setProperty("/nonGlRows", aMappedRows);
+						oBudget.setProperty("/nonGlChartRows", that._createBudgetChartRows(aMappedRows, "NONGL"));
+					}
+
+					if (aMappedRows.length === 0) {
+						MessageToast.show("No budget records found for the selected parameters.");
+					}
+
+					that._applySearch(oUi.getProperty("/globalSearch") || "");
+					that._updateKpisFromActiveMode();
+
+				}).catch(function(oErr) {
+					MessageBox.error("Failed to load budget data from backend.", {
+						details: (oErr && oErr.message) ? oErr.message : String(oErr || "")
+					});
+				}).finally(function() {
+					that._getBusyDialog().close();
+				});
+			}, 50);
+		},
+
+		_mapGlRow: function(oRow) {
+			var fLakhs = 100000; // Conversion factor
+			return {
+				costCenter: oRow.kostl || oRow.costCenter || "",
+				costCenterDesc: oRow.kostl_desc || oRow.costCenterDesc || "",
+				costCenterGroup: oRow.kostl_grp || oRow.costCenterGroup || "",
+				gl: oRow.hkont || oRow.gl || "",
+				glDesc: oRow.hkont_desc || oRow.glDesc || "",
+				glGroup: oRow.gl_ac_group || oRow.glGroup || "",
+
+				// Convert fields to Lakhs
+				lastYearActual: Number(oRow.lastYearActual || 0) / fLakhs,
+				budgetCurrentYear: Number(oRow.budgetCurrentYear || 0) / fLakhs,
+				actualLastTwoMonths: Number(oRow.actualLastTwoMonths || 0) / fLakhs,
+				upToCurrentMonth: Number(oRow.upToCurrentMonth || 0) / fLakhs
+			};
+		},
+
+		_mapNonGlRow: function(oRow) {
+			var fLakhs = 100000; // Conversion factor
+			return {
+				costCenterGroup: oRow.kostl_grp || oRow.costCenterGroup || "",
+				costCenter: oRow.kostl || oRow.costCenter || "",
+				costCenterDesc: oRow.kostl_desc || oRow.costCenterDesc || "",
+
+				// Convert fields to Lakhs
+				lastYearActual: Number(oRow.lastYearActual || 0) / fLakhs,
+				budgetCurrentYear: Number(oRow.budgetCurrentYear || 0) / fLakhs,
+				actualLastTwoMonths: Number(oRow.actualLastTwoMonths || 0) / fLakhs,
+				upToCurrentMonth: Number(oRow.upToCurrentMonth || 0) / fLakhs
+			};
+		},
+
+		_createBudgetChartRows: function(aRows, sMode) {
+			return aRows.map(function(oRow) {
+				return {
+					name: sMode === "GL" ? (oRow.costCenter + " - " + oRow.gl) : (oRow.costCenterGroup + " - " + oRow.costCenter),
+					value: oRow.budgetCurrentYear
+				};
+			});
+		},
+
+		// =========================================================
+		// KPI & UI UPDATES
+		// =========================================================
+
+		_updateKpisFromActiveMode: function() {
+			var oUi = this.getView().getModel("ui");
+			var oBudget = this.getView().getModel("budget");
+			var bGlMode = oUi.getProperty("/isGlMode");
+			var aRows = bGlMode ? (oBudget.getProperty("/glRows") || []) : (oBudget.getProperty("/nonGlRows") || []);
+			var iKpi1 = 0,
+				iKpi2 = 0,
+				iKpi3 = 0,
+				iKpi4 = 0;
+
+			// Active KPI Calculation looping through backend data
+			aRows.forEach(function(oRow) {
+				iKpi1 += Number(oRow.budgetCurrentYear || 0);
+				iKpi2 += Number(oRow.lastYearActual || 0);
+				iKpi3 += Number(oRow.actualLastTwoMonths || 0);
+				iKpi4 += Number(oRow.upToCurrentMonth || 0);
+			});
+
+			oUi.setProperty("/kpi1Value", this._formatAmount(iKpi1));
+			oUi.setProperty("/kpi2Value", this._formatAmount(iKpi2));
+			oUi.setProperty("/kpi3Value", this._formatAmount(iKpi3));
+			oUi.setProperty("/kpi4Value", this._formatAmount(iKpi4));
+			oUi.setProperty("/recordCount", this._oIntegerFormat.format(aRows.length));
+		},
+
+		onSearch: function() {
+			if (!this._validateMandatory()) {
+				return;
+			}
+			this._updateSelectedParametersText();
+			this._fetchBudgetData(true);
+		},
+
+		onReportTypeChange: function(oEvent) {
+			var sKey = "";
+			var oSource = oEvent.getSource();
+			if (oSource && oSource.getSelectedKey) {
+				sKey = oSource.getSelectedKey() || "";
+			}
+			if (!sKey) {
+				sKey = oEvent.getParameter("key") || "";
+			}
+			if (!sKey && oEvent.getParameter("item")) {
+				sKey = oEvent.getParameter("item").getKey() || "";
+			}
+
+			if (sKey !== "NONGL") {
+				sKey = "GL";
+			}
+
+			this._syncModeState(sKey);
+			this._updateSelectedParametersText();
+
+			// Automatically fetch the relevant backend data when switching tabs
+			this._fetchBudgetData(false);
+		},
+
+		// =========================================================
+		// STANDARD HELPERS & FORMATTERS
+		// =========================================================
+
 		formatLookupText: function(sKey, aItems) {
 			return this._resolveLookupText(aItems, sKey);
 		},
 
 		setUpFiscalYear: function() {
-			// Kept as a standalone helper so this view stays independent from View1.
 			var aYears = [];
 			var iCurrentYear = new Date().getFullYear();
 			for (var i = iCurrentYear - 5; i <= iCurrentYear + 5; i++) {
@@ -158,67 +330,94 @@ sap.ui.define([
 			}
 			return aYears;
 		},
-
+		
 		_createPeriodItems: function() {
+			// return [{
+			// 	key: "1",
+			// 	text: "April"
+			// }, {
+			// 	key: "2",
+			// 	text: "May"
+			// }, {
+			// 	key: "3",
+			// 	text: "June"
+			// }, {
+			// 	key: "4",
+			// 	text: "July"
+			// }, {
+			// 	key: "5",
+			// 	text: "August"
+			// }, {
+			// 	key: "6",
+			// 	text: "September"
+			// }, {
+			// 	key: "7",
+			// 	text: "October"
+			// }, {
+			// 	key: "8",
+			// 	text: "November"
+			// }, {
+			// 	key: "9",
+			// 	text: "December"
+			// }, {
+			// 	key: "10",
+			// 	text: "January"
+			// }, {
+			// 	key: "11",
+			// 	text: "February"
+			// }, {
+			// 	key: "12",
+			// 	text: "March"
+			// }];
 			return [{
 				key: "1",
-				text: "April"
+				text: "April",
+				description: "1"
 			}, {
 				key: "2",
-				text: "May"
+				text: "May",
+				description: "2"
 			}, {
 				key: "3",
-				text: "June"
+				text: "June",
+				description: "3"
 			}, {
 				key: "4",
-				text: "uly"
+				text: "July",
+				description: "4"
 			}, {
 				key: "5",
-				text: "August"
+				text: "August",
+				description: "5"
 			}, {
 				key: "6",
-				text: "September"
+				text: "September",
+				description: "6"
 			}, {
 				key: "7",
-				text: "October"
+				text: "October",
+				description: "7"
 			}, {
 				key: "8",
-				text: "November"
+				text: "November",
+				description: "8"
 			}, {
 				key: "9",
-				text: "December"
+				text: "December",
+				description: "9"
 			}, {
 				key: "10",
-				text: "January"
+				text: "January",
+				description: "10"
 			}, {
 				key: "11",
-				text: "February"
+				text: "February",
+				description: "11"
 			}, {
 				key: "12",
-				text: "March"
+				text: "March",
+				description: "12"
 			}];
-		},
-
-		onReportTypeChange: function(oEvent) {
-			var sKey = "";
-			var oSource = oEvent.getSource();
-			if (oSource && oSource.getSelectedKey) {
-				sKey = oSource.getSelectedKey() || "";
-			}
-			if (!sKey) {
-				sKey = oEvent.getParameter("key") || "";
-			}
-			if (!sKey && oEvent.getParameter("item")) {
-				sKey = oEvent.getParameter("item").getKey() || "";
-			}
-
-			if (sKey !== "NONGL") {
-				sKey = "GL";
-			}
-
-			this._syncModeState(sKey);
-			this._updateSelectedParametersText();
-			this._updateKpisFromActiveMode();
 		},
 
 		_syncModeState: function(sMode) {
@@ -229,15 +428,6 @@ sap.ui.define([
 			oUi.setProperty("/modeLabel", bGlMode ? this._mModeLabels.GL : this._mModeLabels.NONGL);
 			oUi.setProperty("/isGlMode", bGlMode);
 			oUi.setProperty("/isNonGlMode", !bGlMode);
-
-			// if (bGlMode) {
-			// 	oUi.setProperty("/kpi1Label", "Current Year Budget");
-			// } else {
-			// 	oUi.setProperty("/kpi1Label", "Budget of the Current Year");
-			// }
-			// oUi.setProperty("/kpi2Label", "Last Year Actual");
-			// oUi.setProperty("/kpi3Label", "Actual for the Last two months");
-			// oUi.setProperty("/kpi4Label", "Up to Current Month");
 		},
 
 		onCompanyCodeChange: function() {
@@ -257,31 +447,27 @@ sap.ui.define([
 			this._updateSelectedParametersText();
 		},
 
-		onSearch: function() {
-			if (!this._validateMandatory()) {
-				return;
-			}
-
-			this._updateSelectedParametersText();
-			this._updateKpisFromActiveMode();
-			MessageToast.show("Budget view updated");
-		},
-
 		onReset: function() {
 			var sMode = this.getView().getModel("ui").getProperty("/reportType") || "GL";
 			this.getView().getModel("filters").setData({
 				companyCode: "1100",
 				fiscalYear: String(new Date().getFullYear()),
-				period: "",
-				glGroup: [],
-				glAccount: [],
-				costCenterGroup: [],
-				costCenter: []
+				period: "1",
+				glGroup: "",
+				glAccount: "",
+				costCenterGroup: "",
+				costCenter: ""
 			});
 
 			this._clearValueStates();
 			this._syncModeState(sMode);
 			this._updateSelectedParametersText();
+			this.getView().getModel("budget").setData({
+				glRows: [],
+				glChartRows: [],
+				nonGlRows: [],
+				nonGlChartRows: []
+			});
 			this._updateKpisFromActiveMode();
 			this._applySearch("");
 			MessageToast.show("Reset all parameters");
@@ -299,19 +485,15 @@ sap.ui.define([
 			if (!this._validateMandatory()) {
 				return;
 			}
-
 			var oTarget = this._getActiveTableConfig();
 			if (!oTarget) {
-				MessageToast.show("Nothing to export");
 				return;
 			}
-
 			var aRows = this._getVisibleRows(oTarget.tableId, oTarget.modelPath);
 			if (!aRows.length) {
 				MessageToast.show("No rows to export");
 				return;
 			}
-
 			var sCsv = this._toCsv(aRows, oTarget.columns);
 			var oFilters = this.getView().getModel("filters").getData();
 			var sName = "FCR_Budget_" + (oFilters.companyCode || "CC") + "_FY" + (oFilters.fiscalYear || "YYYY") + "_" + oTarget.fileSuffix;
@@ -321,23 +503,18 @@ sap.ui.define([
 		onGlGroupValueHelp: function() {
 			this._openSingleSelectValueHelp("G/L Group", "glGroups", "/glGroup");
 		},
-
 		onGlAccountValueHelp: function() {
 			this._openSingleSelectValueHelp("G/L Account", "glAccounts", "/glAccount");
 		},
-
 		onCostCenterGroupValueHelp: function() {
 			this._openSingleSelectValueHelp("Cost Center Group", "costCenterGroups", "/costCenterGroup");
 		},
-
 		onCostCenterValueHelp: function() {
 			this._openSingleSelectValueHelp("Cost Center", "costCenters", "/costCenter");
 		},
-
 		onPeriodValueHelp: function() {
 			this._openSingleSelectValueHelp("Period", "periods", "/period");
 		},
-
 		onCompanyCodeValueHelp: function() {
 			this._openSingleSelectValueHelp("Company Code", "companyCodes", "/companyCode");
 		},
@@ -351,20 +528,22 @@ sap.ui.define([
 				mode: "SingleSelectMaster",
 				includeItemInSelection: true,
 				items: {
+					// path: "lookups>/" + sLookupPath,
+					// template: new StandardListItem({
+					// 	title: "{lookups>key}",
+					// 	description: "{lookups>text}"
+					// })
 					path: "lookups>/" + sLookupPath,
 					template: new StandardListItem({
-						title: "{lookups>key}",
-						description: "{lookups>text}"
+						title: sLookupPath === "periods" ? "{lookups>text}" : "{lookups>key}",
+						description: sLookupPath === "periods" ? "{lookups>description}" : "{lookups>text}"
 					})
 				}
 			});
 
 			oList.attachSelectionChange(function(oEvent) {
 				var oItem = oEvent.getParameter("listItem");
-				if (!oItem) {
-					return;
-				}
-				sSelected = oItem.getBindingContext("lookups").getProperty("key");
+				if (oItem) sSelected = oItem.getBindingContext("lookups").getProperty("key");
 			});
 
 			oList.attachUpdateFinished(function() {
@@ -400,10 +579,7 @@ sap.ui.define([
 				contentHeight: "24rem",
 				resizable: true,
 				draggable: true,
-				content: [
-					oSearch,
-					oList
-				],
+				content: [oSearch, oList],
 				beginButton: new Button({
 					text: "OK",
 					type: "Emphasized",
@@ -433,7 +609,6 @@ sap.ui.define([
 			var oUi = this.getView().getModel("ui");
 			var bOk = true;
 			var aMissing = [];
-			var bGlMode = oUi.getProperty("/isGlMode");
 
 			this._clearValueStates();
 
@@ -447,35 +622,8 @@ sap.ui.define([
 				aMissing.push("Fiscal Year");
 				bOk = false;
 			}
-			// if (!(oFilters.period || "").trim()) {
-			// 	oUi.setProperty("/periodState", "Error");
-			// 	aMissing.push("Period");
-			// 	bOk = false;
-			// }
-			// if (bGlMode && !(oFilters.glGroup || "").trim()) {
-			// 	oUi.setProperty("/glGroupState", "Error");
-			// 	aMissing.push("G/L Group");
-			// 	bOk = false;
-			// }
-			// if (!(oFilters.glAccount || "").trim()) {
-			// 	oUi.setProperty("/glAccountState", "Error");
-			// 	aMissing.push("G/L Account");
-			// 	bOk = false;
-			// }
-			// if (!(oFilters.costCenterGroup || "").trim()) {
-			// 	oUi.setProperty("/costCenterGroupState", "Error");
-			// 	aMissing.push("Cost Center Group");
-			// 	bOk = false;
-			// }
-			// if (!(oFilters.costCenter || "").trim()) {
-			// 	oUi.setProperty("/costCenterState", "Error");
-			// 	aMissing.push("Cost Center");
-			// 	bOk = false;
-			// }
 
-			if (!bOk) {
-				MessageBox.error("Please fill mandatory field(s): " + aMissing.join(", ") + ".");
-			}
+			if (!bOk) MessageBox.error("Please fill mandatory field(s): " + aMissing.join(", ") + ".");
 			return bOk;
 		},
 
@@ -493,22 +641,23 @@ sap.ui.define([
 		_updateSelectedParametersText: function() {
 			var oFilters = this.getView().getModel("filters").getData();
 			var oLookups = this.getView().getModel("lookups").getData();
-			var sMode = this.getView().getModel("ui").getProperty("/modeLabel") || this._mModeLabels.GL;
 			var bGlMode = this.getView().getModel("ui").getProperty("/isGlMode");
-			var sText = ["Mode: " + sMode, "Company Code " + this._displayValue(oFilters.companyCode),
-				"FY " + this._displayValue(oFilters.fiscalYear)];
+
+			var sCompany = "Company " + (oFilters.companyCode || "-");
+			var sFY = "FY " + (oFilters.fiscalYear || "-");
+			var sPeriod = oFilters.period ? this._resolveLookupText(oLookups.periods, oFilters.period) : "All periods";
+			var sCostCenter = oFilters.costCenter ? "1 Cost Center" : "All Cost Centers";
+			var sCostCenterGroup = oFilters.costCenterGroup ? "1 Cost Center Group" : "All Cost Center Groups";
+			var sGlAccount = oFilters.glAccount ? "1 G/L Account" : "All G/L Accounts";
+
+			var aTextParts = [sCompany, sFY, sPeriod, sCostCenter, sCostCenterGroup, sGlAccount];
 
 			if (bGlMode) {
-				sText.push("G/L Group " + this._displayValue(oFilters.glGroup));
+				var sGlGroup = oFilters.glGroup ? "1 G/L Group" : "All G/L Groups";
+				aTextParts.push(sGlGroup);
 			}
 
-			sText.push("G/L Account " + this._displayValue(oFilters.glAccount));
-			sText.push("Cost Center Group " + this._displayValue(oFilters.costCenterGroup));
-			sText.push("Cost Center " + this._displayValue(oFilters.costCenter));
-			sText.push("Period " + this._resolveLookupText(oLookups.periods, oFilters.period));
-
-			this.getView().getModel("ui").setProperty("/selectedParamsText", sText.join(" | "));
-			this.getView().getModel("ui").setProperty("/periodText", this._resolveLookupText(oLookups.periods, oFilters.period));
+			this.getView().getModel("ui").setProperty("/selectedParamsText", aTextParts.join(" | "));
 		},
 
 		_displayValue: function(sValue) {
@@ -517,119 +666,11 @@ sap.ui.define([
 
 		_resolveLookupText: function(aItems, sKey) {
 			var sValue = String(sKey || "");
-			var oMatch;
-
-			if (!sValue) {
-				return "";
-			}
-
-			oMatch = (aItems || []).filter(function(oItem) {
+			if (!sValue) return "";
+			var oMatch = (aItems || []).filter(function(oItem) {
 				return String(oItem.key) === sValue;
 			})[0];
-
 			return oMatch ? oMatch.text : sValue;
-		},
-
-		_updateKpisFromActiveMode: function() {
-			var oUi = this.getView().getModel("ui");
-			var oBudget = this.getView().getModel("budget");
-			var bGlMode = oUi.getProperty("/isGlMode");
-			var aRows = bGlMode ? (oBudget.getProperty("/glRows") || []) : (oBudget.getProperty("/nonGlRows") || []);
-			var iKpi1 = 0;
-			var iKpi2 = 0;
-			var iKpi3 = 0;
-			var iKpi4 = 0;
-
-			// aRows.forEach(function(oRow) {
-			// 	iKpi1 += Number(oRow.budgetCurrentYear || 0);
-			// 	iKpi2 += Number(oRow.lastYearActual || 0);
-			// 	iKpi3 += Number(oRow.actualLastTwoMonths || 0);
-			// 	iKpi4 += Number(oRow.upToCurrentMonth || 0);
-			// });
-
-			oUi.setProperty("/kpi1Value", this._formatAmount(iKpi1));
-			oUi.setProperty("/kpi2Value", this._formatAmount(iKpi2));
-			oUi.setProperty("/kpi3Value", this._formatAmount(iKpi3));
-			oUi.setProperty("/kpi4Value", this._formatAmount(iKpi4));
-			oUi.setProperty("/recordCount", this._oIntegerFormat.format(aRows.length));
-		},
-
-		_seedDemoData: function() {
-			var oBudget = this.getView().getModel("budget");
-			var aGlRows = [{
-				costCenter: "CC1001",
-				costCenterDesc: "Head Office",
-				costCenterGroup: "CCG-02",
-				gl: "400100",
-				glDesc: "Salaries",
-				glGroup: "GLG-1000",
-				lastYearActual: 180.25,
-				budgetCurrentYear: 220.75,
-				actualLastTwoMonths: 34.5,
-				upToCurrentMonth: 95.1
-			}, {
-				costCenter: "CC2001",
-				costCenterDesc: "Plant A",
-				costCenterGroup: "CCG-01",
-				gl: "400200",
-				glDesc: "Repairs",
-				glGroup: "GLG-2000",
-				lastYearActual: 98.15,
-				budgetCurrentYear: 120.4,
-				actualLastTwoMonths: 18.9,
-				upToCurrentMonth: 43.25
-			}, {
-				costCenter: "CC3001",
-				costCenterDesc: "Sales North",
-				costCenterGroup: "CCG-03",
-				gl: "400300",
-				glDesc: "Travel",
-				glGroup: "GLG-3000",
-				lastYearActual: 64.8,
-				budgetCurrentYear: 82.2,
-				actualLastTwoMonths: 12.6,
-				upToCurrentMonth: 29.75
-			}];
-			var aNonGlRows = [{
-				costCenterGroup: "CCG-01",
-				costCenter: "CC2001",
-				costCenterDesc: "Plant A",
-				lastYearActual: 198.3,
-				budgetCurrentYear: 240.5,
-				actualLastTwoMonths: 27.25,
-				upToCurrentMonth: 110.4
-			}, {
-				costCenterGroup: "CCG-02",
-				costCenter: "CC1001",
-				costCenterDesc: "Head Office",
-				lastYearActual: 152.9,
-				budgetCurrentYear: 180.15,
-				actualLastTwoMonths: 24.6,
-				upToCurrentMonth: 88.9
-			}, {
-				costCenterGroup: "CCG-03",
-				costCenter: "CC3001",
-				costCenterDesc: "Sales North",
-				lastYearActual: 76.45,
-				budgetCurrentYear: 94.8,
-				actualLastTwoMonths: 11.4,
-				upToCurrentMonth: 37.2
-			}];
-
-			oBudget.setProperty("/glRows", aGlRows);
-			oBudget.setProperty("/nonGlRows", aNonGlRows);
-			oBudget.setProperty("/glChartRows", aGlRows.map(function(oRow) {
-				return {
-					name: oRow.costCenter + " - " + oRow.gl,
-					value: oRow.budgetCurrentYear
-				};
-			}));
-			oBudget.setProperty("/nonGlChartRows", aNonGlRows.map(function(oRow) {
-				return {
-					name: oRow.costCenterGroup + " - " + oRow.costCenter,
-					value: oRow.budgetCurrentYear
-				};
-			}));
 		},
 
 		_formatAmount: function(vValue) {
@@ -655,11 +696,7 @@ sap.ui.define([
 			var oBudget = this.getView().getModel("budget");
 			var aRows = oBudget.getProperty(sModelPath) || [];
 			var oBinding = oTable && oTable.getBinding("rows");
-
-			if (!oBinding) {
-				return aRows.slice();
-			}
-
+			if (!oBinding) return aRows.slice();
 			var aContexts = oBinding.getContexts(0, oBinding.getLength());
 			return aContexts.map(function(oContext) {
 				return oContext.getObject();
@@ -671,27 +708,15 @@ sap.ui.define([
 			var oTable = oTarget && this.byId(oTarget.tableId);
 			var s = String(sQuery || "").trim();
 
-			if (!oTable || !oTable.getBinding("rows")) {
-				return;
-			}
-
+			if (!oTable || !oTable.getBinding("rows")) return;
 			if (!s) {
 				oTable.getBinding("rows").filter([]);
 				return;
 			}
 
-			var aProps = this.getView().getModel("ui").getProperty("/isGlMode") ? [
-				"costCenter",
-				"costCenterDesc",
-				"costCenterGroup",
-				"gl",
-				"glDesc",
-				"glGroup"
-			] : [
-				"costCenterGroup",
-				"costCenter",
-				"costCenterDesc"
-			];
+			var aProps = this.getView().getModel("ui").getProperty("/isGlMode") ? ["costCenter", "costCenterDesc", "costCenterGroup", "gl",
+				"glDesc", "glGroup"
+			] : ["costCenterGroup", "costCenter", "costCenterDesc"];
 
 			oTable.getBinding("rows").filter(new Filter({
 				filters: aProps.map(function(sProp) {
@@ -703,10 +728,7 @@ sap.ui.define([
 
 		_configureChart: function(sChartId, sTitle) {
 			var oVizFrame = this.byId(sChartId);
-			if (!oVizFrame || oVizFrame.data("configured")) {
-				return;
-			}
-
+			if (!oVizFrame || oVizFrame.data("configured")) return;
 			oVizFrame.setVizProperties({
 				title: {
 					visible: true,
@@ -811,26 +833,20 @@ sap.ui.define([
 				return this._csvEscape(oCol.label);
 			}.bind(this));
 			var aLines = [aHeaders.join(",")];
-
 			(aRows || []).forEach(function(oRow) {
 				var aValues = aColumns.map(function(oCol) {
 					var v = oRow[oCol.key];
-					if (typeof v === "number") {
-						v = this._formatAmount(v);
-					}
+					if (typeof v === "number") v = this._formatAmount(v);
 					return this._csvEscape(v);
 				}.bind(this));
 				aLines.push(aValues.join(","));
 			}.bind(this));
-
 			return aLines.join("\n");
 		},
 
 		_csvEscape: function(vValue) {
 			var s = String(vValue == null ? "" : vValue);
-			if (/[",\n]/.test(s)) {
-				return '"' + s.replace(/"/g, '""') + '"';
-			}
+			if (/[",\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
 			return s;
 		}
 	});
