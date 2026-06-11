@@ -1,18 +1,22 @@
 sap.ui.define([
-	"Z_Fixed_Cost_Report_FCR/controller/View1.controller",
+	"sap/ui/core/mvc/Controller",
 	"sap/ui/model/json/JSONModel",
 	"sap/ui/core/format/NumberFormat",
+	"sap/m/Button",
+	"sap/m/Dialog",
+	"sap/m/List",
+	"sap/m/StandardListItem",
+	"sap/m/SearchField",
+	"sap/ui/model/Filter",
+	"sap/ui/model/FilterOperator",
 	"sap/m/MessageToast",
-	"sap/m/MessageBox"
-], function(View1Controller, JSONModel, NumberFormat, MessageToast, MessageBox) {
+	"sap/m/MessageBox",
+	"sap/ui/core/util/File"
+], function(Controller, JSONModel, NumberFormat, Button, Dialog, List, StandardListItem, SearchField, Filter, FilterOperator, MessageToast, MessageBox, File) {
 	"use strict";
 
-	return View1Controller.extend("Z_Fixed_Cost_Report_FCR.controller.BudgetWise", {
+	return Controller.extend("Z_Fixed_Cost_Report_FCR.controller.BudgetWise", {
 		onInit: function() {
-			this.setUpFiscalYear();
-
-			this._oODataModel = null;
-			this._oODataReady = null;
 			this._oAmountFormat = NumberFormat.getFloatInstance({
 				groupingEnabled: true,
 				minFractionDigits: 2,
@@ -21,222 +25,451 @@ sap.ui.define([
 			this._oIntegerFormat = NumberFormat.getIntegerInstance({
 				groupingEnabled: true
 			});
-			this._oPercentFormat = NumberFormat.getFloatInstance({
-				groupingEnabled: true,
-				minFractionDigits: 1,
-				maxFractionDigits: 1
-			});
-			this._mQuarterPeriods = {
-				Q1: [1, 2, 3],
-				Q2: [4, 5, 6],
-				Q3: [7, 8, 9],
-				Q4: [10, 11, 12]
+
+			this._mModeLabels = {
+				GL: "G/L Group Wise",
+				NONGL: "Non G/L wise"
 			};
-			this._mGroupNames = {};
-			this._aPeriodMonthNames = ["", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar"];
+
+			this._mValueHelpData = {
+				fiscalYear: this._createFiscalYearItems(),
+				period: this._createPeriodItems()
+				// glGroup: [
+				// 	{ key: "GLG-1000", text: "GLG-1000 - Admin Expenses" },
+				// 	{ key: "GLG-2000", text: "GLG-2000 - Plant Expenses" },
+				// 	{ key: "GLG-3000", text: "GLG-3000 - Sales Expenses" }
+				// ],
+				// glAccount: [
+				// 	{ key: "400100", text: "400100 - Salaries" },
+				// 	{ key: "400200", text: "400200 - Repairs" },
+				// 	{ key: "400300", text: "400300 - Travel" }
+				// ],
+				// costCenterGroup: [
+				// 	{ key: "CCG-01", text: "CCG-01 - Factory Support" },
+				// 	{ key: "CCG-02", text: "CCG-02 - Administration" },
+				// 	{ key: "CCG-03", text: "CCG-03 - Commercial" }
+				// ],
+				// costCenter: [
+				// 	{ key: "CC1001", text: "CC1001 - Head Office" },
+				// 	{ key: "CC2001", text: "CC2001 - Plant A" },
+				// 	{ key: "CC3001", text: "CC3001 - Sales North" }
+				// ]
+			};
 
 			this.getView().setModel(new JSONModel({
 				companyCode: "1100",
-				fiscalYear: "2026",
+				fiscalYear: String(new Date().getFullYear()),
 				period: "",
-				profitCenters: [],
-				glGroups: []
+				glGroup: [],
+				glAccount: [],
+				costCenterGroup: [],
+				costCenter: []
 			}), "filters");
 
 			this.getView().setModel(new JSONModel({
-				companyCodes: [],
-				profitCenters: [],
-				glGroups: [],
-				quarters: [],
-				periods: this._createPeriodLookups()
+				companyCodes: this._mValueHelpData.companyCode,
+				fiscalYears: this._mValueHelpData.fiscalYear,
+				periods: this._mValueHelpData.period,
+				glGroups: this._mValueHelpData.glGroup,
+				glAccounts: this._mValueHelpData.glAccount,
+				costCenterGroups: this._mValueHelpData.costCenterGroup,
+				costCenters: this._mValueHelpData.costCenter
 			}), "lookups");
 
 			this.getView().setModel(new JSONModel({
-				budgetRows: [],
-				budgetChart: []
-			}), "fcr");
+				glRows: [],
+				glChartRows: [],
+				nonGlRows: [],
+				nonGlChartRows: []
+			}), "budget");
 
 			this.getView().setModel(new JSONModel({
-				reportType: "budget",
+				pageTitle: "Fixed Cost Report - Budget Wise",
+				reportType: "GL",
+				modeLabel: this._mModeLabels.GL,
+				isGlMode: true,
+				isNonGlMode: false,
 				companyCodeState: "None",
 				fiscalYearState: "None",
 				periodState: "None",
-				globalSearch: "",
+				glGroupState: "None",
+				glAccountState: "None",
+				costCenterGroupState: "None",
+				costCenterState: "None",
 				periodText: "",
-				lastRunText: "Ready to run",
-				totalActual: "0",
-				totalBudget: "0",
-				totalVariance: "0",
-				recordCount: "0",
-				maxGlGroupName: "None",
-				maxGlGroupValue: "0",
-				lastTwoMonthsTotal: "0"
+				selectedParamsText: "",
+				kpi1Label: "Total Current Year Budget",
+				kpi2Label: "Total Last Year Actual",
+				kpi3Label: "Total Last Two Months Actual",
+				kpi4Label: "Total Up To Current Month",
+				kpi1Value: "0.00",
+				kpi2Value: "0.00",
+				kpi3Value: "0.00",
+				kpi4Value: "0.00",
+				recordCount: "0"
 			}), "ui");
-			
-			// ADD THIS LINE: This ensures the dialog renders properly on top of the view
-			this.getView().addDependent(this._oBusyDialog);
 
-			this._initOData().catch(function(oErr) {
-				MessageBox.error("Unable to initialize OData service ZO_FCR_SRV.", {
-					details: (oErr && oErr.message) ? oErr.message : String(oErr || "")
-				});
-			});
+			this._seedDemoData();
+			this._syncModeState("GL");
+			this._updateSelectedParametersText();
+			this._updateKpisFromActiveMode();
 
 			this.getOwnerComponent().getRouter().getRoute("budgetWise").attachPatternMatched(this._onBudgetRouteMatched, this);
 		},
 
 		_onBudgetRouteMatched: function() {
-			var oShared = this.getOwnerComponent().getModel("shared");
-			var oNav = oShared && oShared.getProperty("/budgetNavigation");
-			if (oNav) {
-				this._applySharedFilters(oNav);
-			}
-			this.getView().getModel("ui").setProperty("/reportType", "budget");
-			this._getBusyDialog().close();
-
-			if (this.getView().getModel("filters").getProperty("/period")) {
-				this._applyBudgetFilters(false);
-			} else {
-				this._updateBudgetPeriodText();
-			}
+			this._syncModeState(this.getView().getModel("ui").getProperty("/reportType") || "GL");
+			this._updateSelectedParametersText();
+			this._updateKpisFromActiveMode();
 		},
 
-		_applySharedFilters: function(oNav) {
-			var oFilters = this.getView().getModel("filters");
-			oFilters.setData({
-				companyCode: oNav.companyCode || "1100",
-				fiscalYear: oNav.fiscalYear || "2026",
-				period: this._deriveBudgetPeriodFromMainFilters(oNav),
-				profitCenters: (oNav.profitCenters || []).slice(),
-				glGroups: (oNav.glGroups || []).slice()
-			});
+		onAfterRendering: function() {
+			this._configureChart("budgetGlChart", "Budget by Cost Center and G/L Group");
+			this._configureChart("budgetNonGlChart", "Budget by Cost Center Group");
 		},
 
-		_deriveBudgetPeriodFromMainFilters: function(oNav) {
-			var sFrom = String(oNav.fromPeriod || "").trim();
-			var sTo = String(oNav.toPeriod || "").trim();
-			var aQuarters = oNav.quarters || [];
-			var sQuarter;
+		formatLookupText: function(sKey, aItems) {
+			return this._resolveLookupText(aItems, sKey);
+		},
 
-			if (sFrom) {
-				return sFrom;
+		setUpFiscalYear: function() {
+			// Kept as a standalone helper so this view stays independent from View1.
+			var aYears = [];
+			var iCurrentYear = new Date().getFullYear();
+			for (var i = iCurrentYear - 5; i <= iCurrentYear + 5; i++) {
+				aYears.push({
+					key: String(i),
+					text: String(i)
+				});
 			}
-			if (sTo) {
-				return sTo;
+			this.getView().setModel(new JSONModel({
+				years: aYears
+			}), "yearModel");
+		},
+
+		_createFiscalYearItems: function() {
+			var aYears = [];
+			var iCurrentYear = new Date().getFullYear();
+			for (var i = iCurrentYear - 5; i <= iCurrentYear + 5; i++) {
+				aYears.push({
+					key: String(i),
+					text: String(i)
+				});
 			}
-			if (aQuarters.length === 1) {
-				sQuarter = aQuarters[0].key;
-				if (this._mQuarterPeriods[sQuarter]) {
-					return String(this._mQuarterPeriods[sQuarter][2]);
-				}
-			}
-			return "";
+			return aYears;
 		},
 
-		onBudgetPeriodValueHelp: function() {
-			this._openSingleSelectValueHelp("Period", "periods", "/period");
-		},
-
-		onSearch: function() {
-			if (!this._validateBudgetMandatory()) {
-				return;
-			}
-			this._applyBudgetFilters(true);
-			MessageToast.show("Budget wise report refreshed");
-		},
-
-		onReset: function() {
-			this.getView().getModel("filters").setData({
-				companyCode: "1100",
-				fiscalYear: "2026",
-				period: "",
-				profitCenters: [],
-				glGroups: []
-			});
-			this.getView().getModel("ui").setProperty("/globalSearch", "");
-			this.getView().getModel("fcr").setData({
-				budgetRows: [],
-				budgetChart: []
-			});
-			this._resetBudgetKpis();
-			this._updateBudgetPeriodText();
-			MessageToast.show("Reset All Parameters");
-		},
-
-		onBack: function() {
-			var oShared = this.getOwnerComponent().getModel("shared");
-			var sMainReportType = (oShared && oShared.getProperty("/mainReportType")) || "all";
-			// this._getBusyDialog().open();
-			this.getOwnerComponent().getRouter().navTo("main");
-			oShared.setProperty("/mainReportType", sMainReportType);
+		_createPeriodItems: function() {
+			return [{
+				key: "1",
+				text: "1 - April"
+			}, {
+				key: "2",
+				text: "2 - May"
+			}, {
+				key: "3",
+				text: "3 - June"
+			}, {
+				key: "4",
+				text: "4 - July"
+			}, {
+				key: "5",
+				text: "5 - August"
+			}, {
+				key: "6",
+				text: "6 - September"
+			}, {
+				key: "7",
+				text: "7 - October"
+			}, {
+				key: "8",
+				text: "8 - November"
+			}, {
+				key: "9",
+				text: "9 - December"
+			}, {
+				key: "10",
+				text: "10 - January"
+			}, {
+				key: "11",
+				text: "11 - February"
+			}, {
+				key: "12",
+				text: "12 - March"
+			}];
 		},
 
 		onReportTypeChange: function(oEvent) {
-			var sKey = oEvent.getSource().getSelectedKey() || oEvent.getParameter("key") || "";
+			var sKey = "";
+			var oSource = oEvent.getSource();
+			if (oSource && oSource.getSelectedKey) {
+				sKey = oSource.getSelectedKey() || "";
+			}
+			if (!sKey) {
+				sKey = oEvent.getParameter("key") || "";
+			}
 			if (!sKey && oEvent.getParameter("item")) {
-				sKey = oEvent.getParameter("item").getKey();
+				sKey = oEvent.getParameter("item").getKey() || "";
 			}
 
-			if (sKey === "budget") {
-				this.getView().getModel("ui").setProperty("/reportType", "budget");
+			if (sKey !== "NONGL") {
+				sKey = "GL";
+			}
+
+			this._syncModeState(sKey);
+			this._updateSelectedParametersText();
+			this._updateKpisFromActiveMode();
+		},
+
+		_syncModeState: function(sMode) {
+			var oUi = this.getView().getModel("ui");
+			var bGlMode = sMode === "GL";
+
+			oUi.setProperty("/reportType", bGlMode ? "GL" : "NONGL");
+			oUi.setProperty("/modeLabel", bGlMode ? this._mModeLabels.GL : this._mModeLabels.NONGL);
+			oUi.setProperty("/isGlMode", bGlMode);
+			oUi.setProperty("/isNonGlMode", !bGlMode);
+
+			// if (bGlMode) {
+			// 	oUi.setProperty("/kpi1Label", "Current Year Budget");
+			// } else {
+			// 	oUi.setProperty("/kpi1Label", "Budget of the Current Year");
+			// }
+			// oUi.setProperty("/kpi2Label", "Last Year Actual");
+			// oUi.setProperty("/kpi3Label", "Actual for the Last two months");
+			// oUi.setProperty("/kpi4Label", "Up to Current Month");
+		},
+
+		onCompanyCodeChange: function() {
+			this._updateSelectedParametersText();
+		},
+
+		onFiscalYearChange: function(oEvent) {
+			var sValue = oEvent.getSource().getValue();
+			var sYear = (sValue || "").replace(/\D/g, "").substr(0, 4);
+			if (sYear && sYear.length === 4) {
+				this.getView().getModel("filters").setProperty("/fiscalYear", sYear);
+			}
+			this._updateSelectedParametersText();
+		},
+
+		onPeriodChange: function() {
+			this._updateSelectedParametersText();
+		},
+
+		onSearch: function() {
+			if (!this._validateMandatory()) {
 				return;
 			}
 
-			// this._getBusyDialog().open();
-			this.getOwnerComponent().getModel("shared").setProperty("/mainReportType", sKey || "all");
+			this._updateSelectedParametersText();
+			this._updateKpisFromActiveMode();
+			MessageToast.show("Budget view updated");
+		},
+
+		onReset: function() {
+			var sMode = this.getView().getModel("ui").getProperty("/reportType") || "GL";
+			this.getView().getModel("filters").setData({
+				companyCode: "1100",
+				fiscalYear: String(new Date().getFullYear()),
+				period: "1",
+				glGroup: "GLG-1000",
+				glAccount: "400100",
+				costCenterGroup: "CCG-02",
+				costCenter: "CC1001"
+			});
+
+			this._clearValueStates();
+			this._syncModeState(sMode);
+			this._updateSelectedParametersText();
+			this._updateKpisFromActiveMode();
+			this._applySearch("");
+			MessageToast.show("Reset all parameters");
+		},
+
+		onBack: function() {
 			this.getOwnerComponent().getRouter().navTo("main");
 		},
 
 		onUniversalSearch: function(oEvent) {
-			var sQuery = oEvent.getSource().getValue() || "";
-			this.getView().getModel("ui").setProperty("/globalSearch", sQuery);
-			this._applyBudgetSearch(sQuery);
+			this._applySearch(oEvent.getSource().getValue() || "");
 		},
 
 		onExport: function() {
-			if (!this._validateBudgetMandatory()) {
+			if (!this._validateMandatory()) {
 				return;
 			}
 
-			var oTable = this.byId("budgetTable");
-			var aRows = this._getFilteredTableObjects(oTable, "fcr", "/budgetRows");
+			var oTarget = this._getActiveTableConfig();
+			if (!oTarget) {
+				MessageToast.show("Nothing to export");
+				return;
+			}
+
+			var aRows = this._getVisibleRows(oTarget.tableId, oTarget.modelPath);
 			if (!aRows.length) {
 				MessageToast.show("No rows to export");
 				return;
 			}
 
-			var sCsv = this._toCsv(aRows, this._getBudgetColumns());
+			var sCsv = this._toCsv(aRows, oTarget.columns);
 			var oFilters = this.getView().getModel("filters").getData();
-			var sName = "FCR_Budget_" + (oFilters.companyCode || "CC") + "_FY" + (oFilters.fiscalYear || "YYYY");
-			sap.ui.core.util.File.save(sCsv, sName, "csv", "text/csv");
+			var sName = "FCR_Budget_" + (oFilters.companyCode || "CC") + "_FY" + (oFilters.fiscalYear || "YYYY") + "_" + oTarget.fileSuffix;
+			File.save(sCsv, sName, "csv", "text/csv");
 		},
 
-		_validateBudgetMandatory: function() {
+		onGlGroupValueHelp: function() {
+			this._openSingleSelectValueHelp("G/L Group", "glGroups", "/glGroup");
+		},
+
+		onGlAccountValueHelp: function() {
+			this._openSingleSelectValueHelp("G/L Account", "glAccounts", "/glAccount");
+		},
+
+		onCostCenterGroupValueHelp: function() {
+			this._openSingleSelectValueHelp("Cost Center Group", "costCenterGroups", "/costCenterGroup");
+		},
+
+		onCostCenterValueHelp: function() {
+			this._openSingleSelectValueHelp("Cost Center", "costCenters", "/costCenter");
+		},
+
+		onPeriodValueHelp: function() {
+			this._openSingleSelectValueHelp("Period", "periods", "/period");
+		},
+
+		onCompanyCodeValueHelp: function() {
+			this._openSingleSelectValueHelp("Company Code", "companyCodes", "/companyCode");
+		},
+
+		_openSingleSelectValueHelp: function(sTitle, sLookupPath, sFilterPropPath) {
+			var oView = this.getView();
+			var oFiltersModel = oView.getModel("filters");
+			var sCurrent = String(oFiltersModel.getProperty(sFilterPropPath) || "");
+			var sSelected = sCurrent;
+			var oList = new List({
+				mode: "SingleSelectMaster",
+				includeItemInSelection: true,
+				items: {
+					path: "lookups>/" + sLookupPath,
+					template: new StandardListItem({
+						title: "{lookups>key}",
+						description: "{lookups>text}"
+					})
+				}
+			});
+
+			oList.attachSelectionChange(function(oEvent) {
+				var oItem = oEvent.getParameter("listItem");
+				if (!oItem) {
+					return;
+				}
+				sSelected = oItem.getBindingContext("lookups").getProperty("key");
+			});
+
+			oList.attachUpdateFinished(function() {
+				oList.getItems().forEach(function(oItem) {
+					var sKey = oItem.getBindingContext("lookups").getProperty("key");
+					oItem.setSelected(sKey === sCurrent);
+				});
+			});
+
+			var oSearch = new SearchField({
+				width: "100%",
+				placeholder: "Search " + sTitle,
+				liveChange: function(oEvent) {
+					var sValue = oEvent.getParameter("newValue");
+					var oBinding = oList.getBinding("items");
+					var aFilters = [];
+					if (sValue) {
+						aFilters.push(new Filter({
+							filters: [
+								new Filter("key", FilterOperator.Contains, sValue),
+								new Filter("text", FilterOperator.Contains, sValue)
+							],
+							and: false
+						}));
+					}
+					oBinding.filter(aFilters);
+				}
+			});
+
+			var oDialog = new Dialog({
+				title: "Select " + sTitle,
+				contentWidth: "32rem",
+				contentHeight: "24rem",
+				resizable: true,
+				draggable: true,
+				content: [
+					oSearch,
+					oList
+				],
+				beginButton: new Button({
+					text: "OK",
+					type: "Emphasized",
+					press: function() {
+						oFiltersModel.setProperty(sFilterPropPath, sSelected);
+						this._updateSelectedParametersText();
+						oDialog.close();
+					}.bind(this)
+				}),
+				endButton: new Button({
+					text: "Cancel",
+					press: function() {
+						oDialog.close();
+					}
+				}),
+				afterClose: function() {
+					oDialog.destroy();
+				}
+			});
+
+			this.getView().addDependent(oDialog);
+			oDialog.open();
+		},
+
+		_validateMandatory: function() {
 			var oFilters = this.getView().getModel("filters").getData();
-			var oUiModel = this.getView().getModel("ui");
+			var oUi = this.getView().getModel("ui");
 			var bOk = true;
 			var aMissing = [];
-			// var sPeriod = String(oFilters.period || "").trim();
+			var bGlMode = oUi.getProperty("/isGlMode");
 
-			oUiModel.setProperty("/companyCodeState", "None");
-			oUiModel.setProperty("/fiscalYearState", "None");
-			oUiModel.setProperty("/periodState", "None");
+			this._clearValueStates();
 
 			if (!(oFilters.companyCode || "").trim()) {
-				oUiModel.setProperty("/companyCodeState", "Error");
+				oUi.setProperty("/companyCodeState", "Error");
 				aMissing.push("Company Code");
 				bOk = false;
 			}
-
 			if (!/^[0-9]{4}$/.test((oFilters.fiscalYear || "").trim())) {
-				oUiModel.setProperty("/fiscalYearState", "Error");
+				oUi.setProperty("/fiscalYearState", "Error");
 				aMissing.push("Fiscal Year");
 				bOk = false;
 			}
-
-			// if (!sPeriod) {
-			// 	oUiModel.setProperty("/periodState", "Error");
+			// if (!(oFilters.period || "").trim()) {
+			// 	oUi.setProperty("/periodState", "Error");
 			// 	aMissing.push("Period");
+			// 	bOk = false;
+			// }
+			// if (bGlMode && !(oFilters.glGroup || "").trim()) {
+			// 	oUi.setProperty("/glGroupState", "Error");
+			// 	aMissing.push("G/L Group");
+			// 	bOk = false;
+			// }
+			// if (!(oFilters.glAccount || "").trim()) {
+			// 	oUi.setProperty("/glAccountState", "Error");
+			// 	aMissing.push("G/L Account");
+			// 	bOk = false;
+			// }
+			// if (!(oFilters.costCenterGroup || "").trim()) {
+			// 	oUi.setProperty("/costCenterGroupState", "Error");
+			// 	aMissing.push("Cost Center Group");
+			// 	bOk = false;
+			// }
+			// if (!(oFilters.costCenter || "").trim()) {
+			// 	oUi.setProperty("/costCenterState", "Error");
+			// 	aMissing.push("Cost Center");
 			// 	bOk = false;
 			// }
 
@@ -246,133 +479,198 @@ sap.ui.define([
 			return bOk;
 		},
 
-		_applyBudgetFilters: function(bMarkRun) {
-			var that = this;
-			var oFilters = this.getView().getModel("filters").getData();
-			var sBukrs = (oFilters.companyCode || "").trim();
-			var sYear = (oFilters.fiscalYear || "").trim();
-			var iPrevYear = parseInt(sYear, 10) - 1;
-			var aProfitCenters = (oFilters.profitCenters || []).map(function(oItem) {
-				return oItem.key;
-			});
-			var aGlGroups = (oFilters.glGroups || []).map(function(oItem) {
-				return oItem.key;
-			});
-			var iSelectedPeriod = parseInt(oFilters.period, 10);
-
-			this._getBusyDialog().open();
-
-			this._initOData().then(function() {
-				var aBaseFilters = [];
-				if (sBukrs) {
-					aBaseFilters.push("bukrs eq '" + that._odataLiteral(sBukrs) + "'");
-				}
-				if (aProfitCenters.length) {
-					aBaseFilters.push("(" + aProfitCenters.map(function(s) {
-						return "prctr eq '" + that._odataLiteral(s) + "'";
-					}).join(" or ") + ")");
-				}
-				if (aGlGroups.length) {
-					aBaseFilters.push("(" + aGlGroups.map(function(s) {
-						return "gl_ac_group eq '" + that._odataLiteral(s) + "'";
-					}).join(" or ") + ")");
-				}
-
-				var sCurrentFilter = aBaseFilters.concat(["ryear eq '" + that._odataLiteral(sYear) + "'"]).join(" and ");
-				var sLastYearFilter = aBaseFilters.concat(["ryear eq '" + that._odataLiteral(String(iPrevYear)) + "'"]).join(" and ");
-
-				return Promise.all([
-					that._readODataPaged("/es_detailset", sCurrentFilter ? {
-						"$filter": sCurrentFilter
-					} : {}, 50000),
-					that._readODataPaged("/es_detailset", sLastYearFilter ? {
-						"$filter": sLastYearFilter
-					} : {}, 50000)
-				]);
-			}).then(function(aResults) {
-				var aCurrentRows = (aResults[0] || []).map(that._mapDetailRowFromOData.bind(that)).filter(Boolean);
-				var aLastYearRows = (aResults[1] || []).map(that._mapDetailRowFromOData.bind(that)).filter(Boolean);
-				var aBudgetRows = that._buildBudgetRows(aCurrentRows, aLastYearRows, iSelectedPeriod);
-
-				that.getView().getModel("fcr").setProperty("/budgetRows", aBudgetRows);
-				that.getView().getModel("fcr").setProperty("/budgetChart", that._buildBudgetChartRows(aBudgetRows));
-				that._applyBudgetSearch(that.getView().getModel("ui").getProperty("/globalSearch") || "");
-				that._updateBudgetPeriodText();
-				that._updateBudgetKpis(aBudgetRows, bMarkRun);
-				that._configureBudgetChart();
-
-				if (!aBudgetRows.length) {
-					MessageToast.show("No budget wise records found for the selected filters");
-				}
-			}).catch(function(oErr) {
-				MessageBox.error("Unable to load budget wise report.", {
-					details: (oErr && oErr.message) ? oErr.message : String(oErr || "")
-				});
-			}).finally(function() {
-				that._getBusyDialog().close();
-			});
+		_clearValueStates: function() {
+			var oUi = this.getView().getModel("ui");
+			oUi.setProperty("/companyCodeState", "None");
+			oUi.setProperty("/fiscalYearState", "None");
+			oUi.setProperty("/periodState", "None");
+			oUi.setProperty("/glGroupState", "None");
+			oUi.setProperty("/glAccountState", "None");
+			oUi.setProperty("/costCenterGroupState", "None");
+			oUi.setProperty("/costCenterState", "None");
 		},
 
-		_buildBudgetRows: function(aCurrentRows, aLastYearRows, iSelectedPeriod) {
-			var mRows = {};
-			var i;
+		_updateSelectedParametersText: function() {
+			var oFilters = this.getView().getModel("filters").getData();
+			var oLookups = this.getView().getModel("lookups").getData();
+			var sMode = this.getView().getModel("ui").getProperty("/modeLabel") || this._mModeLabels.GL;
+			var bGlMode = this.getView().getModel("ui").getProperty("/isGlMode");
+			var sText = ["Mode: " + sMode, "Company Code " + this._displayValue(oFilters.companyCode),
+				"FY " + this._displayValue(oFilters.fiscalYear)];
 
-			function ensureRow(oSource) {
-				var sKey = [oSource.glAccount, oSource.glName, oSource.glGroup].join("|");
-				if (!mRows[sKey]) {
-					mRows[sKey] = {
-						glAccount: oSource.glAccount,
-						glName: oSource.glName,
-						glGroup: oSource.glGroup,
-						lastYearBudget: 0,
-						currentYearBudget: 0,
-						lastTwoMonthsBudget: 0,
-						currentMonthBudget: 0
-					};
-				}
-				return mRows[sKey];
+			if (bGlMode) {
+				sText.push("G/L Group " + this._displayValue(oFilters.glGroup));
 			}
 
-			aCurrentRows.forEach(function(oRow) {
-				var oBudgetRow = ensureRow(oRow);
-				var iLastTwoMonths = 0;
-				for (i = Math.max(1, iSelectedPeriod - 2); i < iSelectedPeriod; i++) {
-					iLastTwoMonths += oRow["p" + i] || 0;
-				}
-				oBudgetRow.currentYearBudget += oRow.total || 0;
-				oBudgetRow.currentMonthBudget += oRow["p" + iSelectedPeriod] || 0;
-				oBudgetRow.lastTwoMonthsBudget += iLastTwoMonths;
-			});
+			sText.push("G/L Account " + this._displayValue(oFilters.glAccount));
+			sText.push("Cost Center Group " + this._displayValue(oFilters.costCenterGroup));
+			sText.push("Cost Center " + this._displayValue(oFilters.costCenter));
+			sText.push("Period " + this._resolveLookupText(oLookups.periods, oFilters.period));
 
-			aLastYearRows.forEach(function(oRow) {
-				var oBudgetRow = ensureRow(oRow);
-				oBudgetRow.lastYearBudget += oRow.total || 0;
-			});
-
-			return Object.keys(mRows).map(function(sKey) {
-				var oRow = mRows[sKey];
-				oRow.lastYearBudgetText = this._formatAmount(oRow.lastYearBudget);
-				oRow.currentYearBudgetText = this._formatAmount(oRow.currentYearBudget);
-				oRow.lastTwoMonthsBudgetText = this._formatAmount(oRow.lastTwoMonthsBudget);
-				oRow.currentMonthBudgetText = this._formatAmount(oRow.currentMonthBudget);
-				return oRow;
-			}.bind(this)).sort(function(a, b) {
-				return b.currentYearBudget - a.currentYearBudget;
-			});
+			this.getView().getModel("ui").setProperty("/selectedParamsText", sText.join(" | "));
+			this.getView().getModel("ui").setProperty("/periodText", this._resolveLookupText(oLookups.periods, oFilters.period));
 		},
 
-		_buildBudgetChartRows: function(aRows) {
-			return (aRows || []).slice(0, 10).map(function(oRow) {
+		_displayValue: function(sValue) {
+			return String(sValue || "-");
+		},
+
+		_resolveLookupText: function(aItems, sKey) {
+			var sValue = String(sKey || "");
+			var oMatch;
+
+			if (!sValue) {
+				return "-";
+			}
+
+			oMatch = (aItems || []).filter(function(oItem) {
+				return String(oItem.key) === sValue;
+			})[0];
+
+			return oMatch ? oMatch.text : sValue;
+		},
+
+		_updateKpisFromActiveMode: function() {
+			var oUi = this.getView().getModel("ui");
+			var oBudget = this.getView().getModel("budget");
+			var bGlMode = oUi.getProperty("/isGlMode");
+			var aRows = bGlMode ? (oBudget.getProperty("/glRows") || []) : (oBudget.getProperty("/nonGlRows") || []);
+			var iKpi1 = 0;
+			var iKpi2 = 0;
+			var iKpi3 = 0;
+			var iKpi4 = 0;
+
+			// aRows.forEach(function(oRow) {
+			// 	iKpi1 += Number(oRow.budgetCurrentYear || 0);
+			// 	iKpi2 += Number(oRow.lastYearActual || 0);
+			// 	iKpi3 += Number(oRow.actualLastTwoMonths || 0);
+			// 	iKpi4 += Number(oRow.upToCurrentMonth || 0);
+			// });
+
+			oUi.setProperty("/kpi1Value", this._formatAmount(iKpi1));
+			oUi.setProperty("/kpi2Value", this._formatAmount(iKpi2));
+			oUi.setProperty("/kpi3Value", this._formatAmount(iKpi3));
+			oUi.setProperty("/kpi4Value", this._formatAmount(iKpi4));
+			oUi.setProperty("/recordCount", this._oIntegerFormat.format(aRows.length));
+		},
+
+		_seedDemoData: function() {
+			var oBudget = this.getView().getModel("budget");
+			var aGlRows = [{
+				costCenter: "CC1001",
+				costCenterDesc: "Head Office",
+				costCenterGroup: "CCG-02",
+				gl: "400100",
+				glDesc: "Salaries",
+				glGroup: "GLG-1000",
+				lastYearActual: 180.25,
+				budgetCurrentYear: 220.75,
+				actualLastTwoMonths: 34.5,
+				upToCurrentMonth: 95.1
+			}, {
+				costCenter: "CC2001",
+				costCenterDesc: "Plant A",
+				costCenterGroup: "CCG-01",
+				gl: "400200",
+				glDesc: "Repairs",
+				glGroup: "GLG-2000",
+				lastYearActual: 98.15,
+				budgetCurrentYear: 120.4,
+				actualLastTwoMonths: 18.9,
+				upToCurrentMonth: 43.25
+			}, {
+				costCenter: "CC3001",
+				costCenterDesc: "Sales North",
+				costCenterGroup: "CCG-03",
+				gl: "400300",
+				glDesc: "Travel",
+				glGroup: "GLG-3000",
+				lastYearActual: 64.8,
+				budgetCurrentYear: 82.2,
+				actualLastTwoMonths: 12.6,
+				upToCurrentMonth: 29.75
+			}];
+			var aNonGlRows = [{
+				costCenterGroup: "CCG-01",
+				costCenter: "CC2001",
+				costCenterDesc: "Plant A",
+				lastYearActual: 198.3,
+				budgetCurrentYear: 240.5,
+				actualLastTwoMonths: 27.25,
+				upToCurrentMonth: 110.4
+			}, {
+				costCenterGroup: "CCG-02",
+				costCenter: "CC1001",
+				costCenterDesc: "Head Office",
+				lastYearActual: 152.9,
+				budgetCurrentYear: 180.15,
+				actualLastTwoMonths: 24.6,
+				upToCurrentMonth: 88.9
+			}, {
+				costCenterGroup: "CCG-03",
+				costCenter: "CC3001",
+				costCenterDesc: "Sales North",
+				lastYearActual: 76.45,
+				budgetCurrentYear: 94.8,
+				actualLastTwoMonths: 11.4,
+				upToCurrentMonth: 37.2
+			}];
+
+			oBudget.setProperty("/glRows", aGlRows);
+			oBudget.setProperty("/nonGlRows", aNonGlRows);
+			oBudget.setProperty("/glChartRows", aGlRows.map(function(oRow) {
 				return {
-					name: oRow.glAccount + " - " + oRow.glName,
-					value: oRow.currentYearBudget
+					name: oRow.costCenter + " - " + oRow.gl,
+					value: oRow.budgetCurrentYear
 				};
+			}));
+			oBudget.setProperty("/nonGlChartRows", aNonGlRows.map(function(oRow) {
+				return {
+					name: oRow.costCenterGroup + " - " + oRow.costCenter,
+					value: oRow.budgetCurrentYear
+				};
+			}));
+		},
+
+		_formatAmount: function(vValue) {
+			return this._oAmountFormat.format(Number(vValue || 0));
+		},
+
+		_getActiveTableConfig: function() {
+			return this.getView().getModel("ui").getProperty("/isGlMode") ? {
+				tableId: "budgetGlTable",
+				modelPath: "/glRows",
+				fileSuffix: "GL_Group_Wise",
+				columns: this._getGlColumns()
+			} : {
+				tableId: "budgetNonGlTable",
+				modelPath: "/nonGlRows",
+				fileSuffix: "Non_GL_Wise",
+				columns: this._getNonGlColumns()
+			};
+		},
+
+		_getVisibleRows: function(sTableId, sModelPath) {
+			var oTable = this.byId(sTableId);
+			var oBudget = this.getView().getModel("budget");
+			var aRows = oBudget.getProperty(sModelPath) || [];
+			var oBinding = oTable && oTable.getBinding("rows");
+
+			if (!oBinding) {
+				return aRows.slice();
+			}
+
+			var aContexts = oBinding.getContexts(0, oBinding.getLength());
+			return aContexts.map(function(oContext) {
+				return oContext.getObject();
 			});
 		},
 
-		_applyBudgetSearch: function(sQuery) {
-			var oTable = this.byId("budgetTable");
-			var s = (sQuery || "").trim();
+		_applySearch: function(sQuery) {
+			var oTarget = this._getActiveTableConfig();
+			var oTable = oTarget && this.byId(oTarget.tableId);
+			var s = String(sQuery || "").trim();
+
 			if (!oTable || !oTable.getBinding("rows")) {
 				return;
 			}
@@ -382,125 +680,158 @@ sap.ui.define([
 				return;
 			}
 
-			oTable.getBinding("rows").filter(new sap.ui.model.Filter({
-				filters: [
-					new sap.ui.model.Filter("glAccount", sap.ui.model.FilterOperator.Contains, s),
-					new sap.ui.model.Filter("glName", sap.ui.model.FilterOperator.Contains, s),
-					new sap.ui.model.Filter("glGroup", sap.ui.model.FilterOperator.Contains, s)
-				],
+			var aProps = this.getView().getModel("ui").getProperty("/isGlMode") ? [
+				"costCenter",
+				"costCenterDesc",
+				"costCenterGroup",
+				"gl",
+				"glDesc",
+				"glGroup"
+			] : [
+				"costCenterGroup",
+				"costCenter",
+				"costCenterDesc"
+			];
+
+			oTable.getBinding("rows").filter(new Filter({
+				filters: aProps.map(function(sProp) {
+					return new Filter(sProp, FilterOperator.Contains, s);
+				}),
 				and: false
 			}));
 		},
 
-		_updateBudgetKpis: function(aRows, bMarkRun) {
-			var iCurrentYear = 0;
-			var iLastYear = 0;
-			var iCurrentMonth = 0;
-			var iLastTwoMonths = 0;
-			var sTopName = "None";
-			var iTopValue = 0;
-
-			(aRows || []).forEach(function(oRow) {
-				iCurrentYear += oRow.currentYearBudget || 0;
-				iLastYear += oRow.lastYearBudget || 0;
-				iCurrentMonth += oRow.currentMonthBudget || 0;
-				iLastTwoMonths += oRow.lastTwoMonthsBudget || 0;
-				if (Math.abs(oRow.currentYearBudget || 0) > iTopValue) {
-					iTopValue = Math.abs(oRow.currentYearBudget || 0);
-					sTopName = oRow.glAccount + " - " + oRow.glName;
-				}
-			});
-
-			var oUi = this.getView().getModel("ui");
-			oUi.setProperty("/totalActual", this._formatAmount(iCurrentYear));
-			oUi.setProperty("/totalBudget", this._formatAmount(iLastYear));
-			oUi.setProperty("/totalVariance", this._formatAmount(iCurrentMonth));
-			oUi.setProperty("/lastTwoMonthsTotal", this._formatAmount(iLastTwoMonths));
-			oUi.setProperty("/maxGlGroupName", sTopName);
-			oUi.setProperty("/maxGlGroupValue", this._formatAmount(iTopValue));
-			oUi.setProperty("/recordCount", this._oIntegerFormat.format((aRows || []).length));
-			if (bMarkRun) {
-				oUi.setProperty("/lastRunText", "Last run just now");
-			}
-		},
-
-		_resetBudgetKpis: function() {
-			var oUi = this.getView().getModel("ui");
-			oUi.setProperty("/totalActual", "0");
-			oUi.setProperty("/totalBudget", "0");
-			oUi.setProperty("/totalVariance", "0");
-			oUi.setProperty("/lastTwoMonthsTotal", "0");
-			oUi.setProperty("/maxGlGroupName", "None");
-			oUi.setProperty("/maxGlGroupValue", "0");
-			oUi.setProperty("/recordCount", "0");
-			oUi.setProperty("/lastRunText", "Ready to run");
-		},
-
-		_updateBudgetPeriodText: function() {
-			var oFilters = this.getView().getModel("filters").getData();
-			var aPeriods = this.getView().getModel("lookups").getProperty("/periods");
-			var sPeriodText = this.formatLookupText(oFilters.period, aPeriods) || "All periods";
-			var sProfitText = oFilters.profitCenters.length ? oFilters.profitCenters.length + " profit centres" : "All profit centres";
-			var sGlText = oFilters.glGroups.length ? oFilters.glGroups.length + " GL groups" : "All GL groups";
-
-			this.getView().getModel("ui").setProperty("/periodText",
-				"Company " + (oFilters.companyCode || "-") + " | FY " + (oFilters.fiscalYear || "-") + " | " +
-				sPeriodText + " | " + sProfitText + " | " + sGlText);
-		},
-
-		_configureBudgetChart: function() {
-			var oVizFrame = this.byId("budgetChart");
-			if (!oVizFrame) {
+		_configureChart: function(sChartId, sTitle) {
+			var oVizFrame = this.byId(sChartId);
+			if (!oVizFrame || oVizFrame.data("configured")) {
 				return;
 			}
 
 			oVizFrame.setVizProperties({
+				title: {
+					visible: true,
+					text: sTitle
+				},
+				legend: {
+					visible: false
+				},
 				plotArea: {
 					dataLabel: {
 						visible: true
 					},
-					colorPalette: this._paletteForChart("allSummaryChart")
-				},
-				valueAxis: {
-					title: {
-						visible: true,
-						text: "Current Year Budget (Lakhs)"
+					drawingEffect: "glossy",
+					gap: {
+						barSpacing: 1.8
 					}
 				},
 				categoryAxis: {
 					title: {
 						visible: false
+					},
+					label: {
+						visible: true,
+						allowMultiline: true,
+						linesOfWrap: 3,
+						rotation: 0,
+						angle: 0,
+						maxWidth: 220
 					}
 				},
-				legend: {
-					visible: false
-				},
-				title: {
-					visible: false
+				valueAxis: {
+					title: {
+						visible: true,
+						text: "Amount (Lakhs)"
+					}
 				}
 			});
+			oVizFrame.data("configured", true);
 		},
 
-		_getBudgetColumns: function() {
+		_getGlColumns: function() {
 			return [{
-				key: "glAccount",
-				label: "G/L Account"
+				key: "costCenter",
+				label: "Cost Center"
 			}, {
-				key: "glName",
-				label: "G/L Name"
+				key: "costCenterDesc",
+				label: "Cost Center Desc"
 			}, {
-				key: "lastYearBudget",
-				label: "Last Year Budget"
+				key: "costCenterGroup",
+				label: "Cost Center Group"
 			}, {
-				key: "currentYearBudget",
-				label: "Current Year Budget"
+				key: "gl",
+				label: "G/L"
 			}, {
-				key: "lastTwoMonthsBudget",
-				label: "Last Two Months Budget"
+				key: "glDesc",
+				label: "G/L Desc"
 			}, {
-				key: "currentMonthBudget",
-				label: "Current Month Budget"
+				key: "glGroup",
+				label: "G/L Group"
+			}, {
+				key: "lastYearActual",
+				label: "Last Year Actual"
+			}, {
+				key: "budgetCurrentYear",
+				label: "Budget of the Current Year"
+			}, {
+				key: "actualLastTwoMonths",
+				label: "Actual for the Last two months"
+			}, {
+				key: "upToCurrentMonth",
+				label: "up to Current Month"
 			}];
+		},
+
+		_getNonGlColumns: function() {
+			return [{
+				key: "costCenterGroup",
+				label: "Cost Center Group"
+			}, {
+				key: "costCenter",
+				label: "Cost Center"
+			}, {
+				key: "costCenterDesc",
+				label: "Cost Center desc"
+			}, {
+				key: "lastYearActual",
+				label: "Last Year Actual"
+			}, {
+				key: "budgetCurrentYear",
+				label: "Budget of the Current Year"
+			}, {
+				key: "actualLastTwoMonths",
+				label: "Actual for the Last two months"
+			}, {
+				key: "upToCurrentMonth",
+				label: "up to Current Month"
+			}];
+		},
+
+		_toCsv: function(aRows, aColumns) {
+			var aHeaders = aColumns.map(function(oCol) {
+				return this._csvEscape(oCol.label);
+			}.bind(this));
+			var aLines = [aHeaders.join(",")];
+
+			(aRows || []).forEach(function(oRow) {
+				var aValues = aColumns.map(function(oCol) {
+					var v = oRow[oCol.key];
+					if (typeof v === "number") {
+						v = this._formatAmount(v);
+					}
+					return this._csvEscape(v);
+				}.bind(this));
+				aLines.push(aValues.join(","));
+			}.bind(this));
+
+			return aLines.join("\n");
+		},
+
+		_csvEscape: function(vValue) {
+			var s = String(vValue == null ? "" : vValue);
+			if (/[",\n]/.test(s)) {
+				return '"' + s.replace(/"/g, '""') + '"';
+			}
+			return s;
 		}
 	});
 });
