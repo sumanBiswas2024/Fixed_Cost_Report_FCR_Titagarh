@@ -1447,6 +1447,11 @@
     border-color: #f9e389 !important;
 }
 
+.fcrCardBgGreen {
+    background: linear-gradient(135deg, #a8dd7f 0%, #e5fed1 100%) !important;
+    border-color: #aae084 !important;
+}
+
 /* ========================================================= */
 /* KPI HOVER EFFECTS                                         */
 /* ========================================================= */
@@ -1470,6 +1475,11 @@
     border-color: #f1d368 !important;
 }
 
+.fcrCardBgGreen:hover {
+    /* Darkens the gradient stops slightly */
+    background: linear-gradient(135deg, #98df61 0%, #cdf7ad 100%) !important;
+    border-color: #92cc6a !important;
+}
 
 /* Make the icon box white so it pops */
 
@@ -1643,5 +1653,3 @@
     transform: translateY(0);
     box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
 }
-
-

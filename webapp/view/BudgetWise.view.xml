@@ -43,24 +43,24 @@
 									valueHelpOnly="true" valueHelpRequest=".onPeriodValueHelp" placeholder="Select Period" valueState="{ui>/periodState}"/>
 							</VBox>
 							<VBox class="fcrField fcrFieldPc">
-								<Label text="Cost Center Group" required="false"/>
-								<Input value="{filters>/costCenterGroup}" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onCostCenterGroupValueHelp"
-									placeholder="Select Cost Center Group" valueState="{ui>/costCenterGroupState}"/>
-							</VBox>
-							<VBox class="fcrField fcrFieldPc">
 								<Label text="Cost Center" required="false"/>
 								<Input value="{filters>/costCenter}" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onCostCenterValueHelp"
 									placeholder="Select Cost Center" valueState="{ui>/costCenterState}"/>
 							</VBox>
-							<VBox class="fcrField fcrFieldGlg" visible="{ui>/isGlMode}">
-								<Label text="G/L Group" required="false"/>
-								<Input value="{filters>/glGroup}" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onGlGroupValueHelp"
-									placeholder="Select G/L Group" valueState="{ui>/glGroupState}"/>
+							<VBox class="fcrField fcrFieldPc">
+								<Label text="Cost Center Group" required="false"/>
+								<Input value="{filters>/costCenterGroup}" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onCostCenterGroupValueHelp"
+									placeholder="Select Cost Center Group" valueState="{ui>/costCenterGroupState}"/>
 							</VBox>
 							<VBox class="fcrField fcrFieldGlg">
 								<Label text="G/L Account" required="false"/>
 								<Input value="{filters>/glAccount}" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onGlAccountValueHelp"
 									placeholder="Select G/L Account" valueState="{ui>/glAccountState}"/>
+							</VBox>
+							<VBox class="fcrField fcrFieldGlg" visible="{ui>/isGlMode}">
+								<Label text="G/L Group" required="false"/>
+								<Input value="{filters>/glGroup}" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onGlGroupValueHelp"
+									placeholder="Select G/L Group" valueState="{ui>/glGroupState}"/>
 							</VBox>
 							<HBox class="fcrActionsContainer" alignItems="Center">
 								<Button icon="sap-icon://reset" tooltip="Reset" press=".onReset" class="fcrBtnReset"/>
@@ -104,19 +104,19 @@
 						<VBox class="fcrModernDataWrap">
 							<Text text="{ui>/kpi3Label}" class="fcrModernTitle"/>
 							<HBox alignItems="Baseline" class="fcrModernValueLine">
-								<Text text="{ui>/kpi3Value}" class="fcrModernValue fcrTextDark"/>
+								<Text text="{ui>/kpi3Value}" class="fcrModernValue fcrTextGreen"/>
 								<Text text="Lakhs INR" class="fcrModernUnit"/>
 							</HBox>
 						</VBox>
 					</HBox>
-					<HBox class="fcrModernCard fcrCardBgBlue" alignItems="Center">
+					<HBox class="fcrModernCard fcrCardBgGreen" alignItems="Center">
 						<VBox class="fcrModernIconWrap fcrIconBgBlue">
 							<core:Icon src="sap-icon://bullet-text" class="fcrModernIcon fcrIconBlue"/>
 						</VBox>
 						<VBox class="fcrModernDataWrap">
 							<Text text="{ui>/kpi4Label}" class="fcrModernTitle"/>
 							<HBox alignItems="Baseline" class="fcrModernValueLine">
-								<Text text="{ui>/kpi4Value}" class="fcrModernValue fcrTextGreen"/>
+								<Text text="{ui>/kpi4Value}" class="fcrModernValue fcrTextBlue"/>
 								<Text text="Lakhs INR" class="fcrModernUnit"/>
 							</HBox>
 						</VBox>
