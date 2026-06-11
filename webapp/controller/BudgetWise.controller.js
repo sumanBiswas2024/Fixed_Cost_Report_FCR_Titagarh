@@ -113,7 +113,7 @@ sap.ui.define([
 				if (sCompanyCode) {
 					var that = this;
 					setTimeout(function() {
-						that._fetchBudgetData(false);
+						// that._fetchBudgetData(false);
 						that._bIsInitiallyLoaded = true;
 					}, 50);
 				}
@@ -123,8 +123,8 @@ sap.ui.define([
 		},
 
 		onAfterRendering: function() {
-			this._configureChart("budgetGlChart", "Budget by Cost Center and G/L Group");
-			this._configureChart("budgetNonGlChart", "Budget by Cost Center Group");
+			this._configureBudgetChart("budgetGlChart", "Budget by Cost Center and G/L Group");
+			this._configureBudgetChart("budgetNonGlChart", "Budget by Cost Center Group");
 		},
 
 		// =========================================================
@@ -329,6 +329,8 @@ sap.ui.define([
 
 					that._applySearch(oUi.getProperty("/globalSearch") || "");
 					that._updateKpisFromActiveMode();
+					
+					that._refreshBudgetChartStyling();
 
 				}).catch(function(oErr) {
 					MessageBox.error("Failed to load budget data from backend.", {
@@ -416,7 +418,7 @@ sap.ui.define([
 				return;
 			}
 			this._updateSelectedParametersText();
-			this._fetchBudgetData(true);
+			// this._fetchBudgetData(true);
 		},
 
 		onReportTypeChange: function(oEvent) {
@@ -918,9 +920,12 @@ sap.ui.define([
 			}));
 		},
 
-		_configureChart: function(sChartId, sTitle) {
+		_configureBudgetChart: function(sChartId, sTitle) {
 			var oVizFrame = this.byId(sChartId);
-			if (!oVizFrame || oVizFrame.data("configured")) return;
+			if (!oVizFrame || oVizFrame.data("configured")) {
+				return;
+			}
+			
 			oVizFrame.setVizProperties({
 				title: {
 					visible: true,
@@ -929,14 +934,25 @@ sap.ui.define([
 				legend: {
 					visible: false
 				},
+				layout: {
+					padding: { bottom: 140, left: 20, right: 20, top: 20 }
+				},
 				plotArea: {
 					dataLabel: {
 						visible: true
 					},
 					drawingEffect: "glossy",
+					animation: {
+						dataLoading: true
+					},
 					gap: {
-						barSpacing: 1.8
+						barSpacing: 1.8 // Match View 1 thickness
 					}
+				},
+				interaction: {
+						selectability: {
+							mode: "multiple"
+						}
 				},
 				categoryAxis: {
 					title: {
@@ -946,19 +962,89 @@ sap.ui.define([
 						visible: true,
 						allowMultiline: true,
 						linesOfWrap: 3,
-						rotation: 0,
-						angle: 0,
-						maxWidth: 220
+						overlapBehavior: "wrap",
+						rotation: true,   // Angle labels like View 1
+						angle: 30,        // Angle labels like View 1
+						maxWidth: 220,
+						truncatedLabelRatio: 1,
+						style: {
+							fontSize: "11px",
+							fontWeight: "bold"
+						}
 					}
 				},
 				valueAxis: {
 					title: {
 						visible: true,
 						text: "Amount (Lakhs)"
+					},
+					label: {
+						style: {
+							fontSize: "11px"
+						}
 					}
 				}
 			});
 			oVizFrame.data("configured", true);
+		},
+		
+		
+		// =========================================================
+		// DYNAMIC CHART STYLING (Like View 1)
+		// =========================================================
+
+		_refreshBudgetChartStyling: function() {
+			["budgetGlChart", "budgetNonGlChart"].forEach(function(sChartId) {
+				var oVizFrame = this.byId(sChartId);
+				if (!oVizFrame) {
+					return;
+				}
+
+				var aRules = this._dataPointRulesForBudgetChart(sChartId);
+
+				oVizFrame.setVizProperties({
+					plotArea: {
+						drawingEffect: "glossy",
+						colorPalette: this._paletteForBudgetChart(sChartId),
+						dataPointStyle: {
+							rules: aRules
+						}
+					}
+				});
+			}.bind(this));
+		},
+
+		_dataPointRulesForBudgetChart: function(sChartId) {
+			var oBudget = this.getView().getModel("budget");
+			var aRules = [];
+			var sPath = sChartId === "budgetGlChart" ? "/glChartRows" : "/nonGlChartRows";
+			var aData = oBudget.getProperty(sPath) || [];
+
+			for (var i = 0; i < aData.length; i++) {
+				var sName = aData[i].name;
+				aRules.push({
+					// This MUST match the DimensionDefinition name="Category" in your Budget XML
+					dataContext: {
+						"Category": sName 
+					},
+					properties: {
+						color: this._colorForKey(sName) // Inherited instantly from View1!
+					}
+				});
+			}
+			return aRules;
+		},
+
+		_paletteForBudgetChart: function(sChartId) {
+			var oBudget = this.getView().getModel("budget");
+			var aColors = [];
+			var sPath = sChartId === "budgetGlChart" ? "/glChartRows" : "/nonGlChartRows";
+			var aData = oBudget.getProperty(sPath) || [];
+			
+			for (var i = 0; i < aData.length; i++) {
+				aColors.push(this._colorForKey(aData[i].name));
+			}
+			return aColors;
 		},
 
 		_getGlColumns: function() {
