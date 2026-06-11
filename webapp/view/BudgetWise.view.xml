@@ -42,25 +42,41 @@
 								<Input value="{parts:[{path:'filters>/period'},{path:'lookups>/periods'}], formatter: '.formatLookupText'}" showValueHelp="true"
 									valueHelpOnly="true" valueHelpRequest=".onPeriodValueHelp" placeholder="Select Period" valueState="{ui>/periodState}"/>
 							</VBox>
+							<!--<VBox class="fcrField fcrFieldPc">-->
+							<!--	<Label text="Cost Center" required="false"/>-->
+							<!--	<Input value="{filters>/costCenter}" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onCostCenterValueHelp"-->
+							<!--		placeholder="Select Cost Center" valueState="{ui>/costCenterState}"/>-->
+							<!--</VBox>-->
+							<!--<VBox class="fcrField fcrFieldPc">-->
+							<!--	<Label text="Cost Center Group" required="false"/>-->
+							<!--	<Input value="{filters>/costCenterGroup}" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onCostCenterGroupValueHelp"-->
+							<!--		placeholder="Select Cost Center Group" valueState="{ui>/costCenterGroupState}"/>-->
+							<!--</VBox>-->
+							<!--<VBox class="fcrField fcrFieldGlg">-->
+							<!--	<Label text="G/L Account" required="false"/>-->
+							<!--	<Input value="{filters>/glAccount}" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onGlAccountValueHelp"-->
+							<!--		placeholder="Select G/L Account" valueState="{ui>/glAccountState}"/>-->
+							<!--</VBox>-->
+							<!--<VBox class="fcrField fcrFieldGlg" visible="{ui>/isGlMode}">-->
+							<!--	<Label text="G/L Group" required="false"/>-->
+							<!--	<Input value="{filters>/glGroup}" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onGlGroupValueHelp"-->
+							<!--		placeholder="Select G/L Group" valueState="{ui>/glGroupState}"/>-->
+							<!--</VBox>-->
 							<VBox class="fcrField fcrFieldPc">
 								<Label text="Cost Center" required="false"/>
-								<Input value="{filters>/costCenter}" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onCostCenterValueHelp"
-									placeholder="Select Cost Center" valueState="{ui>/costCenterState}"/>
+								<MultiInput id="costCenterInputBudget" value="{path: 'filters>/costCenter', formatter: '.formatTokenKeys'}" showValueHelp="true" valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onCostCenterValueHelp" placeholder="Select Cost Center" valueState="{ui>/costCenterState}"/>
 							</VBox>
 							<VBox class="fcrField fcrFieldPc">
 								<Label text="Cost Center Group" required="false"/>
-								<Input value="{filters>/costCenterGroup}" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onCostCenterGroupValueHelp"
-									placeholder="Select Cost Center Group" valueState="{ui>/costCenterGroupState}"/>
+								<MultiInput id="costCenterGrpInputBudget" value="{path: 'filters>/costCenterGroup', formatter: '.formatTokenKeys'}" showValueHelp="true" valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onCostCenterGroupValueHelp" placeholder="Select Cost Center Group" valueState="{ui>/costCenterGroupState}"/>
 							</VBox>
 							<VBox class="fcrField fcrFieldGlg">
 								<Label text="G/L Account" required="false"/>
-								<Input value="{filters>/glAccount}" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onGlAccountValueHelp"
-									placeholder="Select G/L Account" valueState="{ui>/glAccountState}"/>
+								<MultiInput id="glAccountInputBudget" value="{path: 'filters>/glAccount', formatter: '.formatTokenKeys'}" showValueHelp="true" valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onGlAccountValueHelp" placeholder="Select G/L Account" valueState="{ui>/glAccountState}"/>
 							</VBox>
 							<VBox class="fcrField fcrFieldGlg" visible="{ui>/isGlMode}">
 								<Label text="G/L Group" required="false"/>
-								<Input value="{filters>/glGroup}" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onGlGroupValueHelp"
-									placeholder="Select G/L Group" valueState="{ui>/glGroupState}"/>
+								<MultiInput id="glGroupInputBudget" value="{path: 'filters>/glGroup', formatter: '.formatTokenKeys'}" showValueHelp="true" valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onGlGroupValueHelp" placeholder="Select G/L Group" valueState="{ui>/glGroupState}"/>
 							</VBox>
 							<HBox class="fcrActionsContainer" alignItems="Center">
 								<Button icon="sap-icon://reset" tooltip="Reset" press=".onReset" class="fcrBtnReset"/>

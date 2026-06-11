@@ -1535,8 +1535,8 @@ sap.ui.define([
 			var aQs = (oFilters.quarters || []).map(function(o) {
 				return o.key;
 			});
-			var sProfitText = oFilters.profitCenters.length ? oFilters.profitCenters.length + " profit centres" : "All profit centres";
-			var sGlText = oFilters.glGroups.length ? oFilters.glGroups.length + " GL groups" : "All GL groups";
+			var sProfitText = oFilters.profitCenters.length ? oFilters.profitCenters.length + " Profit Centres" : "All Profit Centres";
+			var sGlText = oFilters.glGroups.length ? oFilters.glGroups.length + " GL Groups" : "All GL Groups";
 			var sFromText = this.formatLookupText(oFilters.fromPeriod, this.getView().getModel("lookups").getProperty("/periods"));
 			var sToText = this.formatLookupText(oFilters.toPeriod, this.getView().getModel("lookups").getProperty("/periods"));
 
@@ -1554,7 +1554,7 @@ sap.ui.define([
 			} else if (aPeriods.length) {
 				sPeriodText = "Periods " + Math.min.apply(null, aPeriods) + " to " + Math.max.apply(null, aPeriods);
 			} else {
-				sPeriodText = "All periods";
+				sPeriodText = "All Periods";
 			}
 
 			this.getView().getModel("ui").setProperty("/periodText",

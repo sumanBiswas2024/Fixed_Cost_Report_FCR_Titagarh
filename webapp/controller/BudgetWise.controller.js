@@ -43,10 +43,14 @@ sap.ui.define([
 				companyCode: "1100",
 				fiscalYear: String(new Date().getFullYear()),
 				period: "",
-				glGroup: "",
-				glAccount: "",
-				costCenterGroup: "",
-				costCenter: ""
+				// glGroup: "",
+				// glAccount: "",
+				// costCenterGroup: "",
+				// costCenter: ""
+				glGroup: [], // Changed to Array
+				glAccount: [], // Changed to Array
+				costCenterGroup: [], // Changed to Array
+				costCenter: [] // Changed to Array
 			}), "filters");
 
 			this.getView().setModel(new JSONModel({
@@ -127,12 +131,78 @@ sap.ui.define([
 		// BACKEND DATA FETCHING LOGIC
 		// =========================================================
 
+		// _fetchBudgetData: function(bMarkRun) {
+		// 	var that = this;
+		// 	var oFilters = this.getView().getModel("filters").getData();
+		// 	var oUi = this.getView().getModel("ui");
+		// 	var oBudget = this.getView().getModel("budget");
+		// 	var bGlMode = oUi.getProperty("/isGlMode");
+
+		// 	this._getBusyDialog().open();
+
+		// 	setTimeout(function() {
+		// 		var pReady = that._initOData(); // Inherited safely from View1
+
+		// 		pReady.then(function() {
+		// 			var aFilters = [];
+
+		// 			// Standard Filters
+		// 			if (oFilters.companyCode) aFilters.push("bukrs eq '" + that._odataLiteral(oFilters.companyCode) + "'");
+		// 			if (oFilters.fiscalYear) aFilters.push("ryear eq '" + that._odataLiteral(oFilters.fiscalYear) + "'");
+		// 			if (oFilters.period) aFilters.push("period eq '" + that._odataLiteral(oFilters.period) + "'");
+		// 			if (oFilters.costCenter) aFilters.push("kostl eq '" + that._odataLiteral(oFilters.costCenter) + "'");
+		// 			if (oFilters.costCenterGroup) aFilters.push("kostl_grp eq '" + that._odataLiteral(oFilters.costCenterGroup) + "'");
+
+		// 			// GL Specific Filters
+		// 			if (bGlMode) {
+		// 				if (oFilters.glAccount) aFilters.push("hkont eq '" + that._odataLiteral(oFilters.glAccount) + "'");
+		// 				if (oFilters.glGroup) aFilters.push("gl_ac_group eq '" + that._odataLiteral(oFilters.glGroup) + "'");
+		// 			}
+
+		// 			var sFilterString = aFilters.join(" and ");
+
+		// 			// IMPORTANT: Update these string names to exactly match your Backend OData EntitySets
+		// 			var sEntitySet = bGlMode ? "/es_budget_glset" : "/es_budget_nonglset";
+
+		// 			return that._readODataPaged(sEntitySet, sFilterString ? {
+		// 				"$filter": sFilterString
+		// 			} : {}, 50000);
+		// 		}).then(function(aResults) {
+		// 			var aRawData = aResults || [];
+		// 			var aMappedRows = [];
+
+		// 			if (bGlMode) {
+		// 				aMappedRows = aRawData.map(that._mapGlRow.bind(that)).filter(Boolean);
+		// 				oBudget.setProperty("/glRows", aMappedRows);
+		// 				oBudget.setProperty("/glChartRows", that._createBudgetChartRows(aMappedRows, "GL"));
+		// 			} else {
+		// 				aMappedRows = aRawData.map(that._mapNonGlRow.bind(that)).filter(Boolean);
+		// 				oBudget.setProperty("/nonGlRows", aMappedRows);
+		// 				oBudget.setProperty("/nonGlChartRows", that._createBudgetChartRows(aMappedRows, "NONGL"));
+		// 			}
+
+		// 			if (aMappedRows.length === 0) {
+		// 				MessageToast.show("No budget records found for the selected parameters.");
+		// 			}
+
+		// 			that._applySearch(oUi.getProperty("/globalSearch") || "");
+		// 			that._updateKpisFromActiveMode();
+
+		// 		}).catch(function(oErr) {
+		// 			MessageBox.error("Failed to load budget data from backend.", {
+		// 				details: (oErr && oErr.message) ? oErr.message : String(oErr || "")
+		// 			});
+		// 		}).finally(function() {
+		// 			that._getBusyDialog().close();
+		// 		});
+		// 	}, 50);
+		// },
+
 		_fetchBudgetData: function(bMarkRun) {
 			var that = this;
 			var oFilters = this.getView().getModel("filters").getData();
 			var oUi = this.getView().getModel("ui");
 			var oBudget = this.getView().getModel("budget");
-			var bGlMode = oUi.getProperty("/isGlMode");
 
 			this._getBusyDialog().open();
 
@@ -140,46 +210,122 @@ sap.ui.define([
 				var pReady = that._initOData(); // Inherited safely from View1
 
 				pReady.then(function() {
-					var aFilters = [];
+					var aCommonFilters = [];
 
-					// Standard Filters
-					if (oFilters.companyCode) aFilters.push("bukrs eq '" + that._odataLiteral(oFilters.companyCode) + "'");
-					if (oFilters.fiscalYear) aFilters.push("ryear eq '" + that._odataLiteral(oFilters.fiscalYear) + "'");
-					if (oFilters.period) aFilters.push("period eq '" + that._odataLiteral(oFilters.period) + "'");
-					if (oFilters.costCenter) aFilters.push("kostl eq '" + that._odataLiteral(oFilters.costCenter) + "'");
-					if (oFilters.costCenterGroup) aFilters.push("kostl_grp eq '" + that._odataLiteral(oFilters.costCenterGroup) + "'");
+					// Standard Strings
+					if (oFilters.companyCode) aCommonFilters.push("bukrs eq '" + that._odataLiteral(oFilters.companyCode) + "'");
+					if (oFilters.fiscalYear) aCommonFilters.push("ryear eq '" + that._odataLiteral(oFilters.fiscalYear) + "'");
+					if (oFilters.period) aCommonFilters.push("period eq '" + that._odataLiteral(oFilters.period) + "'");
 
-					// GL Specific Filters
-					if (bGlMode) {
-						if (oFilters.glAccount) aFilters.push("hkont eq '" + that._odataLiteral(oFilters.glAccount) + "'");
-						if (oFilters.glGroup) aFilters.push("gl_ac_group eq '" + that._odataLiteral(oFilters.glGroup) + "'");
+					// Multi-Select Array Checks (Common)
+					if (oFilters.costCenter && oFilters.costCenter.length) {
+						aCommonFilters.push("(" + oFilters.costCenter.map(function(oItem) {
+							return "kostl eq '" + that._odataLiteral(oItem.key) + "'";
+						}).join(" or ") + ")");
+					}
+					if (oFilters.costCenterGroup && oFilters.costCenterGroup.length) {
+						aCommonFilters.push("(" + oFilters.costCenterGroup.map(function(oItem) {
+							return "kostl_grp eq '" + that._odataLiteral(oItem.key) + "'";
+						}).join(" or ") + ")");
 					}
 
-					var sFilterString = aFilters.join(" and ");
+					var sCommonFilter = aCommonFilters.join(" and ");
 
-					// IMPORTANT: Update these string names to exactly match your Backend OData EntitySets
-					var sEntitySet = bGlMode ? "/es_budget_glset" : "/es_budget_nonglset";
+					// GL Specific Array Checks
+					var aGlFilters = aCommonFilters.slice();
+					if (oFilters.glAccount && oFilters.glAccount.length) {
+						aGlFilters.push("(" + oFilters.glAccount.map(function(oItem) {
+							return "hkont eq '" + that._odataLiteral(oItem.key) + "'";
+						}).join(" or ") + ")");
+					}
+					if (oFilters.glGroup && oFilters.glGroup.length) {
+						aGlFilters.push("(" + oFilters.glGroup.map(function(oItem) {
+							return "gl_ac_group eq '" + that._odataLiteral(oItem.key) + "'";
+						}).join(" or ") + ")");
+					}
 
-					return that._readODataPaged(sEntitySet, sFilterString ? {
-						"$filter": sFilterString
-					} : {}, 50000);
+					var sGlFilter = aGlFilters.join(" and ");
+
+					// Call BOTH endpoints simultaneously
+					return Promise.all([
+						that._readODataPaged("/es_budget_glset", sGlFilter ? {
+							"$filter": sGlFilter
+						} : {}, 50000),
+						that._readODataPaged("/es_budget_nonglset", sCommonFilter ? {
+							"$filter": sCommonFilter
+						} : {}, 50000)
+					]);
 				}).then(function(aResults) {
-					var aRawData = aResults || [];
-					var aMappedRows = [];
+					var aRawGlData = aResults[0] || [];
+					var aRawNonGlData = aResults[1] || [];
 
-					if (bGlMode) {
-						aMappedRows = aRawData.map(that._mapGlRow.bind(that)).filter(Boolean);
-						oBudget.setProperty("/glRows", aMappedRows);
-						oBudget.setProperty("/glChartRows", that._createBudgetChartRows(aMappedRows, "GL"));
-					} else {
-						aMappedRows = aRawData.map(that._mapNonGlRow.bind(that)).filter(Boolean);
-						oBudget.setProperty("/nonGlRows", aMappedRows);
-						oBudget.setProperty("/nonGlChartRows", that._createBudgetChartRows(aMappedRows, "NONGL"));
-					}
+					// 1. Process and Store GL Data
+					var aMappedGlRows = aRawGlData.map(that._mapGlRow.bind(that)).filter(Boolean);
+					oBudget.setProperty("/glRows", aMappedGlRows);
+					oBudget.setProperty("/glChartRows", that._createBudgetChartRows(aMappedGlRows, "GL"));
 
-					if (aMappedRows.length === 0) {
-						MessageToast.show("No budget records found for the selected parameters.");
+					// 2. Process and Store Non-GL Data
+					var aMappedNonGlRows = aRawNonGlData.map(that._mapNonGlRow.bind(that)).filter(Boolean);
+					oBudget.setProperty("/nonGlRows", aMappedNonGlRows);
+					oBudget.setProperty("/nonGlChartRows", that._createBudgetChartRows(aMappedNonGlRows, "NONGL"));
+
+					// if (aMappedGlRows.length === 0 && aMappedNonGlRows.length === 0) {
+					// 	MessageToast.show("No budget records found for the selected parameters.");
+					// }
+					// =========================================================
+					// MODERN CUSTOM "NO DATA" DIALOG
+					// =========================================================
+					if (aMappedGlRows.length === 0 && aMappedNonGlRows.length === 0) {
+						if (!that._oNoDataDialog) {
+							that._oNoDataDialog = new sap.m.Dialog({
+								showHeader: false, // Hides the clunky top bar for a sleek look
+								contentWidth: "24rem",
+								content: [
+									new sap.m.VBox({
+										alignItems: "Center",
+										justifyContent: "Center",
+										items: [
+											// 1. Large, elegant warning/search icon
+											new sap.ui.core.Icon({
+												src: "sap-icon://search", // or "sap-icon://alert"
+												size: "4rem",
+												color: "#E9730C"
+											}).addStyleClass("fcrPulseIcon sapUiMediumMarginTop sapUiSmallMarginBottom"), // <-- ADDED fcrPulseIcon
+
+											// 2. Strong Title
+											new sap.m.Title({
+												text: "No Records Found",
+												level: "H2"
+											}).addStyleClass("sapUiSmallMarginBottom"),
+
+											// 3. Friendly, readable instructions
+											new sap.m.Text({
+												text: "We couldn't find any fixed cost records for your current parameters.",
+												textAlign: "Center"
+											}).addStyleClass("sapUiTinyMarginBottom")
+
+											// new sap.m.Text({
+											// 	text: "Try adjusting your Fiscal Year, Company Code, or clearing your specific GL/Profit Centre filters.",
+											// 	textAlign: "Center"
+											// })
+										]
+									}).addStyleClass("sapUiMediumMargin")
+								],
+								buttons: [
+									new sap.m.Button({
+										text: "Got it",
+										type: "Emphasized", // Solid blue button
+										press: function() {
+											that._oNoDataDialog.close();
+										}
+									})
+								]
+							});
+							that.getView().addDependent(that._oNoDataDialog);
+						}
+						that._oNoDataDialog.open();
 					}
+					// =========================================================
 
 					that._applySearch(oUi.getProperty("/globalSearch") || "");
 					that._updateKpisFromActiveMode();
@@ -188,12 +334,12 @@ sap.ui.define([
 					MessageBox.error("Failed to load budget data from backend.", {
 						details: (oErr && oErr.message) ? oErr.message : String(oErr || "")
 					});
+					that._getBusyDialog().close();
 				}).finally(function() {
 					that._getBusyDialog().close();
 				});
 			}, 50);
 		},
-
 		_mapGlRow: function(oRow) {
 			var fLakhs = 100000; // Conversion factor
 			return {
@@ -294,7 +440,12 @@ sap.ui.define([
 			this._updateSelectedParametersText();
 
 			// Automatically fetch the relevant backend data when switching tabs
-			this._fetchBudgetData(false);
+			// this._fetchBudgetData(false);
+
+			// Instantly recalculate KPIs and apply any active searches 
+			// to the newly active table WITHOUT calling the backend.
+			this._updateKpisFromActiveMode();
+			this._applySearch(this.getView().getModel("ui").getProperty("/globalSearch") || "");
 		},
 
 		// =========================================================
@@ -330,7 +481,7 @@ sap.ui.define([
 			}
 			return aYears;
 		},
-		
+
 		_createPeriodItems: function() {
 			// return [{
 			// 	key: "1",
@@ -452,11 +603,11 @@ sap.ui.define([
 			this.getView().getModel("filters").setData({
 				companyCode: "1100",
 				fiscalYear: String(new Date().getFullYear()),
-				period: "1",
-				glGroup: "",
-				glAccount: "",
-				costCenterGroup: "",
-				costCenter: ""
+				period: "",
+				glGroup: [],
+				glAccount: [],
+				costCenterGroup: [],
+				costCenter: []
 			});
 
 			this._clearValueStates();
@@ -500,18 +651,33 @@ sap.ui.define([
 			File.save(sCsv, sName, "csv", "text/csv");
 		},
 
+		// onGlGroupValueHelp: function() {
+		// 	this._openSingleSelectValueHelp("G/L Group", "glGroups", "/glGroup");
+		// },
+		// onGlAccountValueHelp: function() {
+		// 	this._openSingleSelectValueHelp("G/L Account", "glAccounts", "/glAccount");
+		// },
+		// onCostCenterGroupValueHelp: function() {
+		// 	this._openSingleSelectValueHelp("Cost Center Group", "costCenterGroups", "/costCenterGroup");
+		// },
+		// onCostCenterValueHelp: function() {
+		// 	this._openSingleSelectValueHelp("Cost Center", "costCenters", "/costCenter");
+		// },
+
+		// Use View 1's Multi-Select dialog for these 4 fields
 		onGlGroupValueHelp: function() {
-			this._openSingleSelectValueHelp("G/L Group", "glGroups", "/glGroup");
+			this._openMultiSelectValueHelp("G/L Group", "glGroups", "/glGroup");
 		},
 		onGlAccountValueHelp: function() {
-			this._openSingleSelectValueHelp("G/L Account", "glAccounts", "/glAccount");
+			this._openMultiSelectValueHelp("G/L Account", "glAccounts", "/glAccount");
 		},
 		onCostCenterGroupValueHelp: function() {
-			this._openSingleSelectValueHelp("Cost Center Group", "costCenterGroups", "/costCenterGroup");
+			this._openMultiSelectValueHelp("Cost Center Group", "costCenterGroups", "/costCenterGroup");
 		},
 		onCostCenterValueHelp: function() {
-			this._openSingleSelectValueHelp("Cost Center", "costCenters", "/costCenter");
+			this._openMultiSelectValueHelp("Cost Center", "costCenters", "/costCenter");
 		},
+
 		onPeriodValueHelp: function() {
 			this._openSingleSelectValueHelp("Period", "periods", "/period");
 		},
@@ -604,6 +770,27 @@ sap.ui.define([
 			oDialog.open();
 		},
 
+		// Override View 1's refresh function so it updates the bottom text when clicking "OK" in dialog
+		_refreshSelectionTexts: function() {
+			this._updateSelectedParametersText();
+		},
+
+		// Handle user clicking the 'x' on tokens to remove them
+		onTokenUpdate: function(oEvent) {
+			var oFiltersModel = this.getView().getModel("filters");
+			var sType = oEvent.getParameter("type");
+
+			if (sType === "removed") {
+				var sId = oEvent.getSource().getId();
+				if (sId.includes("costCenterGrpInputBudget")) oFiltersModel.setProperty("/costCenterGroup", []);
+				else if (sId.includes("costCenterInputBudget")) oFiltersModel.setProperty("/costCenter", []);
+				else if (sId.includes("glAccountInputBudget")) oFiltersModel.setProperty("/glAccount", []);
+				else if (sId.includes("glGroupInputBudget")) oFiltersModel.setProperty("/glGroup", []);
+			}
+
+			this._updateSelectedParametersText();
+		},
+
 		_validateMandatory: function() {
 			var oFilters = this.getView().getModel("filters").getData();
 			var oUi = this.getView().getModel("ui");
@@ -646,14 +833,19 @@ sap.ui.define([
 			var sCompany = "Company " + (oFilters.companyCode || "-");
 			var sFY = "FY " + (oFilters.fiscalYear || "-");
 			var sPeriod = oFilters.period ? this._resolveLookupText(oLookups.periods, oFilters.period) : "All periods";
-			var sCostCenter = oFilters.costCenter ? "1 Cost Center" : "All Cost Centers";
-			var sCostCenterGroup = oFilters.costCenterGroup ? "1 Cost Center Group" : "All Cost Center Groups";
-			var sGlAccount = oFilters.glAccount ? "1 G/L Account" : "All G/L Accounts";
+
+			// Check lengths of arrays
+			var sCostCenter = (oFilters.costCenter && oFilters.costCenter.length) ? oFilters.costCenter.length + " Cost Centers" :
+				"All Cost Centers";
+			var sCostCenterGroup = (oFilters.costCenterGroup && oFilters.costCenterGroup.length) ? oFilters.costCenterGroup.length +
+				" Cost Center Groups" : "All Cost Center Groups";
+			var sGlAccount = (oFilters.glAccount && oFilters.glAccount.length) ? oFilters.glAccount.length + " G/L Accounts" :
+				"All G/L Accounts";
 
 			var aTextParts = [sCompany, sFY, sPeriod, sCostCenter, sCostCenterGroup, sGlAccount];
 
 			if (bGlMode) {
-				var sGlGroup = oFilters.glGroup ? "1 G/L Group" : "All G/L Groups";
+				var sGlGroup = (oFilters.glGroup && oFilters.glGroup.length) ? oFilters.glGroup.length + " G/L Groups" : "All G/L Groups";
 				aTextParts.push(sGlGroup);
 			}
 
