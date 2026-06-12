@@ -125,6 +125,8 @@ sap.ui.define([
 		onAfterRendering: function() {
 			this._configureBudgetChart("budgetGlChart", "Budget by Cost Center and G/L Group");
 			this._configureBudgetChart("budgetNonGlChart", "Budget by Cost Center Group");
+
+			this._configureTop5Charts();
 		},
 
 		// =========================================================
@@ -329,8 +331,10 @@ sap.ui.define([
 
 					that._applySearch(oUi.getProperty("/globalSearch") || "");
 					that._updateKpisFromActiveMode();
-					
+
 					that._refreshBudgetChartStyling();
+
+					that._updateTop5Charts(); // Top 5
 
 				}).catch(function(oErr) {
 					MessageBox.error("Failed to load budget data from backend.", {
@@ -448,6 +452,8 @@ sap.ui.define([
 			// to the newly active table WITHOUT calling the backend.
 			this._updateKpisFromActiveMode();
 			this._applySearch(this.getView().getModel("ui").getProperty("/globalSearch") || "");
+
+			this._updateTop5Charts(); // Top 5
 		},
 
 		// =========================================================
@@ -925,7 +931,7 @@ sap.ui.define([
 			if (!oVizFrame || oVizFrame.data("configured")) {
 				return;
 			}
-			
+
 			oVizFrame.setVizProperties({
 				title: {
 					visible: true,
@@ -935,7 +941,12 @@ sap.ui.define([
 					visible: false
 				},
 				layout: {
-					padding: { bottom: 140, left: 20, right: 20, top: 20 }
+					padding: {
+						bottom: 140,
+						left: 20,
+						right: 20,
+						top: 20
+					}
 				},
 				plotArea: {
 					dataLabel: {
@@ -950,9 +961,9 @@ sap.ui.define([
 					}
 				},
 				interaction: {
-						selectability: {
-							mode: "multiple"
-						}
+					selectability: {
+						mode: "multiple"
+					}
 				},
 				categoryAxis: {
 					title: {
@@ -963,8 +974,8 @@ sap.ui.define([
 						allowMultiline: true,
 						linesOfWrap: 3,
 						overlapBehavior: "wrap",
-						rotation: true,   // Angle labels like View 1
-						angle: 30,        // Angle labels like View 1
+						rotation: true, // Angle labels like View 1
+						angle: 30, // Angle labels like View 1
 						maxWidth: 220,
 						truncatedLabelRatio: 1,
 						style: {
@@ -987,8 +998,7 @@ sap.ui.define([
 			});
 			oVizFrame.data("configured", true);
 		},
-		
-		
+
 		// =========================================================
 		// DYNAMIC CHART STYLING (Like View 1)
 		// =========================================================
@@ -1025,7 +1035,7 @@ sap.ui.define([
 				aRules.push({
 					// This MUST match the DimensionDefinition name="Category" in your Budget XML
 					dataContext: {
-						"Category": sName 
+						"Category": sName
 					},
 					properties: {
 						color: this._colorForKey(sName) // Inherited instantly from View1!
@@ -1040,11 +1050,171 @@ sap.ui.define([
 			var aColors = [];
 			var sPath = sChartId === "budgetGlChart" ? "/glChartRows" : "/nonGlChartRows";
 			var aData = oBudget.getProperty(sPath) || [];
-			
+
 			for (var i = 0; i < aData.length; i++) {
 				aColors.push(this._colorForKey(aData[i].name));
 			}
 			return aColors;
+		},
+
+		// =========================================================
+		// TOP 5 SPLIT CHARTS LOGIC
+		// =========================================================
+
+		_updateTop5Charts: function() {
+			var oBudget = this.getView().getModel("budget");
+			var bGlMode = this.getView().getModel("ui").getProperty("/isGlMode");
+
+			// Grab the existing loaded data based on active tab
+			var aRows = bGlMode ? (oBudget.getProperty("/glRows") || []) : (oBudget.getProperty("/nonGlRows") || []);
+
+			// 1. Sort for Left Column Chart (By Current Actual Amount -> upToCurrentMonth)
+			var aSortedForColumn = aRows.slice().sort(function(a, b) {
+				return (b.upToCurrentMonth || 0) - (a.upToCurrentMonth || 0);
+			}).slice(0, 5);
+
+			var aColumnData = aSortedForColumn.map(function(oRow) {
+				return {
+					name: bGlMode ? (oRow.costCenter + " - " + oRow.gl) : (oRow.costCenterGroup + " - " + oRow.costCenter),
+					columnValue: oRow.upToCurrentMonth || 0
+				};
+			});
+
+			// 2. Sort for Right Pie Chart (By Current Month Amount -> actualLastTwoMonths)
+			var aSortedForPie = aRows.slice().sort(function(a, b) {
+				return (b.actualLastTwoMonths || 0) - (a.actualLastTwoMonths || 0);
+			}).slice(0, 5);
+
+			var aPieData = aSortedForPie.map(function(oRow) {
+				return {
+					name: bGlMode ? (oRow.costCenter + " - " + oRow.gl) : (oRow.costCenterGroup + " - " + oRow.costCenter),
+					pieValue: oRow.actualLastTwoMonths || 0
+				};
+			});
+
+			// Apply to model
+			oBudget.setProperty("/top5ColumnData", aColumnData);
+			oBudget.setProperty("/top5PieData", aPieData);
+
+			// Apply dynamic colors
+			this._refreshTop5ChartStyling();
+		},
+
+		_configureTop5Charts: function() {
+			// Configure ALL 4 Top 5 Charts so they are ready when toggled
+			["top5ColumnChartGl", "top5ColumnChartNonGl"].forEach(function(sId) {
+				var oColChart = this.byId(sId);
+				if (oColChart && !oColChart.data("configured")) {
+					oColChart.setVizProperties({
+						title: {
+							visible: true,
+							text: "Top 5 Actual Amount"
+						},
+						legend: {
+							visible: false
+						},
+						plotArea: {
+							dataLabel: {
+								visible: true
+							},
+							drawingEffect: "glossy",
+							gap: {
+								barSpacing: 1.5
+							}
+						},
+						categoryAxis: {
+							label: {
+								rotation: true,
+								angle: 30,
+								style: {
+									fontSize: "10px",
+									fontWeight: "bold"
+								}
+							}
+						},
+						valueAxis: {
+							title: {
+								visible: false
+							}
+						}
+					});
+					oColChart.data("configured", true);
+				}
+			}.bind(this));
+
+			["top5PieChartGl", "top5PieChartNonGl"].forEach(function(sId) {
+				var oPieChart = this.byId(sId);
+				if (oPieChart && !oPieChart.data("configured")) {
+					oPieChart.setVizProperties({
+						title: {
+							visible: true,
+							text: "Top 5 Current Month Amount"
+						},
+						legend: {
+							visible: true,
+							position: "right"
+						},
+						plotArea: {
+							dataLabel: {
+								visible: true
+							},
+							drawingEffect: "glossy"
+						}
+					});
+					oPieChart.data("configured", true);
+				}
+			}.bind(this));
+		},
+
+		_refreshTop5ChartStyling: function() {
+			var oBudget = this.getView().getModel("budget");
+			var bGlMode = this.getView().getModel("ui").getProperty("/isGlMode");
+
+			// Figure out which exact chart IDs we should be styling based on the active tab
+			var sColChartId = bGlMode ? "top5ColumnChartGl" : "top5ColumnChartNonGl";
+			var sPieChartId = bGlMode ? "top5PieChartGl" : "top5PieChartNonGl";
+
+			// Style Active Column Chart
+			var oColChart = this.byId(sColChartId);
+			if (oColChart) {
+				var aColData = oBudget.getProperty("/top5ColumnData") || [];
+				var aRules = aColData.map(function(d) {
+					return {
+						dataContext: {
+							"Category": d.name
+						},
+						properties: {
+							color: this._colorForKey(d.name)
+						}
+					};
+				}.bind(this));
+				var aColPalette = aColData.map(function(d) {
+					return this._colorForKey(d.name);
+				}.bind(this));
+
+				oColChart.setVizProperties({
+					plotArea: {
+						colorPalette: aColPalette,
+						dataPointStyle: {
+							rules: aRules
+						}
+					}
+				});
+			}
+
+			// Style Active Pie Chart
+			var oPieChart = this.byId(sPieChartId);
+			if (oPieChart) {
+				var aPieData = oBudget.getProperty("/top5PieData") || [];
+				var aPiePalette = aPieData.map(function(d) {
+					return this._colorForKey(d.name);
+				}.bind(this));
+				oPieChart.setVizProperties({
+					plotArea: {
+						colorPalette: aPiePalette
+					}
+				});
+			}
 		},
 
 		_getGlColumns: function() {
