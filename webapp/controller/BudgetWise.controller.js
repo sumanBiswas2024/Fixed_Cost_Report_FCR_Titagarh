@@ -87,10 +87,10 @@ sap.ui.define([
 				costCenterState: "None",
 				periodText: "",
 				selectedParamsText: "",
-				kpi1Label: "Total Uploaded Yearly Budget",
-				kpi2Label: "Total Old Yearly Value",
-				kpi3Label: "Total Previous Two Months Value",
-				kpi4Label: "Total Current Month Value",
+				kpi1Label: "Total Current Year Budget",
+				kpi2Label: "Total Last Year Actual",
+				kpi3Label: "Total Last Two Months Actual",
+				kpi4Label: "Total Up To Current Month",
 				kpi1Value: "0.00",
 				kpi2Value: "0.00",
 				kpi3Value: "0.00",
@@ -139,12 +139,12 @@ sap.ui.define([
 		},
 
 		onAfterRendering: function() {
-			this._configureBudgetChart("budgetGlChart", "Uploaded Yearly Budget by Cost Center and G/L Group");
-			this._configureBudgetChart("budgetNonGlChart", "Uploaded Yearly Budget by Cost Center Group");
+			this._configureBudgetChart("budgetGlChart", "Current Yearly Budget by Cost Center and G/L Group");
+			this._configureBudgetChart("budgetNonGlChart", "Current Yearly Budget by Cost Center Group");
 
 			this._configureTop5Charts();
 		},
-		
+
 		/**
 		 * Helper function to format table cells to always show 2 decimals (e.g., 0.00, 300.00)
 		 */
@@ -221,7 +221,7 @@ sap.ui.define([
 					if (oFilters.period) {
 						// Removes leading zero (e.g., '03' becomes '3') exactly as tested in your backend GUI
 						aCommonFilters.push("Monat eq '" + String(parseInt(oFilters.period, 10)) + "'");
-					} 
+					}
 
 					// 2. Multi-Select Array Checks (Common)
 					if (oFilters.costCenter && oFilters.costCenter.length > 0) {
@@ -332,7 +332,7 @@ sap.ui.define([
 
 					that._applySearch(oUi.getProperty("/globalSearch") || "");
 					that._updateKpisFromActiveMode();
-					
+
 					that._updateTop5Charts();
 
 					that._refreshBudgetChartStyling();
@@ -413,7 +413,9 @@ sap.ui.define([
 		_createBudgetChartRows: function(aRows, sMode) {
 			return aRows.map(function(oRow) {
 				return {
-					name: sMode === "GL" ? (oRow.costCenter + " - " + (oRow.glGroup || oRow.gl)) : (oRow.coGroup + " - " + oRow.costCenter),
+					name: sMode === "GL" ? (oRow.glGroup || oRow.gl || "") : (oRow.costCenterDesc || oRow.costCenter || ""),
+					currentYearBudget: oRow.yearlyBudget,
+					lastYearActual: oRow.oldYearlyValue,
 					value: oRow.yearlyBudget
 				};
 			});
@@ -1103,7 +1105,7 @@ sap.ui.define([
 
 			var aColumnData = aSortedForColumn.map(function(oRow) {
 				return {
-					name: bGlMode ? (oRow.costCenter + " - " + (oRow.glGroup || oRow.gl)) : (oRow.coGroup + " - " + oRow.costCenter),
+					name: bGlMode ? (oRow.glGroup || oRow.gl || "") : (oRow.costCenterDesc || oRow.costCenter || ""),
 					columnValue: oRow.yearlyBudget || 0
 				};
 			});
@@ -1115,7 +1117,7 @@ sap.ui.define([
 
 			var aPieData = aSortedForPie.map(function(oRow) {
 				return {
-					name: bGlMode ? (oRow.costCenter + " - " + (oRow.glGroup || oRow.gl)) : (oRow.coGroup + " - " + oRow.costCenter),
+					name: bGlMode ? (oRow.glGroup || oRow.gl || "") : (oRow.costCenterDesc || oRow.costCenter || ""),
 					pieValue: oRow.currentMonthValue || 0
 				};
 			});
@@ -1136,7 +1138,7 @@ sap.ui.define([
 					oColChart.setVizProperties({
 						title: {
 							visible: true,
-							text: "Top 5 Uploaded Yearly Budget"
+							text: "Top 5 Current Year Budget"
 						},
 						legend: {
 							visible: false

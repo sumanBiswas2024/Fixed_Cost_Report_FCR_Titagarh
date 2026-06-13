@@ -176,10 +176,10 @@
 			<VBox class="fcrContentSection">
 				<VBox visible="{ui>/isGlMode}">
 					<Panel headerText="G/L Group Wise Top 5 Budget View" expandable="false" expanded="true" class="fcrOutPanel sapUiSmallMarginBottom"
-						visible="false">
+						visible="true">
 						<content>
 							<layout:Grid defaultSpan="L6 M6 S12">
-								<suite:ChartContainer id="ccTop5ColGl" title="Top 5 Uploaded Yearly Budget" showFullScreen="true" showPersonalization="false"
+								<suite:ChartContainer id="ccTop5ColGl" title="Top 5 Current Year Budget" showFullScreen="true" showPersonalization="false"
 									autoAdjustHeight="false" showLegendButton="false">
 									<suite:content>
 										<suite:ChartContainerContent icon="sap-icon://bar-chart" title="Column Chart View">
@@ -188,11 +188,11 @@
 													<viz:dataset>
 														<viz.data:FlattenedDataset data="{budget>/top5ColumnData}">
 															<viz.data:dimensions><viz.data:DimensionDefinition name="Category" value="{budget>name}"/></viz.data:dimensions>
-															<viz.data:measures><viz.data:MeasureDefinition name="Uploaded Yearly Budget" value="{budget>columnValue}"/></viz.data:measures>
+															<viz.data:measures><viz.data:MeasureDefinition name="Current Year Budget" value="{budget>columnValue}"/></viz.data:measures>
 														</viz.data:FlattenedDataset>
 													</viz:dataset>
 													<viz:feeds>
-														<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Uploaded Yearly Budget"/>
+														<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Current Year Budget"/>
 														<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Category"/>
 													</viz:feeds>
 												</viz:VizFrame>
@@ -287,12 +287,13 @@
 															<viz.data:DimensionDefinition name="Category" value="{budget>name}"/>
 														</viz.data:dimensions>
 														<viz.data:measures>
-															<viz.data:MeasureDefinition name="Uploaded Yearly Budget" value="{budget>value}"/>
+															<viz.data:MeasureDefinition name="Current Year Budget" value="{budget>currentYearBudget}"/>
+															<viz.data:MeasureDefinition name="Last Year Actual" value="{budget>lastYearActual}"/>
 														</viz.data:measures>
 													</viz.data:FlattenedDataset>
 												</viz:dataset>
 												<viz:feeds>
-													<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Uploaded Yearly Budget"/>
+													<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Current Year Budget,Last Year Actual"/>
 													<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Category"/>
 												</viz:feeds>
 											</viz:VizFrame>
@@ -305,10 +306,10 @@
 				</VBox>
 				<VBox visible="{ui>/isNonGlMode}">
 					<Panel headerText="Non G/L Wise Top 5 Budget View" expandable="false" expanded="true" class="fcrOutPanel sapUiSmallMarginBottom"
-						visible="false">
+						visible="true">
 						<content>
 							<layout:Grid defaultSpan="L6 M6 S12">
-								<suite:ChartContainer id="ccTop5ColNonGl" title="Top 5 Uploaded Yearly Budget" showFullScreen="true" showPersonalization="false"
+								<suite:ChartContainer id="ccTop5ColNonGl" title="Top 5 Current Year Budget" showFullScreen="true" showPersonalization="false"
 									autoAdjustHeight="false" showLegendButton="false">
 									<suite:content>
 										<suite:ChartContainerContent icon="sap-icon://bar-chart" title="Column Chart View">
@@ -317,11 +318,11 @@
 													<viz:dataset>
 														<viz.data:FlattenedDataset data="{budget>/top5ColumnData}">
 															<viz.data:dimensions><viz.data:DimensionDefinition name="Category" value="{budget>name}"/></viz.data:dimensions>
-															<viz.data:measures><viz.data:MeasureDefinition name="Uploaded Yearly Budget" value="{budget>columnValue}"/></viz.data:measures>
+															<viz.data:measures><viz.data:MeasureDefinition name="Current Year Budget" value="{budget>columnValue}"/></viz.data:measures>
 														</viz.data:FlattenedDataset>
 													</viz:dataset>
 													<viz:feeds>
-														<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Uploaded Yearly Budget"/>
+														<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Current Year Budget"/>
 														<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Category"/>
 													</viz:feeds>
 												</viz:VizFrame>
@@ -408,12 +409,13 @@
 															<viz.data:DimensionDefinition name="Category" value="{budget>name}"/>
 														</viz.data:dimensions>
 														<viz.data:measures>
-															<viz.data:MeasureDefinition name="Uploaded Yearly Budget" value="{budget>value}"/>
+															<viz.data:MeasureDefinition name="Current Year Budget" value="{budget>currentYearBudget}"/>
+															<viz.data:MeasureDefinition name="Last Year Actual" value="{budget>lastYearActual}"/>
 														</viz.data:measures>
 													</viz.data:FlattenedDataset>
 												</viz:dataset>
 												<viz:feeds>
-													<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Uploaded Yearly Budget"/>
+													<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Current Year Budget,Last Year Actual"/>
 													<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Category"/>
 												</viz:feeds>
 											</viz:VizFrame>
