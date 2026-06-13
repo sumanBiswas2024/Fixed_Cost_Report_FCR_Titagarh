@@ -1,0 +1,109 @@
+<edmx:Edmx
+    xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx"
+    xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata"
+    xmlns:sap="http://www.sap.com/Protocols/SAPData" Version="1.0">
+    <edmx:DataServices m:DataServiceVersion="2.0">
+        <Schema
+            xmlns="http://schemas.microsoft.com/ado/2008/09/edm" Namespace="ZBUDGET_AVL_SRV_SRV" xml:lang="en" sap:schema-version="1">
+            <Annotation
+                xmlns="http://docs.oasis-open.org/odata/ns/edm" Term="Core.SchemaVersion" String="1.0.0"/>
+                <EntityType Name="BudgetAvailability" sap:content-version="1">
+                    <Key>
+                        <PropertyRef Name="Guid"/>
+                        <PropertyRef Name="Bukrs"/>
+                        <PropertyRef Name="Butxt"/>
+                        <PropertyRef Name="Gjahr"/>
+                        <PropertyRef Name="Monat"/>
+                        <PropertyRef Name="Saknr"/>
+                        <PropertyRef Name="Gl_grp"/>
+                        <PropertyRef Name="Txt50"/>
+                        <PropertyRef Name="Kostl"/>
+                        <PropertyRef Name="Budat"/>
+                    </Key>
+                    <Property Name="Guid" Type="Edm.Guid" Nullable="false" sap:unicode="false" sap:label="GUID (generated key)"/>
+                    <Property Name="Bukrs" Type="Edm.String" Nullable="false" MaxLength="4" sap:unicode="false" sap:label="Company Code"/>
+                    <Property Name="Butxt" Type="Edm.String" Nullable="false" MaxLength="50" sap:unicode="false" sap:label="Company Name"/>
+                    <Property Name="Gjahr" Type="Edm.String" Nullable="false" MaxLength="4" sap:unicode="false" sap:label="Fiscal Year"/>
+                    <Property Name="Monat" Type="Edm.String" Nullable="false" MaxLength="2" sap:unicode="false" sap:label="Fiscal Period"/>
+                    <Property Name="Saknr" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="GL Account"/>
+                    <Property Name="Gl_grp" Type="Edm.String" Nullable="false" MaxLength="20" sap:unicode="false" sap:label="GL Group"/>
+                    <Property Name="Txt50" Type="Edm.String" Nullable="false" MaxLength="50" sap:unicode="false" sap:label="GL Description"/>
+                    <Property Name="Kostl" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="Cost Center"/>
+                    <Property Name="Budat" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="budat"/>
+                    <Property Name="Ltext" Type="Edm.String" Nullable="false" MaxLength="50" sap:unicode="false" sap:label="Cost Center Description" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="YrValue" Type="Edm.Decimal" Nullable="false" Precision="23" Scale="2" sap:unicode="false" sap:label="Uploaded Yearly Budget" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="OldyValue" Type="Edm.Decimal" Nullable="false" Precision="23" Scale="2" sap:unicode="false" sap:label="Old Yearly Value" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="RyrValue" Type="Edm.Decimal" Nullable="false" Precision="23" Scale="2" sap:unicode="false" sap:label="Revised Yearly Budget" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="OldmValue" Type="Edm.Decimal" Nullable="false" Precision="23" Scale="2" sap:unicode="false" sap:label="Old Monthly Value" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="MrelValue" Type="Edm.Decimal" Nullable="false" Precision="23" Scale="2" sap:unicode="false" sap:label="Monthly Released Budget" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="Value" Type="Edm.Decimal" Nullable="false" Precision="23" Scale="2" sap:unicode="false" sap:label="Monthly Edited Budget" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="PoyValue" Type="Edm.Decimal" Nullable="false" Precision="23" Scale="2" sap:unicode="false" sap:label="PO Yearly Value" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="Pomc" Type="Edm.Decimal" Nullable="false" Precision="23" Scale="2" sap:unicode="false" sap:label="PO Monthly Consumed" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="ConyValue" Type="Edm.Decimal" Nullable="false" Precision="23" Scale="2" sap:unicode="false" sap:label="Monthly Consumed" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="ConmValue" Type="Edm.Decimal" Nullable="false" Precision="23" Scale="2" sap:unicode="false" sap:label="Balance Budget (Yearly)" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="Blb" Type="Edm.Decimal" Nullable="false" Precision="23" Scale="2" sap:unicode="false" sap:label="Parked Document Value" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="ParkVal" Type="Edm.Decimal" Nullable="false" Precision="23" Scale="2" sap:unicode="false" sap:label="Balance After Parked Docs" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="PrevTwo" Type="Edm.Decimal" Nullable="false" Precision="23" Scale="2" sap:unicode="false" sap:label="Previous two months value" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="CurrMonth" Type="Edm.Decimal" Nullable="false" Precision="23" Scale="2" sap:unicode="false" sap:label="Current Month Value" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                </EntityType>
+                <EntityType Name="COWithoutGL" sap:content-version="1">
+                    <Key>
+                        <PropertyRef Name="Guid"/>
+                        <PropertyRef Name="Bukrs"/>
+                        <PropertyRef Name="Gjahr"/>
+                        <PropertyRef Name="Monat"/>
+                        <PropertyRef Name="Saknr"/>
+                        <PropertyRef Name="Kostl"/>
+                        <PropertyRef Name="Co_grp"/>
+                    </Key>
+                    <Property Name="Guid" Type="Edm.Guid" Nullable="false" sap:unicode="false" sap:label="GUID (generated key)"/>
+                    <Property Name="Bukrs" Type="Edm.String" Nullable="false" MaxLength="4" sap:unicode="false" sap:label="Company Code"/>
+                    <Property Name="Gjahr" Type="Edm.String" Nullable="false" MaxLength="4" sap:unicode="false" sap:label="Fiscal Year"/>
+                    <Property Name="Monat" Type="Edm.String" Nullable="false" MaxLength="3" sap:unicode="false" sap:label="Fiscal Period"/>
+                    <Property Name="Saknr" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="GL Account"/>
+                    <Property Name="Kostl" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="Cost Center"/>
+                    <Property Name="Co_grp" Type="Edm.String" Nullable="false" MaxLength="20" sap:unicode="false" sap:label="CO Group"/>
+                    <Property Name="Ltext" Type="Edm.String" Nullable="false" MaxLength="50" sap:unicode="false" sap:label="Cost Center Description" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="YrValue" Type="Edm.Decimal" Nullable="false" Precision="23" Scale="2" sap:unicode="false" sap:label="Uploaded Yearly Budget" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="OldyValue" Type="Edm.Decimal" Nullable="false" Precision="23" Scale="2" sap:unicode="false" sap:label="Old Yearly Value" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="PrevTwo" Type="Edm.Decimal" Nullable="false" Precision="23" Scale="2" sap:unicode="false" sap:label="Previous two months value" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="CurrMonth" Type="Edm.Decimal" Nullable="false" Precision="23" Scale="2" sap:unicode="false" sap:label="Current Month Value" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                </EntityType>
+                <EntityType Name="COWithGL" sap:content-version="1">
+                    <Key>
+                        <PropertyRef Name="Guid"/>
+                        <PropertyRef Name="Bukrs"/>
+                        <PropertyRef Name="Gjahr"/>
+                        <PropertyRef Name="Monat"/>
+                        <PropertyRef Name="Saknr"/>
+                        <PropertyRef Name="Gl_grp"/>
+                        <PropertyRef Name="Kostl"/>
+                        <PropertyRef Name="Co_grp"/>
+                    </Key>
+                    <Property Name="Guid" Type="Edm.Guid" Nullable="false" sap:unicode="false" sap:label="GUID (generated key)"/>
+                    <Property Name="Bukrs" Type="Edm.String" Nullable="false" MaxLength="4" sap:unicode="false" sap:label="Company Code"/>
+                    <Property Name="Gjahr" Type="Edm.String" Nullable="false" MaxLength="4" sap:unicode="false" sap:label="Fiscal Year"/>
+                    <Property Name="Monat" Type="Edm.String" Nullable="false" MaxLength="3" sap:unicode="false" sap:label="Fiscal Period"/>
+                    <Property Name="Saknr" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="GL Account"/>
+                    <Property Name="Gl_grp" Type="Edm.String" Nullable="false" MaxLength="20" sap:unicode="false" sap:label="GL Group"/>
+                    <Property Name="Kostl" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="Cost Center"/>
+                    <Property Name="Co_grp" Type="Edm.String" Nullable="false" MaxLength="20" sap:unicode="false" sap:label="CO Group"/>
+                    <Property Name="Txt50" Type="Edm.String" MaxLength="50" sap:unicode="false" sap:label="GL Description"/>
+                    <Property Name="Ltext" Type="Edm.String" Nullable="false" MaxLength="50" sap:unicode="false" sap:label="Cost Center Description" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="YrValue" Type="Edm.Decimal" Nullable="false" Precision="23" Scale="2" sap:unicode="false" sap:label="Uploaded Yearly Budget" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="OldyValue" Type="Edm.Decimal" Nullable="false" Precision="23" Scale="2" sap:unicode="false" sap:label="Old Yearly Value" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="PrevTwo" Type="Edm.Decimal" Nullable="false" Precision="23" Scale="2" sap:unicode="false" sap:label="Previous two months value" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                    <Property Name="CurrMonth" Type="Edm.Decimal" Nullable="false" Precision="23" Scale="2" sap:unicode="false" sap:label="Current Month Value" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                </EntityType>
+                <EntityContainer Name="ZBUDGET_AVL_SRV_SRV_Entities" m:IsDefaultEntityContainer="true" sap:supported-formats="atom json xlsx">
+                    <EntitySet Name="BudgetAvailabilitySet" EntityType="ZBUDGET_AVL_SRV_SRV.BudgetAvailability" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:addressable="false" sap:content-version="1"/>
+                    <EntitySet Name="COWithoutGLSet" EntityType="ZBUDGET_AVL_SRV_SRV.COWithoutGL" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:addressable="false" sap:content-version="1"/>
+                    <EntitySet Name="COWithGLSet" EntityType="ZBUDGET_AVL_SRV_SRV.COWithGL" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:addressable="false" sap:content-version="1"/>
+                </EntityContainer>
+                <atom:link
+                    xmlns:atom="http://www.w3.org/2005/Atom" rel="self" href="./sap/ZBUDGET_AVL_SRV_SRV/$metadata"/>
+                    <atom:link
+                        xmlns:atom="http://www.w3.org/2005/Atom" rel="latest-version" href="./sap/ZBUDGET_AVL_SRV_SRV/$metadata"/>
+                    </Schema>
+                </edmx:DataServices>
+            </edmx:Edmx>

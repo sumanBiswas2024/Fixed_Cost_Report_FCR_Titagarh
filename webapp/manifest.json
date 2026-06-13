@@ -21,6 +21,14 @@
 					"odataVersion": "2.0",
 					"localUri": "localService/ZO_FCR_SRV/metadata.xml"
 				}
+			},
+			"ZBUDGET_AVL_SRV_SRV": {
+				"uri": "/sap/opu/odata/sap/ZBUDGET_AVL_SRV_SRV/",
+				"type": "OData",
+				"settings": {
+					"odataVersion": "2.0",
+					"localUri": "localService/ZBUDGET_AVL_SRV_SRV/metadata.xml"
+				}
 			}
 		}
 	},
@@ -71,6 +79,16 @@
 		"models": {
 			"": {
 				"dataSource": "ZO_FCR_SRV",
+				"preload": true,
+				"settings": {
+					"defaultBindingMode": "TwoWay",
+					"defaultCountMode": "Inline",
+					"useBatch": true
+				},
+				"type": "sap.ui.model.odata.v2.ODataModel"
+			},
+			"budgetService": {
+				"dataSource": "ZBUDGET_AVL_SRV_SRV",
 				"preload": true,
 				"settings": {
 					"defaultBindingMode": "TwoWay",
