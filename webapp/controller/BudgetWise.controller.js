@@ -139,10 +139,14 @@ sap.ui.define([
 		},
 
 		onAfterRendering: function() {
-			this._configureBudgetChart("budgetGlChart", "Current Yearly Budget by Cost Center and G/L Group");
-			this._configureBudgetChart("budgetNonGlChart", "Current Yearly Budget by Cost Center Group");
+			// this._configureBudgetChart("budgetGlChart", "Current Yearly Budget by Cost Center and G/L Group");
+			// this._configureBudgetChart("budgetNonGlChart", "Current Yearly Budget by Cost Center Group");
+			
+			this._configureBudgetChart("budgetGlChart", "Last Year Actual vs Current Year Budget by Cost Center and G/L Group");
+			this._configureBudgetChart("budgetNonGlChart", "Last Year Actual vs Current Year Budget by Cost Center");
 
 			this._configureTop5Charts();
+			this._connectBudgetPopovers();
 		},
 
 		/**
@@ -480,6 +484,11 @@ sap.ui.define([
 
 			this._updateKpisFromActiveMode();
 			this._applySearch(this.getView().getModel("ui").getProperty("/globalSearch") || "");
+
+			setTimeout(function() {
+				this._refreshBudgetChartStyling();
+				this._connectBudgetPopovers();
+			}.bind(this), 0);
 
 			this._updateTop5Charts(); // Top 5
 		},
@@ -968,7 +977,8 @@ sap.ui.define([
 					text: sTitle
 				},
 				legend: {
-					visible: false
+					visible: true,
+					position: "bottom"
 				},
 				layout: {
 					padding: {
@@ -997,7 +1007,8 @@ sap.ui.define([
 				},
 				categoryAxis: {
 					title: {
-						visible: false
+						visible: true,
+						text: sChartId === "budgetGlChart" ? "G/L Group" : "Cost Centre Description"
 					},
 					label: {
 						visible: true,
@@ -1017,6 +1028,7 @@ sap.ui.define([
 				valueAxis: {
 					title: {
 						visible: true,
+						// text: "Last Year Vs Current Year Amount (Lakhs)"
 						text: "Amount (Lakhs)"
 					},
 					label: {
@@ -1040,15 +1052,17 @@ sap.ui.define([
 					return;
 				}
 
-				var aRules = this._dataPointRulesForBudgetChart(sChartId);
-
 				oVizFrame.setVizProperties({
+					legend: {
+						visible: true,
+						position: "bottom"
+					},
 					plotArea: {
 						drawingEffect: "glossy",
-						colorPalette: this._paletteForBudgetChart(sChartId),
-						dataPointStyle: {
-							rules: aRules
-						}
+						colorPalette: [
+							this._colorForKey("Current Year Budget"),
+							this._colorForKey("Last Year Actual")
+						]
 					}
 				});
 			}.bind(this));
@@ -1065,7 +1079,8 @@ sap.ui.define([
 				aRules.push({
 					// This MUST match the DimensionDefinition name="Category" in your Budget XML
 					dataContext: {
-						"Category": sName
+						"G/L Group": sName,
+						"Cost Centre Description": sName
 					},
 					properties: {
 						color: this._colorForKey(sName) // Inherited instantly from View1!
@@ -1085,6 +1100,23 @@ sap.ui.define([
 				aColors.push(this._colorForKey(aData[i].name));
 			}
 			return aColors;
+		},
+
+		_connectBudgetPopovers: function() {
+			[
+				["budgetGlChart", "budgetGlPopover"],
+				["budgetNonGlChart", "budgetNonGlPopover"],
+				["top5ColumnChartGl", "top5ColumnPopoverGl"],
+				["top5PieChartGl", "top5PiePopoverGl"],
+				["top5ColumnChartNonGl", "top5ColumnPopoverNonGl"],
+				["top5PieChartNonGl", "top5PiePopoverNonGl"]
+			].forEach(function(aPair) {
+				var oChart = this.byId(aPair[0]);
+				var oPopover = this.byId(aPair[1]);
+				if (oChart && oPopover) {
+					oPopover.connect(oChart.getVizUid());
+				}
+			}.bind(this));
 		},
 
 		// =========================================================
@@ -1152,6 +1184,12 @@ sap.ui.define([
 								barSpacing: 1.5
 							}
 						},
+						valueAxis: {
+							title: {
+								visible: true,
+								text: "Amount (Lakhs)"
+							}
+						},
 						categoryAxis: {
 							label: {
 								rotation: true,
@@ -1161,12 +1199,13 @@ sap.ui.define([
 									fontWeight: "bold"
 								}
 							}
-						},
-						valueAxis: {
-							title: {
-								visible: false
-							}
 						}
+						// valueAxis: {
+						// 	title: {
+						// 		visible: true,
+						// 		text: "Amount (Lakhs)"
+						// 	}
+						// }
 					});
 					oColChart.data("configured", true);
 				}
@@ -1209,9 +1248,10 @@ sap.ui.define([
 			if (oColChart) {
 				var aColData = oBudget.getProperty("/top5ColumnData") || [];
 				var aRules = aColData.map(function(d) {
+					var sDimName = bGlMode ? "G/L Group" : "Cost Centre Description";
 					return {
 						dataContext: {
-							"Category": d.name
+							[sDimName]: d.name
 						},
 						properties: {
 							color: this._colorForKey(d.name)
