@@ -39,10 +39,12 @@ sap.ui.define([
 				period: this._createPeriodItems()
 			};
 
+			var sCurrentFinancialPeriod = this._getCurrentFinancialPeriod(); // Get Current month
+			
 			this.getView().setModel(new JSONModel({
 				companyCode: "1100",
 				fiscalYear: String(new Date().getFullYear()),
-				period: "",
+				period: sCurrentFinancialPeriod,
 				// glGroup: "",
 				// glAccount: "",
 				// costCenterGroup: "",
@@ -103,41 +105,115 @@ sap.ui.define([
 
 			this.getOwnerComponent().getRouter().getRoute("budgetWise").attachPatternMatched(this._onBudgetRouteMatched, this);
 		},
+		
+		// _onBudgetRouteMatched: function() {
+		// 	var oShared = this.getOwnerComponent().getModel("shared");
+		// 	var oUi = this.getView().getModel("ui");
+		// 	var oFiltersModel = this.getView().getModel("filters");
+		// 	var oNav = oShared && oShared.getProperty("/budgetNavigation");
+
+		// 	// Smart Period Selection Logic
+		// 	var sExistingPeriod = oFiltersModel.getProperty("/period");
+		// 	var sCurrentFinancialPeriod = this._getCurrentFinancialPeriod();
+			
+		// 	var sFinalPeriod = sExistingPeriod || sCurrentFinancialPeriod; // Keep existing, or default to current
+		// 	if (oNav && oNav.fromPeriod) {
+		// 		sFinalPeriod = oNav.fromPeriod; // Override if explicitly navigating from View 1 with a specific period
+		// 	}
+
+		// 	if (oNav) {
+		// 		oFiltersModel.setData({
+		// 			companyCode: oNav.companyCode || "1100",
+		// 			fiscalYear: oNav.fiscalYear || String(new Date().getFullYear()),
+		// 			period: sFinalPeriod, 
+		// 			glGroup: [],
+		// 			glAccount: [],
+		// 			costCenterGroup: [],
+		// 			costCenter: []
+		// 		});
+		// 	} else if (!sExistingPeriod) {
+		// 		// Safety net just in case model is totally empty
+		// 		oFiltersModel.setProperty("/period", sFinalPeriod); 
+		// 	}
+
+		// 	this._syncModeState(oUi.getProperty("/reportType") || "GL");
+		// 	this._updateSelectedParametersText();
+
+		// 	if (!this._bIsInitiallyLoaded) {
+		// 		var sCompanyCode = oFiltersModel.getProperty("/companyCode");
+		// 		if (sCompanyCode) {
+		// 			var that = this;
+		// 			setTimeout(function() {
+		// 				// Only fetch if validation passes
+		// 				if (that._validateMandatory()) {
+		// 					that._fetchBudgetData(false);
+		// 					that._bIsInitiallyLoaded = true;
+		// 				}
+		// 			}, 50);
+		// 		}
+		// 	} else {
+		// 		this._updateKpisFromActiveMode();
+		// 	}
+		// },
 
 		_onBudgetRouteMatched: function() {
 			var oShared = this.getOwnerComponent().getModel("shared");
 			var oUi = this.getView().getModel("ui");
-			var oNav = oShared && oShared.getProperty("/budgetNavigation");
+			var oFiltersModel = this.getView().getModel("filters");
 
-			if (oNav) {
-				this.getView().getModel("filters").setData({
-					companyCode: oNav.companyCode || "1100",
-					fiscalYear: oNav.fiscalYear || String(new Date().getFullYear()),
-					period: oNav.fromPeriod || "",
+			if (!this._bIsInitiallyLoaded) {
+				// =================================================================
+				// INITIAL LOAD ONLY: Read View 1's navigation data just this once.
+				// =================================================================
+				var oNav = oShared && oShared.getProperty("/budgetNavigation");
+				var sCurrentFinancialPeriod = this._getCurrentFinancialPeriod();
+				
+				var sFinalPeriod = sCurrentFinancialPeriod; 
+				if (oNav && oNav.fromPeriod) {
+					sFinalPeriod = oNav.fromPeriod; 
+				}
+
+				// Set the filters from View 1 (or defaults)
+				oFiltersModel.setData({
+					companyCode: (oNav && oNav.companyCode) ? oNav.companyCode : "1100",
+					fiscalYear: (oNav && oNav.fiscalYear) ? oNav.fiscalYear : String(new Date().getFullYear()),
+					period: sFinalPeriod, 
 					glGroup: [],
 					glAccount: [],
 					costCenterGroup: [],
 					costCenter: []
 				});
-			}
 
-			this._syncModeState(oUi.getProperty("/reportType") || "GL");
-			this._updateSelectedParametersText();
+				// Clear shared memory
+				if (oShared) {
+					oShared.setProperty("/budgetNavigation", null);
+				}
 
-			if (!this._bIsInitiallyLoaded) {
-				var sCompanyCode = this.getView().getModel("filters").getProperty("/companyCode");
+				this._syncModeState(oUi.getProperty("/reportType") || "GL");
+				this._updateSelectedParametersText();
+
+				// Fetch the data and lock the initial load flag
+				var sCompanyCode = oFiltersModel.getProperty("/companyCode");
 				if (sCompanyCode) {
 					var that = this;
 					setTimeout(function() {
-						that._fetchBudgetData(false);
-						that._bIsInitiallyLoaded = true;
+						if (that._validateMandatory()) {
+							that._fetchBudgetData(false);
+							that._bIsInitiallyLoaded = true; // Mark as loaded so it never overwrites again
+						}
 					}, 50);
 				}
+
 			} else {
+				// =================================================================
+				// SUBSEQUENT VISITS: Ignore View 1. Keep the user's manual changes!
+				// =================================================================
+				this._syncModeState(oUi.getProperty("/reportType") || "GL");
+				this._updateSelectedParametersText();
 				this._updateKpisFromActiveMode();
 			}
 		},
-
+		
 		onAfterRendering: function() {
 			// this._configureBudgetChart("budgetGlChart", "Current Yearly Budget by Cost Center and G/L Group");
 			// this._configureBudgetChart("budgetNonGlChart", "Current Yearly Budget by Cost Center Group");
@@ -158,6 +234,22 @@ sap.ui.define([
 			}
 			// Uses the SAPUI5 NumberFormat you already initialized in onInit to add commas and decimals
 			return this._oAmountFormat ? this._oAmountFormat.format(Number(vValue)) : Number(vValue).toFixed(2);
+		},
+		_getCurrentFinancialPeriod: function() {
+			var iCalendarMonth = new Date().getMonth() + 1; // 1 (Jan) to 12 (Dec)
+			var iFinancialPeriod;
+			
+			if (iCalendarMonth >= 4) {
+				// April (4) through December (12) -> Subtract 3
+				// e.g., June (6) - 3 = Period 3. Sept (9) - 3 = Period 6.
+				iFinancialPeriod = iCalendarMonth - 3; 
+			} else {
+				// January (1) through March (3) -> Add 9
+				// e.g., Jan (1) + 9 = Period 10.
+				iFinancialPeriod = iCalendarMonth + 9;
+			}
+			
+			return String(iFinancialPeriod);
 		},
 
 		// =========================================================
@@ -645,6 +737,8 @@ sap.ui.define([
 
 		onReset: function() {
 			var sMode = this.getView().getModel("ui").getProperty("/reportType") || "GL";
+			var sCurrentMonth = String(new Date().getMonth() + 1);
+			
 			this.getView().getModel("filters").setData({
 				companyCode: "1100",
 				fiscalYear: String(new Date().getFullYear()),
@@ -854,6 +948,11 @@ sap.ui.define([
 			if (!/^[0-9]{4}$/.test((oFilters.fiscalYear || "").trim())) {
 				oUi.setProperty("/fiscalYearState", "Error");
 				aMissing.push("Fiscal Year");
+				bOk = false;
+			}
+			if (!(oFilters.period || "").trim()) {
+				oUi.setProperty("/periodState", "Error");
+				aMissing.push("Period");
 				bOk = false;
 			}
 

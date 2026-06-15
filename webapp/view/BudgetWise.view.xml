@@ -38,7 +38,7 @@
 								</ComboBox>
 							</VBox>
 							<VBox class="fcrField fcrFieldQtr">
-								<Label text="Period" required="false"/>
+								<Label text="Period" required="true"/>
 								<Input value="{parts:[{path:'filters>/period'},{path:'lookups>/periods'}], formatter: '.formatLookupText'}" showValueHelp="true"
 									valueHelpOnly="true" valueHelpRequest=".onPeriodValueHelp" placeholder="Select Period" valueState="{ui>/periodState}"/>
 							</VBox>
