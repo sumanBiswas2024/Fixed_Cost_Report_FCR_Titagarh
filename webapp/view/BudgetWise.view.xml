@@ -294,7 +294,7 @@
 									</suite:ChartContainerContent>
 									<suite:ChartContainerContent icon="sap-icon://bar-chart" title="Chart View">
 										<suite:content>
-											<viz:VizFrame id="budgetGlChart" width="100%" height="420px" vizType="column" uiConfig="{applicationSet:'fiori'}">
+											<viz:VizFrame id="budgetGlChart" width="100%" height="380px" vizType="column" uiConfig="{applicationSet:'fiori'}">
 												<viz:dataset>
 													<viz.data:FlattenedDataset data="{budget>/glChartRows}">
 														<viz.data:dimensions>
@@ -434,7 +434,7 @@
 									</suite:ChartContainerContent>
 									<suite:ChartContainerContent icon="sap-icon://bar-chart" title="Chart View">
 										<suite:content>
-											<viz:VizFrame id="budgetNonGlChart" width="100%" height="420px" vizType="column" uiConfig="{applicationSet:'fiori'}">
+											<viz:VizFrame id="budgetNonGlChart" width="100%" height="380px" vizType="column" uiConfig="{applicationSet:'fiori'}">
 												<viz:dataset>
 													<viz.data:FlattenedDataset data="{budget>/nonGlChartRows}">
 														<viz.data:dimensions>

@@ -40,7 +40,7 @@ sap.ui.define([
 			};
 
 			var sCurrentFinancialPeriod = this._getCurrentFinancialPeriod(); // Get Current month
-			
+
 			this.getView().setModel(new JSONModel({
 				companyCode: "1100",
 				fiscalYear: String(new Date().getFullYear()),
@@ -105,56 +105,6 @@ sap.ui.define([
 
 			this.getOwnerComponent().getRouter().getRoute("budgetWise").attachPatternMatched(this._onBudgetRouteMatched, this);
 		},
-		
-		// _onBudgetRouteMatched: function() {
-		// 	var oShared = this.getOwnerComponent().getModel("shared");
-		// 	var oUi = this.getView().getModel("ui");
-		// 	var oFiltersModel = this.getView().getModel("filters");
-		// 	var oNav = oShared && oShared.getProperty("/budgetNavigation");
-
-		// 	// Smart Period Selection Logic
-		// 	var sExistingPeriod = oFiltersModel.getProperty("/period");
-		// 	var sCurrentFinancialPeriod = this._getCurrentFinancialPeriod();
-			
-		// 	var sFinalPeriod = sExistingPeriod || sCurrentFinancialPeriod; // Keep existing, or default to current
-		// 	if (oNav && oNav.fromPeriod) {
-		// 		sFinalPeriod = oNav.fromPeriod; // Override if explicitly navigating from View 1 with a specific period
-		// 	}
-
-		// 	if (oNav) {
-		// 		oFiltersModel.setData({
-		// 			companyCode: oNav.companyCode || "1100",
-		// 			fiscalYear: oNav.fiscalYear || String(new Date().getFullYear()),
-		// 			period: sFinalPeriod, 
-		// 			glGroup: [],
-		// 			glAccount: [],
-		// 			costCenterGroup: [],
-		// 			costCenter: []
-		// 		});
-		// 	} else if (!sExistingPeriod) {
-		// 		// Safety net just in case model is totally empty
-		// 		oFiltersModel.setProperty("/period", sFinalPeriod); 
-		// 	}
-
-		// 	this._syncModeState(oUi.getProperty("/reportType") || "GL");
-		// 	this._updateSelectedParametersText();
-
-		// 	if (!this._bIsInitiallyLoaded) {
-		// 		var sCompanyCode = oFiltersModel.getProperty("/companyCode");
-		// 		if (sCompanyCode) {
-		// 			var that = this;
-		// 			setTimeout(function() {
-		// 				// Only fetch if validation passes
-		// 				if (that._validateMandatory()) {
-		// 					that._fetchBudgetData(false);
-		// 					that._bIsInitiallyLoaded = true;
-		// 				}
-		// 			}, 50);
-		// 		}
-		// 	} else {
-		// 		this._updateKpisFromActiveMode();
-		// 	}
-		// },
 
 		_onBudgetRouteMatched: function() {
 			var oShared = this.getOwnerComponent().getModel("shared");
@@ -162,29 +112,27 @@ sap.ui.define([
 			var oFiltersModel = this.getView().getModel("filters");
 
 			if (!this._bIsInitiallyLoaded) {
-				// =================================================================
-				// INITIAL LOAD ONLY: Read View 1's navigation data just this once.
-				// =================================================================
 				var oNav = oShared && oShared.getProperty("/budgetNavigation");
 				var sCurrentFinancialPeriod = this._getCurrentFinancialPeriod();
-				
-				var sFinalPeriod = sCurrentFinancialPeriod; 
+
+				var sFinalPeriod = sCurrentFinancialPeriod;
 				if (oNav && oNav.fromPeriod) {
-					sFinalPeriod = oNav.fromPeriod; 
+					sFinalPeriod = oNav.fromPeriod;
 				}
 
-				// Set the filters from View 1 (or defaults)
-				oFiltersModel.setData({
-					companyCode: (oNav && oNav.companyCode) ? oNav.companyCode : "1100",
-					fiscalYear: (oNav && oNav.fiscalYear) ? oNav.fiscalYear : String(new Date().getFullYear()),
-					period: sFinalPeriod, 
-					glGroup: [],
-					glAccount: [],
-					costCenterGroup: [],
-					costCenter: []
-				});
+				// Set all standard parameters
+				oFiltersModel.setProperty("/companyCode", (oNav && oNav.companyCode) ? oNav.companyCode : "1100");
+				oFiltersModel.setProperty("/fiscalYear", (oNav && oNav.fiscalYear) ? oNav.fiscalYear : String(new Date().getFullYear()));
+				oFiltersModel.setProperty("/period", sFinalPeriod);
 
-				// Clear shared memory
+				// Carry over multi-selects from View 1 if they exist (otherwise leave blank [])
+				if (oNav) {
+					if (oNav.glGroups && oNav.glGroups.length > 0) oFiltersModel.setProperty("/glGroup", oNav.glGroups);
+					if (oNav.glAccounts && oNav.glAccounts.length > 0) oFiltersModel.setProperty("/glAccount", oNav.glAccounts);
+					if (oNav.costCenterGroups && oNav.costCenterGroups.length > 0) oFiltersModel.setProperty("/costCenterGroup", oNav.costCenterGroups);
+					if (oNav.costCenters && oNav.costCenters.length > 0) oFiltersModel.setProperty("/costCenter", oNav.costCenters);
+				}
+
 				if (oShared) {
 					oShared.setProperty("/budgetNavigation", null);
 				}
@@ -192,32 +140,28 @@ sap.ui.define([
 				this._syncModeState(oUi.getProperty("/reportType") || "GL");
 				this._updateSelectedParametersText();
 
-				// Fetch the data and lock the initial load flag
 				var sCompanyCode = oFiltersModel.getProperty("/companyCode");
 				if (sCompanyCode) {
 					var that = this;
 					setTimeout(function() {
 						if (that._validateMandatory()) {
-							that._fetchBudgetData(false);
-							that._bIsInitiallyLoaded = true; // Mark as loaded so it never overwrites again
+							that._fetchBudgetData(false); // This will automatically trigger the optimized F4 load!
+							that._bIsInitiallyLoaded = true;
 						}
 					}, 50);
 				}
-
 			} else {
-				// =================================================================
-				// SUBSEQUENT VISITS: Ignore View 1. Keep the user's manual changes!
-				// =================================================================
+				// Navigating Back: Do nothing! Your selected F4 arrays will naturally stay on the screen.
 				this._syncModeState(oUi.getProperty("/reportType") || "GL");
 				this._updateSelectedParametersText();
 				this._updateKpisFromActiveMode();
 			}
 		},
-		
+
 		onAfterRendering: function() {
 			// this._configureBudgetChart("budgetGlChart", "Current Yearly Budget by Cost Center and G/L Group");
 			// this._configureBudgetChart("budgetNonGlChart", "Current Yearly Budget by Cost Center Group");
-			
+
 			this._configureBudgetChart("budgetGlChart", "Last Year Actual vs Current Year Budget by Cost Center and G/L Group");
 			this._configureBudgetChart("budgetNonGlChart", "Last Year Actual vs Current Year Budget by Cost Center");
 
@@ -238,17 +182,17 @@ sap.ui.define([
 		_getCurrentFinancialPeriod: function() {
 			var iCalendarMonth = new Date().getMonth() + 1; // 1 (Jan) to 12 (Dec)
 			var iFinancialPeriod;
-			
+
 			if (iCalendarMonth >= 4) {
 				// April (4) through December (12) -> Subtract 3
 				// e.g., June (6) - 3 = Period 3. Sept (9) - 3 = Period 6.
-				iFinancialPeriod = iCalendarMonth - 3; 
+				iFinancialPeriod = iCalendarMonth - 3;
 			} else {
 				// January (1) through March (3) -> Add 9
 				// e.g., Jan (1) + 9 = Period 10.
 				iFinancialPeriod = iCalendarMonth + 9;
 			}
-			
+
 			return String(iFinancialPeriod);
 		},
 
@@ -256,16 +200,103 @@ sap.ui.define([
 		// BACKEND DATA FETCHING LOGIC (ZBUDGET_AVL_SRV_SRV)
 		// =========================================================
 
+		// _initBudgetOData: function() {
+		// 	var oBudgetModel = this.getOwnerComponent().getModel("budgetService");
+		// 	if (!oBudgetModel) {
+		// 		return Promise.reject(new Error("Budget Service OData model not found. Check manifest.json."));
+		// 	}
+
+		// 	var pMeta = oBudgetModel.metadataLoaded();
+
+		// 	// SINGLETON: Only run this once!
+		// 	if (!this._pBudgetLookupsLoaded) {
+		// 		this._pBudgetLookupsLoaded = pMeta.then(function() {
+		// 			return this._loadBudgetLookups();
+		// 		}.bind(this));
+		// 	}
+
+		// 	return Promise.all([
+		// 		this._initOData(),
+		// 		pMeta,
+		// 		this._pBudgetLookupsLoaded
+		// 	]);
+		// },
+		
 		_initBudgetOData: function() {
 			var oBudgetModel = this.getOwnerComponent().getModel("budgetService");
 			if (!oBudgetModel) {
 				return Promise.reject(new Error("Budget Service OData model not found. Check manifest.json."));
 			}
-			// Wait for BOTH the default model (for Lookups) AND the budget model metadata
+
+			var pMeta = oBudgetModel.metadataLoaded();
+
+			// SINGLETON: Only run this once!
+			if (!this._pBudgetLookupsLoaded) {
+				this._pBudgetLookupsLoaded = pMeta.then(function() {
+					return this._loadBudgetLookups();
+				}.bind(this));
+			}
+
+			// =========================================================
+			// CRITICAL PERFORMANCE FIX:
+			// Removed `this._initOData()` so View 1's heavy 
+			// `es_detailset` is NEVER called by the Budget view!
+			// =========================================================
 			return Promise.all([
-				this._initOData(),
-				oBudgetModel.metadataLoaded()
+				pMeta,
+				this._pBudgetLookupsLoaded
 			]);
+		},
+
+		_loadBudgetLookups: function() {
+			var oLookups = this.getView().getModel("lookups");
+			// Ensure lookups model exists
+			if (!oLookups) {
+				oLookups = new sap.ui.model.json.JSONModel({});
+				this.getView().setModel(oLookups, "lookups");
+			}
+
+			// 1. CO Group F4 (Metadata has only Co_grp)
+			var pCoGrp = this._readBudgetOData("/CoGroupF4Set", "").then(function(aRes) {
+				oLookups.setProperty("/costCenterGroups", (aRes || []).map(function(o) {
+					return {
+						key: o.Co_grp,
+						text: o.Co_grp
+					};
+				}));
+			});
+
+			// 2. Cost Center F4 (Metadata has Kostl & Ltext)
+			var pCc = this._readBudgetOData("/CostCenterF4Set", "").then(function(aRes) {
+				oLookups.setProperty("/costCenters", (aRes || []).map(function(o) {
+					return {
+						key: o.Kostl,
+						text: o.Ltext ? (o.Kostl + " - " + o.Ltext) : o.Kostl
+					};
+				}));
+			});
+
+			// 3. GL Account F4 (Metadata has Saknr & Txt50)
+			var pGlAcc = this._readBudgetOData("/GLAccountF4Set", "").then(function(aRes) {
+				oLookups.setProperty("/glAccounts", (aRes || []).map(function(o) {
+					return {
+						key: o.Saknr,
+						text: o.Txt50 ? (o.Saknr + " - " + o.Txt50) : o.Saknr
+					};
+				}));
+			});
+
+			// 4. GL Group F4 (Metadata has only Gl_grp)
+			var pGlGrp = this._readBudgetOData("/GLGroupF4Set", "").then(function(aRes) {
+				oLookups.setProperty("/glGroups", (aRes || []).map(function(o) {
+					return {
+						key: o.Gl_grp,
+						text: o.Gl_grp
+					};
+				}));
+			});
+
+			return Promise.all([pCoGrp, pCc, pGlAcc, pGlGrp]);
 		},
 
 		_readBudgetOData: function(sPath, sFilterString) {
@@ -374,56 +405,82 @@ sap.ui.define([
 					// =========================================================
 					// MODERN CUSTOM "NO DATA" DIALOG
 					// =========================================================
-					if (aMappedGlRows.length === 0 && aMappedNonGlRows.length === 0) {
-						if (!that._oNoDataDialog) {
-							that._oNoDataDialog = new sap.m.Dialog({
-								showHeader: false, // Hides the clunky top bar for a sleek look
-								contentWidth: "24rem",
-								content: [
-									new sap.m.VBox({
-										alignItems: "Center",
-										justifyContent: "Center",
-										items: [
-											// 1. Large, elegant warning/search icon
-											new sap.ui.core.Icon({
-												src: "sap-icon://search", // or "sap-icon://alert"
-												size: "4rem",
-												color: "#E9730C"
-											}).addStyleClass("fcrPulseIcon sapUiMediumMarginTop sapUiSmallMarginBottom"), // <-- ADDED fcrPulseIcon
+					// =========================================================
+					// MODERN CUSTOM "NO DATA" & "PARTIAL DATA" DIALOG
+					// =========================================================
+					var bGlEmpty = (aMappedGlRows.length === 0);
+					var bNonGlEmpty = (aMappedNonGlRows.length === 0);
 
-											// 2. Strong Title
-											new sap.m.Title({
-												text: "No Records Found",
-												level: "H2"
-											}).addStyleClass("sapUiSmallMarginBottom"),
+					// Trigger dialog if AT LEAST ONE of the tables is empty
+					if (bGlEmpty || bNonGlEmpty) { 
+						var sDialogTitle = "";
+						var sDialogMessage = "";
+						var sIconSrc = "sap-icon://message-information"; // Default icon for partial data
 
-											// 3. Friendly, readable instructions
-											new sap.m.Text({
-												text: "We couldn't find any fixed cost records for your current parameters.",
-												textAlign: "Center"
-											}).addStyleClass("sapUiTinyMarginBottom")
-
-											// new sap.m.Text({
-											// 	text: "Try adjusting your Fiscal Year, Company Code, or clearing your specific GL/Profit Centre filters.",
-											// 	textAlign: "Center"
-											// })
-										]
-									}).addStyleClass("sapUiMediumMargin")
-								],
-								buttons: [
-									new sap.m.Button({
-										text: "Got it",
-										type: "Emphasized", // Solid blue button
-										press: function() {
-											that._oNoDataDialog.close();
-										}
-									})
-								]
-							});
-							that.getView().addDependent(that._oNoDataDialog);
+						if (bGlEmpty && bNonGlEmpty) {
+							// SCENARIO 1: Both are empty
+							sDialogTitle = "No Records Found";
+							sDialogMessage = "We couldn't find any fixed cost records for your current parameters.";
+							sIconSrc = "sap-icon://search"; 
+						} else if (!bGlEmpty && bNonGlEmpty) {
+							// SCENARIO 2: GL has data, Non-GL is empty
+							sDialogTitle = "Partial Records Found";
+							sDialogMessage = "G/L wise table has data, but the Non-G/L table has no data for your current parameters.";
+						} else if (bGlEmpty && !bNonGlEmpty) {
+							// SCENARIO 3: Non-GL has data, GL is empty
+							sDialogTitle = "Partial Records Found";
+							sDialogMessage = "Non-G/L wise table has data, but the G/L table has no data for your current parameters.";
 						}
+
+						// Destroy the old dialog if it exists so we can recreate it with the new dynamic text
+						if (that._oNoDataDialog) {
+							that._oNoDataDialog.destroy();
+							that._oNoDataDialog = null;
+						}
+
+						that._oNoDataDialog = new sap.m.Dialog({
+							showHeader: false, 
+							contentWidth: "24rem",
+							content: [
+								new sap.m.VBox({
+									alignItems: "Center",
+									justifyContent: "Center",
+									items: [
+										// 1. Dynamic Icon
+										new sap.ui.core.Icon({
+											src: sIconSrc, 
+											size: "4rem",
+											color: "#E9730C"
+										}).addStyleClass("fcrPulseIcon sapUiMediumMarginTop sapUiSmallMarginBottom"),
+
+										// 2. Dynamic Title
+										new sap.m.Title({
+											text: sDialogTitle,
+											level: "H2"
+										}).addStyleClass("sapUiSmallMarginBottom"),
+
+										// 3. Dynamic Message
+										new sap.m.Text({
+											text: sDialogMessage,
+											textAlign: "Center"
+										}).addStyleClass("sapUiTinyMarginBottom")
+									]
+								}).addStyleClass("sapUiMediumMargin")
+							],
+							buttons: [
+								new sap.m.Button({
+									text: "Got it",
+									type: "Emphasized", 
+									press: function() {
+										that._oNoDataDialog.close();
+									}
+								})
+							]
+						});
+						that.getView().addDependent(that._oNoDataDialog);
 						that._oNoDataDialog.open();
 					}
+					// =========================================================
 					// =========================================================
 
 					that._applySearch(oUi.getProperty("/globalSearch") || "");
@@ -738,7 +795,7 @@ sap.ui.define([
 		onReset: function() {
 			var sMode = this.getView().getModel("ui").getProperty("/reportType") || "GL";
 			var sCurrentMonth = String(new Date().getMonth() + 1);
-			
+
 			this.getView().getModel("filters").setData({
 				companyCode: "1100",
 				fiscalYear: String(new Date().getFullYear()),
@@ -792,31 +849,33 @@ sap.ui.define([
 			File.save(sCsv, sName, "csv", "text/csv");
 		},
 
-		// onGlGroupValueHelp: function() {
-		// 	this._openSingleSelectValueHelp("G/L Group", "glGroups", "/glGroup");
-		// },
-		// onGlAccountValueHelp: function() {
-		// 	this._openSingleSelectValueHelp("G/L Account", "glAccounts", "/glAccount");
-		// },
-		// onCostCenterGroupValueHelp: function() {
-		// 	this._openSingleSelectValueHelp("Cost Center Group", "costCenterGroups", "/costCenterGroup");
-		// },
-		// onCostCenterValueHelp: function() {
-		// 	this._openSingleSelectValueHelp("Cost Center", "costCenters", "/costCenter");
-		// },
-
-		// Use View 1's Multi-Select dialog for these 4 fields
 		onGlGroupValueHelp: function() {
-			this._openMultiSelectValueHelp("G/L Group", "glGroups", "/glGroup");
+			this._getBusyDialog().open();
+			this._initBudgetOData().then(function() {
+				this._getBusyDialog().close();
+				this._openMultiSelectValueHelp("G/L Group", "glGroups", "glGroup");
+			}.bind(this));
 		},
 		onGlAccountValueHelp: function() {
-			this._openMultiSelectValueHelp("G/L Account", "glAccounts", "/glAccount");
+			this._getBusyDialog().open();
+			this._initBudgetOData().then(function() {
+				this._getBusyDialog().close();
+				this._openMultiSelectValueHelp("G/L Account", "glAccounts", "glAccount");
+			}.bind(this));
 		},
 		onCostCenterGroupValueHelp: function() {
-			this._openMultiSelectValueHelp("Cost Center Group", "costCenterGroups", "/costCenterGroup");
+			this._getBusyDialog().open();
+			this._initBudgetOData().then(function() {
+				this._getBusyDialog().close();
+				this._openMultiSelectValueHelp("CO Group", "costCenterGroups", "costCenterGroup");
+			}.bind(this));
 		},
 		onCostCenterValueHelp: function() {
-			this._openMultiSelectValueHelp("Cost Center", "costCenters", "/costCenter");
+			this._getBusyDialog().open();
+			this._initBudgetOData().then(function() {
+				this._getBusyDialog().close();
+				this._openMultiSelectValueHelp("Cost Center", "costCenters", "costCenter");
+			}.bind(this));
 		},
 
 		onPeriodValueHelp: function() {
