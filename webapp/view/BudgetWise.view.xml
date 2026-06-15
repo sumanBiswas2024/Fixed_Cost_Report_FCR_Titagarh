@@ -261,7 +261,7 @@
 					<Panel headerText="" expandable="false" expanded="true" class="fcrOutPanel" visible="true">
 						<content>
 							<suite:ChartContainer id="budgetGlChartContainer" showFullScreen="true" showPersonalization="false" autoAdjustHeight="false"
-								showLegendButton="false" title="G/L Group Wise Details Budget View" class="fcrChartContainer">
+								showLegendButton="false" title="G/L Group Wise Details Budget View (Amounts in ₹ Lakhs)" class="fcrChartContainer">
 								<suite:content>
 									<suite:ChartContainerContent icon="sap-icon://table-chart" title="Table View">
 										<suite:content>
@@ -409,7 +409,7 @@
 					<Panel headerText="" expandable="false" expanded="true" class="fcrOutPanel" visible="true">
 						<content>
 							<suite:ChartContainer id="budgetNonGlChartContainer" showFullScreen="true" showPersonalization="false" autoAdjustHeight="false"
-								showLegendButton="false" title="Non G/L Wise Details Budget View" class="fcrChartContainer">
+								showLegendButton="false" title="Non G/L Wise Details Budget View (Amounts in ₹ Lakhs)" class="fcrChartContainer">
 								<suite:content>
 									<suite:ChartContainerContent icon="sap-icon://table-chart" title="Table View">
 										<suite:content>

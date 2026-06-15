@@ -1454,7 +1454,7 @@ sap.ui.define([
 				label: "Cost Center Description"
 			}, {
 				key: "coGroup",
-				label: "CO Group"
+				label: "Cost Centre Group"
 			}, {
 				key: "gl",
 				label: "G/L Account"
@@ -1465,14 +1465,14 @@ sap.ui.define([
 				key: "glGroup",
 				label: "G/L Group"
 			}, {
-				key: "yearlyBudget",
-				label: "Uploaded Yearly Budget"
-			}, {
 				key: "oldYearlyValue",
-				label: "Old Yearly Value"
+				label: "Last Year Actual"
+			}, {
+				key: "yearlyBudget",
+				label: "Current Year Budget"
 			}, {
 				key: "previousTwoMonthsValue",
-				label: "Previous two months value"
+				label: "Last Two Months Actual Value"
 			}, {
 				key: "currentMonthValue",
 				label: "Current Month Value"
@@ -1482,7 +1482,7 @@ sap.ui.define([
 		_getNonGlColumns: function() {
 			return [{
 				key: "coGroup",
-				label: "CO Group"
+				label: "Cost Centre Group"
 			}, {
 				key: "costCenter",
 				label: "Cost Center"
@@ -1490,17 +1490,14 @@ sap.ui.define([
 				key: "costCenterDesc",
 				label: "Cost Center Description"
 			}, {
-				key: "gl",
-				label: "G/L Account"
+				key: "oldYearlyValue",
+				label: "Last Year Actual"
 			}, {
 				key: "yearlyBudget",
-				label: "Uploaded Yearly Budget"
-			}, {
-				key: "oldYearlyValue",
-				label: "Old Yearly Value"
+				label: "Current Year Budget"
 			}, {
 				key: "previousTwoMonthsValue",
-				label: "Previous two months value"
+				label: "Last Two Months Actual Value"
 			}, {
 				key: "currentMonthValue",
 				label: "Current Month Value"
