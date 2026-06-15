@@ -1512,50 +1512,87 @@ sap.ui.define([
 			var oBudget = this.getView().getModel("budget");
 			var bGlMode = this.getView().getModel("ui").getProperty("/isGlMode");
 
-			// Grab the existing loaded data based on active tab
 			var aRows = bGlMode ? (oBudget.getProperty("/glRows") || []) : (oBudget.getProperty("/nonGlRows") || []);
 
-			// 1. Sort for Left Column Chart (By Uploaded Yearly Budget)
-			var aSortedForColumn = aRows.slice().sort(function(a, b) {
-				return (b.yearlyBudget || 0) - (a.yearlyBudget || 0);
+			this._updateTop5YearChart(aRows, bGlMode);
+			this._updateTop5MonthChart(aRows, bGlMode);
+			this._refreshTop5ChartStyling(bGlMode);
+		},
+
+		_updateTop5YearChart: function(aRows, bGlMode) {
+			var oBudget = this.getView().getModel("budget");
+			oBudget.setProperty("/top5ColumnData", this._buildTop5YearChartData(aRows, bGlMode));
+		},
+
+		_updateTop5MonthChart: function(aRows, bGlMode) {
+			var oBudget = this.getView().getModel("budget");
+			oBudget.setProperty("/top5PieData", this._buildTop5MonthChartData(aRows, bGlMode));
+		},
+
+		_buildTop5YearChartData: function(aRows, bGlMode) {
+			return this._buildTop5ChartData(aRows, bGlMode, "yearlyBudget", "columnValue");
+		},
+
+		_buildTop5MonthChartData: function(aRows, bGlMode) {
+			return this._buildTop5ChartData(aRows, bGlMode, "currentMonthValue", "pieValue");
+		},
+
+		_buildTop5ChartData: function(aRows, bGlMode, sSortKey, sValueKey) {
+			var aSorted = (aRows || []).slice().sort(function(a, b) {
+				return (b[sSortKey] || 0) - (a[sSortKey] || 0);
 			}).slice(0, 5);
 
-			var aColumnData = aSortedForColumn.map(function(oRow) {
+			return aSorted.map(function(oRow, iIndex) {
+				var oData = this._getTop5DimensionData(oRow, bGlMode);
+				oData[sValueKey] = oRow[sSortKey] || 0;
+				oData.colorIndex = iIndex;
+				return oData;
+			}.bind(this));
+		},
+
+		_getTop5DimensionData: function(oRow, bGlMode) {
+			if (bGlMode) {
 				return {
-					name: bGlMode ? (oRow.glGroup || oRow.gl || "") : (oRow.costCenterDesc || oRow.costCenter || ""),
-					columnValue: oRow.yearlyBudget || 0
+					glAccount: oRow.glAccount || oRow.gl || "",
+					glGroup: oRow.glGroup || "",
+					displayName: [oRow.glAccount || oRow.gl || "", oRow.glGroup || ""].filter(function(sVal) {
+						return !!String(sVal || "").trim();
+					}).join(" - ")
 				};
-			});
+			}
 
-			// 2. Sort for Right Pie Chart (By Current Month Value)
-			var aSortedForPie = aRows.slice().sort(function(a, b) {
-				return (b.currentMonthValue || 0) - (a.currentMonthValue || 0);
-			}).slice(0, 5);
+			return {
+				costCentre: oRow.costCenter || "",
+				costCentreDesc: oRow.costCenterDesc || "",
+				displayName: [oRow.costCenter || "", oRow.costCenterDesc || ""].filter(function(sVal) {
+					return !!String(sVal || "").trim();
+				}).join(" - ")
+			};
+		},
 
-			var aPieData = aSortedForPie.map(function(oRow) {
-				return {
-					name: bGlMode ? (oRow.glGroup || oRow.gl || "") : (oRow.costCenterDesc || oRow.costCenter || ""),
-					pieValue: oRow.currentMonthValue || 0
-				};
-			});
+		_getTop5DisplayName: function(oRow, bGlMode) {
+			if (bGlMode) {
+				return [oRow.glAccount || oRow.gl || "", oRow.glGroup || ""].filter(function(sVal) {
+					return !!String(sVal || "").trim();
+				}).join(" - ");
+			}
 
-			// Apply to model
-			oBudget.setProperty("/top5ColumnData", aColumnData);
-			oBudget.setProperty("/top5PieData", aPieData);
-
-			// Apply dynamic colors
-			this._refreshTop5ChartStyling();
+			return [oRow.costCenter || "", oRow.costCenterDesc || ""].filter(function(sVal) {
+				return !!String(sVal || "").trim();
+			}).join(" - ");
 		},
 
 		_configureTop5Charts: function() {
-			// Configure ALL 4 Top 5 Charts so they are ready when toggled
-			["top5ColumnChartGl", "top5ColumnChartNonGl"].forEach(function(sId) {
-				var oColChart = this.byId(sId);
+			[
+				["top5ColumnChartGl", "Top 5 Current Year Budget", "G/L Account + G/L Group"],
+				["top5ColumnChartNonGl", "Top 5 Current Year Budget", "Cost Centre + Cost Centre Description"]
+			].forEach(function(aConfig) {
+				var oColChart = this.byId(aConfig[0]);
 				if (oColChart && !oColChart.data("configured")) {
 					oColChart.setVizProperties({
 						title: {
 							visible: true,
-							text: "Top 5 Current Year Budget"
+							text: aConfig[1]
 						},
 						legend: {
 							visible: false
@@ -1576,33 +1613,40 @@ sap.ui.define([
 							}
 						},
 						categoryAxis: {
+							title: {
+								visible: true,
+								text: aConfig[2]
+							},
 							label: {
+								visible: true,
+								allowMultiline: true,
+								linesOfWrap: 3,
+								overlapBehavior: "wrap",
 								rotation: true,
 								angle: 30,
+								maxWidth: 240,
+								truncatedLabelRatio: 1,
 								style: {
 									fontSize: "10px",
 									fontWeight: "bold"
 								}
 							}
 						}
-						// valueAxis: {
-						// 	title: {
-						// 		visible: true,
-						// 		text: "Amount (Lakhs)"
-						// 	}
-						// }
 					});
 					oColChart.data("configured", true);
 				}
 			}.bind(this));
 
-			["top5PieChartGl", "top5PieChartNonGl"].forEach(function(sId) {
-				var oPieChart = this.byId(sId);
+			[
+				["top5PieChartGl", "Top 5 Current Month Value", "G/L Account + G/L Group"],
+				["top5PieChartNonGl", "Top 5 Current Month Value", "Cost Centre + Cost Centre Description"]
+			].forEach(function(aConfig) {
+				var oPieChart = this.byId(aConfig[0]);
 				if (oPieChart && !oPieChart.data("configured")) {
 					oPieChart.setVizProperties({
 						title: {
 							visible: true,
-							text: "Top 5 Current Month Value"
+							text: aConfig[1]
 						},
 						legend: {
 							visible: true,
@@ -1613,6 +1657,12 @@ sap.ui.define([
 								visible: true
 							},
 							drawingEffect: "glossy"
+						},
+						categoryAxis: {
+							title: {
+								visible: true,
+								text: aConfig[2]
+							}
 						}
 					});
 					oPieChart.data("configured", true);
@@ -1620,31 +1670,35 @@ sap.ui.define([
 			}.bind(this));
 		},
 
-		_refreshTop5ChartStyling: function() {
+		_refreshTop5ChartStyling: function(bGlMode) {
 			var oBudget = this.getView().getModel("budget");
-			var bGlMode = this.getView().getModel("ui").getProperty("/isGlMode");
+			bGlMode = (typeof bGlMode === "boolean") ? bGlMode : this.getView().getModel("ui").getProperty("/isGlMode");
 
-			// Figure out which exact chart IDs we should be styling based on the active tab
 			var sColChartId = bGlMode ? "top5ColumnChartGl" : "top5ColumnChartNonGl";
 			var sPieChartId = bGlMode ? "top5PieChartGl" : "top5PieChartNonGl";
+			var sScope = bGlMode ? "GL" : "NONGL";
 
-			// Style Active Column Chart
 			var oColChart = this.byId(sColChartId);
 			if (oColChart) {
 				var aColData = oBudget.getProperty("/top5ColumnData") || [];
+				var iYearOffset = bGlMode ? 0 : 6;
 				var aRules = aColData.map(function(d) {
-					var sDimName = bGlMode ? "G/L Group" : "Cost Centre Description";
+					var oDimContext = bGlMode ? {
+						"GL Account": d.glAccount || "",
+						"GL Group": d.glGroup || ""
+					} : {
+						"Cost Centre": d.costCentre || "",
+						"Cost Centre Description": d.costCentreDesc || ""
+					};
 					return {
-						dataContext: {
-							[sDimName]: d.name
-						},
+						dataContext: oDimContext,
 						properties: {
-							color: this._colorForKey(d.name)
+							color: this._top5ColorByIndex(iYearOffset + (d.colorIndex || 0))
 						}
 					};
 				}.bind(this));
 				var aColPalette = aColData.map(function(d) {
-					return this._colorForKey(d.name);
+					return this._top5ColorByIndex(iYearOffset + (d.colorIndex || 0));
 				}.bind(this));
 
 				oColChart.setVizProperties({
@@ -1661,15 +1715,42 @@ sap.ui.define([
 			var oPieChart = this.byId(sPieChartId);
 			if (oPieChart) {
 				var aPieData = oBudget.getProperty("/top5PieData") || [];
+				var iMonthOffset = bGlMode ? 3 : 9;
 				var aPiePalette = aPieData.map(function(d) {
-					return this._colorForKey(d.name);
+					return this._top5ColorByIndex(iMonthOffset + (d.colorIndex || 0));
 				}.bind(this));
 				oPieChart.setVizProperties({
+					legend: {
+						visible: true,
+						position: "right"
+					},
 					plotArea: {
 						colorPalette: aPiePalette
 					}
 				});
 			}
+		},
+
+		_top5DistinctPalette: function() {
+			return [
+				"#0070F2",
+				"#FF8A00",
+				"#00B26F",
+				"#E3001B",
+				"#8B5CF6",
+				"#00B8D9",
+				"#FF4D8D",
+				"#A15C00",
+				"#6DD400",
+				"#00C853",
+				"#3D5AFE",
+				"#FFB300"
+			];
+		},
+
+		_top5ColorByIndex: function(iIndex) {
+			var aPalette = this._top5DistinctPalette();
+			return aPalette[Math.abs(iIndex || 0) % aPalette.length];
 		},
 
 		_getGlColumns: function() {

@@ -192,7 +192,7 @@
 			<VBox class="fcrContentSection">
 				<VBox visible="{ui>/isGlMode}">
 					<Panel headerText="G/L Group Wise Top 5 Budget View" expandable="false" expanded="true" class="fcrOutPanel sapUiSmallMarginBottom"
-						visible="false">
+						visible="true">
 						<content>
 							<layout:Grid defaultSpan="L6 M6 S12">
 								<suite:ChartContainer id="ccTop5ColGl" title="Top 5 Current Year Budget" showFullScreen="true" showPersonalization="false"
@@ -201,20 +201,21 @@
 										<suite:ChartContainerContent icon="sap-icon://bar-chart" title="Column Chart View">
 											<suite:content>
 												<viz:VizFrame id="top5ColumnChartGl" width="100%" height="320px" vizType="column" uiConfig="{applicationSet:'fiori'}">
-													<viz:dataset>
-														<viz.data:FlattenedDataset data="{budget>/top5ColumnData}">
-															<viz.data:dimensions>
-																<viz.data:DimensionDefinition name="G/L Group" value="{budget>name}"/>
-															</viz.data:dimensions>
-															<viz.data:measures>
-																<viz.data:MeasureDefinition name="Current Year Budget" value="{budget>columnValue}"/>
-															</viz.data:measures>
-														</viz.data:FlattenedDataset>
-													</viz:dataset>
-													<viz:feeds>
-														<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Current Year Budget"/>
-														<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="G/L Group"/>
-													</viz:feeds>
+												<viz:dataset>
+													<viz.data:FlattenedDataset data="{budget>/top5ColumnData}">
+														<viz.data:dimensions>
+															<viz.data:DimensionDefinition name="GL Account" value="{budget>glAccount}"/>
+															<viz.data:DimensionDefinition name="GL Group" value="{budget>glGroup}"/>
+														</viz.data:dimensions>
+														<viz.data:measures>
+															<viz.data:MeasureDefinition name="Current Year Budget" value="{budget>columnValue}"/>
+														</viz.data:measures>
+													</viz.data:FlattenedDataset>
+												</viz:dataset>
+												<viz:feeds>
+													<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Current Year Budget"/>
+													<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="GL Account,GL Group"/>
+												</viz:feeds>
 													<viz:dependents>
 														<viz:Popover id="top5ColumnPopoverGl"/>
 													</viz:dependents>
@@ -228,11 +229,11 @@
 									<suite:content>
 										<suite:ChartContainerContent icon="sap-icon://pie-chart" title="Pie Chart View">
 											<suite:content>
-												<viz:VizFrame id="top5PieChartGl" width="100%" height="320px" vizType="pie" uiConfig="{applicationSet:'fiori'}">
+												<viz:VizFrame id="top5PieChartGl" width="100%" height="320px" vizType="donut" uiConfig="{applicationSet:'fiori'}">
 													<viz:dataset>
 														<viz.data:FlattenedDataset data="{budget>/top5PieData}">
 															<viz.data:dimensions>
-																<viz.data:DimensionDefinition name="G/L Group" value="{budget>name}"/>
+																<viz.data:DimensionDefinition name="GL Group" value="{budget>displayName}"/>
 															</viz.data:dimensions>
 															<viz.data:measures>
 																<viz.data:MeasureDefinition name="Current Month Value" value="{budget>pieValue}"/>
@@ -241,7 +242,7 @@
 													</viz:dataset>
 													<viz:feeds>
 														<viz.feeds:FeedItem uid="size" type="Measure" values="Current Month Value"/>
-														<viz.feeds:FeedItem uid="color" type="Dimension" values="G/L Group"/>
+														<viz.feeds:FeedItem uid="color" type="Dimension" values="GL Group"/>
 													</viz:feeds>
 													<viz:dependents>
 														<viz:Popover id="top5PiePopoverGl"/>
@@ -350,20 +351,21 @@
 										<suite:ChartContainerContent icon="sap-icon://bar-chart" title="Column Chart View">
 											<suite:content>
 												<viz:VizFrame id="top5ColumnChartNonGl" width="100%" height="320px" vizType="column" uiConfig="{applicationSet:'fiori'}">
-													<viz:dataset>
-														<viz.data:FlattenedDataset data="{budget>/top5ColumnData}">
-															<viz.data:dimensions>
-																<viz.data:DimensionDefinition name="Cost Centre Description" value="{budget>name}"/>
-															</viz.data:dimensions>
-															<viz.data:measures>
-																<viz.data:MeasureDefinition name="Current Year Budget" value="{budget>columnValue}"/>
-															</viz.data:measures>
-														</viz.data:FlattenedDataset>
-													</viz:dataset>
-													<viz:feeds>
-														<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Current Year Budget"/>
-														<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Cost Centre Description"/>
-													</viz:feeds>
+												<viz:dataset>
+													<viz.data:FlattenedDataset data="{budget>/top5ColumnData}">
+														<viz.data:dimensions>
+															<viz.data:DimensionDefinition name="Cost Centre" value="{budget>costCentre}"/>
+															<viz.data:DimensionDefinition name="Cost Centre Description" value="{budget>costCentreDesc}"/>
+														</viz.data:dimensions>
+														<viz.data:measures>
+															<viz.data:MeasureDefinition name="Current Year Budget" value="{budget>columnValue}"/>
+														</viz.data:measures>
+													</viz.data:FlattenedDataset>
+												</viz:dataset>
+												<viz:feeds>
+													<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Current Year Budget"/>
+													<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Cost Centre,Cost Centre Description"/>
+												</viz:feeds>
 													<viz:dependents>
 														<viz:Popover id="top5ColumnPopoverNonGl"/>
 													</viz:dependents>
@@ -377,11 +379,11 @@
 									<suite:content>
 										<suite:ChartContainerContent icon="sap-icon://pie-chart" title="Pie Chart View">
 											<suite:content>
-												<viz:VizFrame id="top5PieChartNonGl" width="100%" height="320px" vizType="pie" uiConfig="{applicationSet:'fiori'}">
+												<viz:VizFrame id="top5PieChartNonGl" width="100%" height="320px" vizType="donut" uiConfig="{applicationSet:'fiori'}">
 													<viz:dataset>
 														<viz.data:FlattenedDataset data="{budget>/top5PieData}">
 															<viz.data:dimensions>
-																<viz.data:DimensionDefinition name="Cost Centre Description" value="{budget>name}"/>
+																<viz.data:DimensionDefinition name="Cost Centre Description" value="{budget>displayName}"/>
 															</viz.data:dimensions>
 															<viz.data:measures>
 																<viz.data:MeasureDefinition name="Current Month Value" value="{budget>pieValue}"/>
