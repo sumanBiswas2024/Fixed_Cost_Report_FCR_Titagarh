@@ -456,7 +456,8 @@
 													<viz.data:FlattenedDataset data="{budget>/nonGlChartRows}">
 														<viz.data:dimensions>
 															<!--<viz.data:DimensionDefinition name="Cost Centre Description" value="{budget>name}"/>-->
-															<viz.data:DimensionDefinition name="Category" value="{budget>costCentreDesc}"/>
+															<viz.data:DimensionDefinition name="Cost Centre" value="{budget>costCentre}"/>
+															<viz.data:DimensionDefinition name="Cost Centre Description" value="{budget>costCentreDesc}"/>
 														</viz.data:dimensions>
 														<viz.data:measures>
 															<viz.data:MeasureDefinition name="Last Year Actual" value="{budget>lastYearActual}"/>
@@ -466,7 +467,7 @@
 												</viz:dataset>
 												<viz:feeds>
 													<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Last Year Actual,Current Year Budget"/>
-													<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Category"/>
+													<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Cost Centre,Cost Centre Description"/>
 												</viz:feeds>
 												<viz:dependents>
 													<viz:Popover id="budgetNonGlPopover"/>

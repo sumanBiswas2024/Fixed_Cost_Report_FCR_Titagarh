@@ -792,7 +792,9 @@ sap.ui.define([
 					oData.glGroup = (oRow.glGroup || oRow.Gl_grp);
 				} else {
 					// Non-GL Mode: Keep your original flat dimension label
-					oData.costCentreDesc = oRow.name || oRow.costCenterDesc || oRow.costCenter;
+					// oData.costCentreDesc = oRow.name || oRow.costCenterDesc || oRow.costCenter;
+					oData.costCentre = (oRow.costCenter);
+					oData.costCentreDesc = (oRow.costCenterDesc);
 				}
 
 				return oData;
