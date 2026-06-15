@@ -221,7 +221,7 @@ sap.ui.define([
 		// 		this._pBudgetLookupsLoaded
 		// 	]);
 		// },
-		
+
 		_initBudgetOData: function() {
 			var oBudgetModel = this.getOwnerComponent().getModel("budgetService");
 			if (!oBudgetModel) {
@@ -502,7 +502,7 @@ sap.ui.define([
 		// 		});
 		// 	}, 50);
 		// },
-		
+
 		_readBudgetOData: function(sPath, sFilterString, sSelectFields) {
 			var oModel = this.getOwnerComponent().getModel("budgetService");
 			return new Promise(function(resolve, reject) {
@@ -619,7 +619,7 @@ sap.ui.define([
 					var bNonGlEmpty = (aMappedNonGlRows.length === 0);
 
 					// Trigger dialog if AT LEAST ONE of the tables is empty
-					if (bGlEmpty || bNonGlEmpty) { 
+					if (bGlEmpty || bNonGlEmpty) {
 						var sDialogTitle = "";
 						var sDialogMessage = "";
 						var sIconSrc = "sap-icon://message-information"; // Default icon for partial data
@@ -628,7 +628,7 @@ sap.ui.define([
 							// SCENARIO 1: Both are empty
 							sDialogTitle = "No Records Found";
 							sDialogMessage = "We couldn't find any fixed cost records for your current parameters.";
-							sIconSrc = "sap-icon://search"; 
+							sIconSrc = "sap-icon://search";
 						} else if (!bGlEmpty && bNonGlEmpty) {
 							// SCENARIO 2: GL has data, Non-GL is empty
 							sDialogTitle = "Partial Records Found";
@@ -646,7 +646,7 @@ sap.ui.define([
 						}
 
 						that._oNoDataDialog = new sap.m.Dialog({
-							showHeader: false, 
+							showHeader: false,
 							contentWidth: "24rem",
 							content: [
 								new sap.m.VBox({
@@ -655,7 +655,7 @@ sap.ui.define([
 									items: [
 										// 1. Dynamic Icon
 										new sap.ui.core.Icon({
-											src: sIconSrc, 
+											src: sIconSrc,
 											size: "4rem",
 											color: "#E9730C"
 										}).addStyleClass("fcrPulseIcon sapUiMediumMarginTop sapUiSmallMarginBottom"),
@@ -677,7 +677,7 @@ sap.ui.define([
 							buttons: [
 								new sap.m.Button({
 									text: "Got it",
-									type: "Emphasized", 
+									type: "Emphasized",
 									press: function() {
 										that._oNoDataDialog.close();
 									}
@@ -769,14 +769,33 @@ sap.ui.define([
 			};
 		},
 
+		// _createBudgetChartRows: function(aRows, sMode) {
+		// 	return aRows.map(function(oRow) {
+		// 		return {
+		// 			name: sMode === "GL" ? (oRow.glGroup || oRow.gl || "") : (oRow.costCenterDesc || oRow.costCenter || ""),
+		// 			currentYearBudget: oRow.yearlyBudget,
+		// 			lastYearActual: oRow.oldYearlyValue,
+		// 			value: oRow.yearlyBudget
+		// 		};
+		// 	});
+		// },
 		_createBudgetChartRows: function(aRows, sMode) {
 			return aRows.map(function(oRow) {
-				return {
-					name: sMode === "GL" ? (oRow.glGroup || oRow.gl || "") : (oRow.costCenterDesc || oRow.costCenter || ""),
-					currentYearBudget: oRow.yearlyBudget,
-					lastYearActual: oRow.oldYearlyValue,
-					value: oRow.yearlyBudget
+				var oData = {
+					currentYearBudget: parseFloat(oRow.yearlyBudget || 0),
+					lastYearActual: parseFloat(oRow.oldYearlyValue || 0)
 				};
+
+				if (sMode === "GL") {
+					// GL Mode: Add hierarchical dimensions
+					oData.glAccount = (oRow.gl || oRow.Saknr);
+					oData.glGroup = (oRow.glGroup || oRow.Gl_grp);
+				} else {
+					// Non-GL Mode: Keep your original flat dimension label
+					oData.costCentreDesc = oRow.name || oRow.costCenterDesc || oRow.costCenter;
+				}
+
+				return oData;
 			});
 		},
 
