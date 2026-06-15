@@ -357,16 +357,25 @@
     color: #0284c7;
 }
 
+
 /*.fcrSubtitle {*/
+
+
 /*    color: #64748b;*/
+
+
 /*    font-size: 0.8rem;*/
+
+
 /*}*/
+
 .fcrSubtitle {
     color: #0284c7;
     font-size: 1rem;
     font-weight: bold;
     margin-left: 20px
 }
+
 .fcrSubtitleText {
     margin-left: 20px;
     font-weight: normal;
@@ -1452,24 +1461,40 @@
     border-color: #aae084 !important;
 }
 
-/* ========================================================= */
-/* KPI HOVER EFFECTS                                         */
+.fcrCardBgRed {
+    background: linear-gradient(135deg, #fc9d9d 0%, #fee8e8 100%) !important;
+    border-color: #fca5a5 !important;
+}
+
+
 /* ========================================================= */
 
+
+/* KPI HOVER EFFECTS                                         */
+
+
+/* ========================================================= */
+
+
 /* 1. Hover for Blue Card */
+
 .fcrCardBgBlue:hover {
     /* Darkens the gradient stops slightly */
     background: linear-gradient(135deg, #aed2ea 0%, #cceafc 100%) !important;
     border-color: #81c5e8 !important;
 }
 
+
 /* 2. Hover for Purple Card */
+
 .fcrCardBgPurple:hover {
     background: linear-gradient(135deg, #d3b0f5 0%, #e8d0f7 100%) !important;
     border-color: #b58ae8 !important;
 }
 
+
 /* 3. Hover for Amber Card */
+
 .fcrCardBgAmber:hover {
     background: linear-gradient(135deg, #e0d18d 0%, #fdf0a6 100%) !important;
     border-color: #f1d368 !important;
@@ -1480,6 +1505,13 @@
     background: linear-gradient(135deg, #98df61 0%, #cdf7ad 100%) !important;
     border-color: #92cc6a !important;
 }
+
+.fcrCardBgRed:hover {
+    /* Darkens the gradient stops slightly */
+    background: linear-gradient(135deg, #f88282 0%, #fcd6d6 100%) !important;
+    border-color: #f77070 !important;
+}
+
 
 /* Make the icon box white so it pops */
 
@@ -1508,7 +1540,8 @@
 .fcrIconBgBlue,
 .fcrIconBgPurple,
 .fcrIconBgTeal,
-.fcrIconBgAmber {
+.fcrIconBgAmber,
+.fcrIconBgRed {
     background-color: #ffffff !important;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
     /* Adds a tiny shadow so the icon floats */
@@ -1523,6 +1556,10 @@
 
 .fcrIconBlue {
     color: #0284c7 !important;
+}
+
+.fcrIconRed {
+    color: #dc2626 !important;
 }
 
 
@@ -1577,6 +1614,8 @@
     color: #d54d4d !important;
 }
 
+.fcrTextRed {}
+
 
 /* --- TWO-LINE CLAMP FOR LONG NAMES --- */
 
@@ -1603,23 +1642,30 @@
     color: #4b5563;
 }
 
+
 /* The Number: Bold and Colored */
+
 .fcrModernAmountColored {
     font-size: 0.85rem !important;
     font-weight: 800 !important;
-    color: #16a34a  !important; /* Your desired dark color */
+    color: #16a34a !important;
+    /* Your desired dark color */
 }
 
+
 /* The Unit: Neutral color (doesn't take the colored class) */
+
 .fcrModernUnitText {
     font-size: 0.85rem !important;
     font-weight: 600 !important;
-    color: #4b5563 !important; /* Standard grey for units */
+    color: #4b5563 !important;
+    /* Standard grey for units */
 }
 
 .sapMTB-Transparent-CTX.sapMTB {
-     padding-left: 0rem; 
+    padding-left: 0rem;
 }
+
 
 /* ========================================================= */
 
@@ -1629,9 +1675,8 @@
 
 /* ========================================================= */
 
-
-.navBackButton{
-	background-color: #ffffff !important;
+.navBackButton {
+    background-color: #ffffff !important;
 }
 
 .fcrBtnBudget .sapMBtnInner {
@@ -1652,4 +1697,236 @@
 .fcrBtnBudget:active .sapMBtnInner {
     transform: translateY(0);
     box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
+}
+
+
+/* ========================================================= */
+
+
+/* BUDGET VIEW ONLY: 5-COLUMN ULTRA-COMPACT KPI CARDS        */
+
+
+/* ========================================================= */
+
+
+/* 1. Grid Override for exactly 5 Columns */
+
+.bwKpiGrid.sapUiRespGrid {
+    display: grid !important;
+    grid-template-columns: repeat(5, 1fr) !important;
+    gap: 0.5rem !important;
+    margin-top: 0;
+    padding-top: 1rem;
+}
+
+.bwKpiGrid.sapUiRespGrid > div {
+    width: 100% !important;
+    margin: 0 !important;
+    display: flex !important;
+}
+
+
+/* 2. Compact Card Base */
+
+.bwModernCard {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 1rem;
+    padding: 0.5rem 0.6rem !important;
+    /* Ultra-tight padding */
+    gap: 0.5rem !important;
+    /* Tight spacing between icon and text */
+    box-sizing: border-box;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    height: auto !important;
+    min-height: 5.5rem !important;
+    /* Smaller height */
+    width: 100%;
+}
+
+.bwModernCard:hover {
+    z-index: 10;
+    transform: translateY(0px);
+}
+
+
+/* 3. Shrunk Icon Box */
+
+.bwModernIconWrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 2.2rem !important;
+    height: 2.2rem !important;
+    border-radius: 0.5rem !important;
+    flex-shrink: 0;
+}
+
+.bwModernIcon {
+    font-size: 1.1rem !important;
+}
+
+
+/* 4. Text Wrappers & Fonts (Ultra-compact) */
+
+.bwModernDataWrap {
+    flex: 1;
+    overflow: hidden;
+    min-width: 0;
+    /* Critical for shrinking text */
+}
+
+.bwModernTitle {
+    font-weight: 700;
+    font-size: 0.80rem !important;
+    color: #1f2937;
+    line-height: 1.1 !important;
+    margin-bottom: 0.15rem !important;
+    white-space: normal !important;
+    /* Wraps cleanly to 2 lines */
+}
+
+.bwModernValueLine {
+    display: flex;
+    align-items: baseline !important;
+    gap: 0.2rem !important;
+    flex-wrap: wrap !important;
+}
+
+.bwModernValue {
+    font-weight: 800;
+    font-size: 1.35rem !important;
+    /* Small enough for 7+ digits */
+    line-height: 1.1 !important;
+    letter-spacing: -0.5px !important;
+    word-break: break-word !important;
+}
+
+.bwModernUnit {
+    font-weight: 600;
+    font-size: 0.65rem !important;
+    color: #4b5563;
+    white-space: nowrap !important;
+}
+
+
+/* 5. Original Colors Re-applied to bw... Classes */
+
+.bwCardBgBlue {
+    background: linear-gradient(135deg, #c5deef 0%, #e0f2fe 100%) !important;
+    border-color: #99d6f5 !important;
+}
+
+.bwCardBgBlue:hover {
+    background: linear-gradient(135deg, #aed2ea 0%, #cceafc 100%) !important;
+    border-color: #81c5e8 !important;
+}
+
+.bwIconBgBlue {
+    background-color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.bwIconBlue {
+    color: #0284c7 !important;
+}
+
+.bwTextBlue {
+    color: #0284c7 !important;
+}
+
+.bwCardBgPurple {
+    background: linear-gradient(135deg, #e3c8fd 0%, #f3e8ff 100%) !important;
+    border-color: #cfacf5 !important;
+}
+
+.bwCardBgPurple:hover {
+    background: linear-gradient(135deg, #d3b0f5 0%, #e8d0f7 100%) !important;
+    border-color: #b58ae8 !important;
+}
+
+.bwIconBgPurple {
+    background-color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.bwIconPurple {
+    color: #7c3aed !important;
+}
+
+.bwCardBgAmber {
+    background: linear-gradient(135deg, #e9dca5 0%, #fef8c7 100%) !important;
+    border-color: #f9e389 !important;
+}
+
+.bwCardBgAmber:hover {
+    background: linear-gradient(135deg, #e0d18d 0%, #fdf0a6 100%) !important;
+    border-color: #f1d368 !important;
+}
+
+.bwIconBgAmber {
+    background-color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.bwIconAmber {
+    color: #d97706 !important;
+}
+
+.bwCardBgGreen {
+    background: linear-gradient(135deg, #a8dd7f 0%, #e5fed1 100%) !important;
+    border-color: #aae084 !important;
+}
+
+.bwCardBgGreen:hover {
+    background: linear-gradient(135deg, #98df61 0%, #cdf7ad 100%) !important;
+    border-color: #92cc6a !important;
+}
+
+.bwTextGreen {
+    color: #16a34a !important;
+}
+
+.bwCardBgRed {
+    background: linear-gradient(135deg, #fc9d9d 0%, #fee8e8 100%) !important;
+    border-color: #fca5a5 !important;
+}
+
+.bwCardBgRed:hover {
+    background: linear-gradient(135deg, #f88282 0%, #fcd6d6 100%) !important;
+    border-color: #f77070 !important;
+}
+
+.bwIconBgRed {
+    background-color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.bwIconRed {
+    color: #dc2626 !important;
+}
+
+.bwTextDark {
+    color: #d54d4d !important;
+}
+
+
+/* Responsiveness */
+
+@media (max-width: 1200px) {
+    .bwKpiGrid.sapUiRespGrid {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+}
+
+@media (max-width: 900px) {
+    .bwKpiGrid.sapUiRespGrid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .bwKpiGrid.sapUiRespGrid {
+        grid-template-columns: repeat(1, 1fr) !important;
+    }
 }

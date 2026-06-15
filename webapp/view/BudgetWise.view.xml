@@ -96,52 +96,72 @@
 			</VBox>
 			<!--// KPIs //-->
 			<VBox>
-				<layout:Grid defaultSpan="XL3 L3 M6 S12" hSpacing="1" vSpacing="1" class="fcrKpiGrid">
-					<HBox class="fcrModernCard fcrCardBgBlue" alignItems="Center">
-						<VBox class="fcrModernIconWrap fcrIconBgBlue">
-							<core:Icon src="sap-icon://money-bills" class="fcrModernIcon fcrIconBlue"/>
+				<layout:Grid defaultSpan="XL3 L3 M6 S12" class="bwKpiGrid sapUiSmallMarginBottom">
+					<!-- KPI 1 -->
+					<HBox class="bwModernCard bwCardBgBlue" alignItems="Center">
+						<VBox class="bwModernIconWrap bwIconBgBlue">
+							<core:Icon src="sap-icon://money-bills" class="bwModernIcon bwIconBlue"/>
 						</VBox>
-						<VBox class="fcrModernDataWrap">
-							<Text text="{ui>/kpi1Label}" class="fcrModernTitle"/>
-							<HBox alignItems="Baseline" class="fcrModernValueLine">
-								<Text text="{ui>/kpi1Value}" class="fcrModernValue fcrTextGreen"/>
-								<Text text="Lakhs INR" class="fcrModernUnit"/>
+						<VBox class="bwModernDataWrap">
+							<Text text="{ui>/kpi1Label}" class="bwModernTitle"/>
+							<HBox alignItems="Baseline" class="bwModernValueLine">
+								<Text text="{ui>/kpi1Value}" class="bwModernValue bwTextGreen"/>
+								<Text text="Lakhs INR" class="bwModernUnit"/>
 							</HBox>
 						</VBox>
 					</HBox>
-					<HBox class="fcrModernCard fcrCardBgPurple" alignItems="Center">
-						<VBox class="fcrModernIconWrap fcrIconBgPurple">
-							<core:Icon src="sap-icon://history" class="fcrModernIcon fcrIconPurple"/>
+					
+					<!-- KPI 2 -->
+					<HBox class="bwModernCard bwCardBgPurple" alignItems="Center">
+						<VBox class="bwModernIconWrap bwIconBgPurple">
+							<core:Icon src="sap-icon://history" class="bwModernIcon bwIconPurple"/>
 						</VBox>
-						<VBox class="fcrModernDataWrap">
-							<Text text="{ui>/kpi2Label}" class="fcrModernTitle"/>
-							<HBox alignItems="Baseline" class="fcrModernValueLine">
-								<Text text="{ui>/kpi2Value}" class="fcrModernValue fcrTextBlue"/>
-								<Text text="Lakhs INR" class="fcrModernUnit"/>
+						<VBox class="bwModernDataWrap">
+							<Text text="{ui>/kpi2Label}" class="bwModernTitle"/>
+							<HBox alignItems="Baseline" class="bwModernValueLine">
+								<Text text="{ui>/kpi2Value}" class="bwModernValue bwTextBlue"/>
+								<Text text="Lakhs INR" class="bwModernUnit"/>
 							</HBox>
 						</VBox>
 					</HBox>
-					<HBox class="fcrModernCard fcrCardBgAmber" alignItems="Center">
-						<VBox class="fcrModernIconWrap fcrIconBgAmber">
-							<core:Icon src="sap-icon://calendar" class="fcrModernIcon fcrIconAmber"/>
+
+					<!-- KPI 3 -->
+					<HBox class="bwModernCard bwCardBgAmber" alignItems="Center">
+						<VBox class="bwModernIconWrap bwIconBgAmber">
+							<core:Icon src="sap-icon://calendar" class="bwModernIcon bwIconAmber"/>
 						</VBox>
-						<VBox class="fcrModernDataWrap">
-							<Text text="{ui>/kpi3Label}" class="fcrModernTitle"/>
-							<HBox alignItems="Baseline" class="fcrModernValueLine">
-								<Text text="{ui>/kpi3Value}" class="fcrModernValue fcrTextGreen"/>
-								<Text text="Lakhs INR" class="fcrModernUnit"/>
+						<VBox class="bwModernDataWrap">
+							<Text text="{ui>/kpi3Label}" class="bwModernTitle"/>
+							<HBox alignItems="Baseline" class="bwModernValueLine">
+								<Text text="{ui>/kpi3Value}" class="bwModernValue bwTextGreen"/>
+								<Text text="Lakhs INR" class="bwModernUnit"/>
 							</HBox>
 						</VBox>
 					</HBox>
-					<HBox class="fcrModernCard fcrCardBgGreen" alignItems="Center">
-						<VBox class="fcrModernIconWrap fcrIconBgBlue">
-							<core:Icon src="sap-icon://bullet-text" class="fcrModernIcon fcrIconBlue"/>
+
+					<!-- KPI 4 -->
+					<HBox class="bwModernCard bwCardBgGreen" alignItems="Center">
+						<VBox class="bwModernIconWrap bwIconBgBlue">
+							<core:Icon src="sap-icon://bullet-text" class="bwModernIcon bwIconBlue"/>
 						</VBox>
-						<VBox class="fcrModernDataWrap">
-							<Text text="{ui>/kpi4Label}" class="fcrModernTitle"/>
-							<HBox alignItems="Baseline" class="fcrModernValueLine">
-								<Text text="{ui>/kpi4Value}" class="fcrModernValue fcrTextBlue"/>
-								<Text text="Lakhs INR" class="fcrModernUnit"/>
+						<VBox class="bwModernDataWrap">
+							<Text text="{ui>/kpi4Label}" class="bwModernTitle"/>
+							<HBox alignItems="Baseline" class="bwModernValueLine">
+								<Text text="{ui>/kpi4Value}" class="bwModernValue bwTextBlue"/>
+								<Text text="Lakhs INR" class="bwModernUnit"/>
+							</HBox>
+						</VBox>
+					</HBox>
+
+					<!-- KPI 5 -->
+					<HBox class="bwModernCard bwCardBgRed" alignItems="Center">
+						<VBox class="bwModernIconWrap bwIconBgRed">
+							<core:Icon src="sap-icon://table-view" class="bwModernIcon bwIconRed"/>
+						</VBox>
+						<VBox class="bwModernDataWrap">
+							<Text text="Number of Records" class="bwModernTitle"/>
+							<HBox alignItems="Baseline" class="bwModernValueLine">
+								<Text text="{ui>/recordCount}" class="bwModernValue fcrTextDark"/>
 							</HBox>
 						</VBox>
 					</HBox>
