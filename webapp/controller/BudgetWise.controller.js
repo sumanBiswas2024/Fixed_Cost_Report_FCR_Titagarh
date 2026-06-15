@@ -299,7 +299,211 @@ sap.ui.define([
 			return Promise.all([pCoGrp, pCc, pGlAcc, pGlGrp]);
 		},
 
-		_readBudgetOData: function(sPath, sFilterString) {
+		// _readBudgetOData: function(sPath, sFilterString) {
+		// 	var oModel = this.getOwnerComponent().getModel("budgetService");
+		// 	return new Promise(function(resolve, reject) {
+		// 		if (!oModel) {
+		// 			reject(new Error("Budget Service OData model not found."));
+		// 			return;
+		// 		}
+
+		// 		// Bypass UI5's native filter parentheses by passing the exact string as a URL parameter
+		// 		var mParams = sFilterString ? {
+		// 			"$filter": sFilterString
+		// 		} : {};
+
+		// 		oModel.read(sPath, {
+		// 			urlParameters: mParams,
+		// 			success: function(oData) {
+		// 				resolve((oData && oData.results) ? oData.results : []);
+		// 			},
+		// 			error: function(oErr) {
+		// 				reject(oErr);
+		// 			}
+		// 		});
+		// 	});
+		// },
+
+		// _fetchBudgetData: function(bMarkRun) {
+		// 	var that = this;
+		// 	var oFilters = this.getView().getModel("filters").getData();
+		// 	var oUi = this.getView().getModel("ui");
+		// 	var oBudget = this.getView().getModel("budget");
+
+		// 	this._getBusyDialog().open();
+
+		// 	setTimeout(function() {
+		// 		var pReady = that._initBudgetOData();
+
+		// 		pReady.then(function() {
+		// 			var aCommonFilters = [];
+
+		// 			// 1. Standard Strings (BUILDS EXACT STRING FROM YOUR BACKEND TEST)
+		// 			if (oFilters.companyCode) {
+		// 				aCommonFilters.push("Bukrs eq '" + that._odataLiteral(oFilters.companyCode) + "'");
+		// 			}
+		// 			if (oFilters.fiscalYear) {
+		// 				aCommonFilters.push("Gjahr eq '" + that._odataLiteral(oFilters.fiscalYear) + "'");
+		// 			}
+		// 			if (oFilters.period) {
+		// 				// Removes leading zero (e.g., '03' becomes '3') exactly as tested in your backend GUI
+		// 				aCommonFilters.push("Monat eq '" + String(parseInt(oFilters.period, 10)) + "'");
+		// 			}
+
+		// 			// 2. Multi-Select Array Checks (Common)
+		// 			if (oFilters.costCenter && oFilters.costCenter.length > 0) {
+		// 				aCommonFilters.push("(" + oFilters.costCenter.map(function(oItem) {
+		// 					return "Kostl eq '" + that._odataLiteral(oItem.key) + "'";
+		// 				}).join(" or ") + ")");
+		// 			}
+		// 			if (oFilters.costCenterGroup && oFilters.costCenterGroup.length > 0) {
+		// 				aCommonFilters.push("(" + oFilters.costCenterGroup.map(function(oItem) {
+		// 					return "Co_grp eq '" + that._odataLiteral(oItem.key) + "'";
+		// 				}).join(" or ") + ")");
+		// 			}
+
+		// 			var sCommonFilter = aCommonFilters.join(" and ");
+
+		// 			// 3. GL Specific Array Checks
+		// 			var aGlFilters = aCommonFilters.slice();
+
+		// 			if (oFilters.glAccount && oFilters.glAccount.length > 0) {
+		// 				aGlFilters.push("(" + oFilters.glAccount.map(function(oItem) {
+		// 					return "Saknr eq '" + that._odataLiteral(oItem.key) + "'";
+		// 				}).join(" or ") + ")");
+		// 			}
+		// 			if (oFilters.glGroup && oFilters.glGroup.length > 0) {
+		// 				aGlFilters.push("(" + oFilters.glGroup.map(function(oItem) {
+		// 					return "Gl_grp eq '" + that._odataLiteral(oItem.key) + "'";
+		// 				}).join(" or ") + ")");
+		// 			}
+
+		// 			var sGlFilter = aGlFilters.join(" and ");
+
+		// 			// Call BOTH endpoints simultaneously passing the RAW STRINGS
+		// 			return Promise.all([
+		// 				that._readBudgetOData("/COWithGLSet", sGlFilter),
+		// 				that._readBudgetOData("/COWithoutGLSet", sCommonFilter)
+		// 			]);
+		// 		}).then(function(aResults) {
+		// 			var aRawGlData = aResults[0] || [];
+		// 			var aRawNonGlData = aResults[1] || [];
+
+		// 			// 1. Process and Store GL Data
+		// 			var aMappedGlRows = aRawGlData.map(that._mapGlRow.bind(that)).filter(Boolean);
+		// 			oBudget.setProperty("/glRows", aMappedGlRows);
+		// 			oBudget.setProperty("/glChartRows", that._createBudgetChartRows(aMappedGlRows, "GL"));
+
+		// 			// 2. Process and Store Non-GL Data
+		// 			var aMappedNonGlRows = aRawNonGlData.map(that._mapNonGlRow.bind(that)).filter(Boolean);
+		// 			oBudget.setProperty("/nonGlRows", aMappedNonGlRows);
+		// 			oBudget.setProperty("/nonGlChartRows", that._createBudgetChartRows(aMappedNonGlRows, "NONGL"));
+
+		// 			// if (aMappedGlRows.length === 0 && aMappedNonGlRows.length === 0) {
+		// 			// 	MessageToast.show("No budget records found for the selected parameters.");
+		// 			// }
+		// 			// =========================================================
+		// 			// MODERN CUSTOM "NO DATA" DIALOG
+		// 			// =========================================================
+		// 			// =========================================================
+		// 			// MODERN CUSTOM "NO DATA" & "PARTIAL DATA" DIALOG
+		// 			// =========================================================
+		// 			var bGlEmpty = (aMappedGlRows.length === 0);
+		// 			var bNonGlEmpty = (aMappedNonGlRows.length === 0);
+
+		// 			// Trigger dialog if AT LEAST ONE of the tables is empty
+		// 			if (bGlEmpty || bNonGlEmpty) { 
+		// 				var sDialogTitle = "";
+		// 				var sDialogMessage = "";
+		// 				var sIconSrc = "sap-icon://message-information"; // Default icon for partial data
+
+		// 				if (bGlEmpty && bNonGlEmpty) {
+		// 					// SCENARIO 1: Both are empty
+		// 					sDialogTitle = "No Records Found";
+		// 					sDialogMessage = "We couldn't find any fixed cost records for your current parameters.";
+		// 					sIconSrc = "sap-icon://search"; 
+		// 				} else if (!bGlEmpty && bNonGlEmpty) {
+		// 					// SCENARIO 2: GL has data, Non-GL is empty
+		// 					sDialogTitle = "Partial Records Found";
+		// 					sDialogMessage = "G/L wise table has data, but the Non-G/L table has no data for your current parameters.";
+		// 				} else if (bGlEmpty && !bNonGlEmpty) {
+		// 					// SCENARIO 3: Non-GL has data, GL is empty
+		// 					sDialogTitle = "Partial Records Found";
+		// 					sDialogMessage = "Non-G/L wise table has data, but the G/L table has no data for your current parameters.";
+		// 				}
+
+		// 				// Destroy the old dialog if it exists so we can recreate it with the new dynamic text
+		// 				if (that._oNoDataDialog) {
+		// 					that._oNoDataDialog.destroy();
+		// 					that._oNoDataDialog = null;
+		// 				}
+
+		// 				that._oNoDataDialog = new sap.m.Dialog({
+		// 					showHeader: false, 
+		// 					contentWidth: "24rem",
+		// 					content: [
+		// 						new sap.m.VBox({
+		// 							alignItems: "Center",
+		// 							justifyContent: "Center",
+		// 							items: [
+		// 								// 1. Dynamic Icon
+		// 								new sap.ui.core.Icon({
+		// 									src: sIconSrc, 
+		// 									size: "4rem",
+		// 									color: "#E9730C"
+		// 								}).addStyleClass("fcrPulseIcon sapUiMediumMarginTop sapUiSmallMarginBottom"),
+
+		// 								// 2. Dynamic Title
+		// 								new sap.m.Title({
+		// 									text: sDialogTitle,
+		// 									level: "H2"
+		// 								}).addStyleClass("sapUiSmallMarginBottom"),
+
+		// 								// 3. Dynamic Message
+		// 								new sap.m.Text({
+		// 									text: sDialogMessage,
+		// 									textAlign: "Center"
+		// 								}).addStyleClass("sapUiTinyMarginBottom")
+		// 							]
+		// 						}).addStyleClass("sapUiMediumMargin")
+		// 					],
+		// 					buttons: [
+		// 						new sap.m.Button({
+		// 							text: "Got it",
+		// 							type: "Emphasized", 
+		// 							press: function() {
+		// 								that._oNoDataDialog.close();
+		// 							}
+		// 						})
+		// 					]
+		// 				});
+		// 				that.getView().addDependent(that._oNoDataDialog);
+		// 				that._oNoDataDialog.open();
+		// 			}
+		// 			// =========================================================
+		// 			// =========================================================
+
+		// 			that._applySearch(oUi.getProperty("/globalSearch") || "");
+		// 			that._updateKpisFromActiveMode();
+
+		// 			that._updateTop5Charts();
+
+		// 			that._refreshBudgetChartStyling();
+
+		// 			that._bIsInitiallyLoaded = true;
+
+		// 		}).catch(function(oErr) {
+		// 			MessageBox.error("Failed to load budget data from backend.", {
+		// 				details: (oErr && oErr.message) ? oErr.message : String(oErr || "")
+		// 			});
+		// 			that._getBusyDialog().close();
+		// 		}).finally(function() {
+		// 			that._getBusyDialog().close();
+		// 		});
+		// 	}, 50);
+		// },
+		
+		_readBudgetOData: function(sPath, sFilterString, sSelectFields) {
 			var oModel = this.getOwnerComponent().getModel("budgetService");
 			return new Promise(function(resolve, reject) {
 				if (!oModel) {
@@ -307,10 +511,15 @@ sap.ui.define([
 					return;
 				}
 
-				// Bypass UI5's native filter parentheses by passing the exact string as a URL parameter
-				var mParams = sFilterString ? {
-					"$filter": sFilterString
-				} : {};
+				// Build optimized URL parameters
+				var mParams = {};
+				if (sFilterString) {
+					mParams["$filter"] = sFilterString;
+				}
+				if (sSelectFields) {
+					mParams["$select"] = sSelectFields; // Added $select to shrink payload
+				}
+				mParams["$top"] = "50000"; // Added $top to bypass default SAP limits safely
 
 				oModel.read(sPath, {
 					urlParameters: mParams,
@@ -380,10 +589,14 @@ sap.ui.define([
 
 					var sGlFilter = aGlFilters.join(" and ");
 
-					// Call BOTH endpoints simultaneously passing the RAW STRINGS
+					// ODATA OPTIMIZATION: $select strings to reduce payload size
+					var sGlSelect = "Bukrs,Gjahr,Monat,Kostl,Ltext,Co_grp,Saknr,Txt50,Gl_grp,YrValue,OldyValue,PrevTwo,CurrMonth";
+					var sNonGlSelect = "Bukrs,Gjahr,Monat,Kostl,Ltext,Co_grp,Saknr,YrValue,OldyValue,PrevTwo,CurrMonth";
+
+					// Call BOTH endpoints simultaneously passing the RAW STRINGS and SELECT fields
 					return Promise.all([
-						that._readBudgetOData("/COWithGLSet", sGlFilter),
-						that._readBudgetOData("/COWithoutGLSet", sCommonFilter)
+						that._readBudgetOData("/COWithGLSet", sGlFilter, sGlSelect),
+						that._readBudgetOData("/COWithoutGLSet", sCommonFilter, sNonGlSelect)
 					]);
 				}).then(function(aResults) {
 					var aRawGlData = aResults[0] || [];
@@ -399,12 +612,6 @@ sap.ui.define([
 					oBudget.setProperty("/nonGlRows", aMappedNonGlRows);
 					oBudget.setProperty("/nonGlChartRows", that._createBudgetChartRows(aMappedNonGlRows, "NONGL"));
 
-					// if (aMappedGlRows.length === 0 && aMappedNonGlRows.length === 0) {
-					// 	MessageToast.show("No budget records found for the selected parameters.");
-					// }
-					// =========================================================
-					// MODERN CUSTOM "NO DATA" DIALOG
-					// =========================================================
 					// =========================================================
 					// MODERN CUSTOM "NO DATA" & "PARTIAL DATA" DIALOG
 					// =========================================================
@@ -480,7 +687,6 @@ sap.ui.define([
 						that.getView().addDependent(that._oNoDataDialog);
 						that._oNoDataDialog.open();
 					}
-					// =========================================================
 					// =========================================================
 
 					that._applySearch(oUi.getProperty("/globalSearch") || "");
