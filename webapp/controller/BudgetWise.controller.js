@@ -861,12 +861,29 @@ sap.ui.define([
 			this._updateKpisFromActiveMode();
 			this._applySearch(this.getView().getModel("ui").getProperty("/globalSearch") || "");
 
+			this._setTop5ChartSwitchState(true);
 			setTimeout(function() {
 				this._refreshBudgetChartStyling();
+				this._updateTop5Charts(); // Top 5
 				this._connectBudgetPopovers();
+				setTimeout(function() {
+					this._setTop5ChartSwitchState(false);
+				}.bind(this), 0);
 			}.bind(this), 0);
+		},
 
-			this._updateTop5Charts(); // Top 5
+		_setTop5ChartSwitchState: function(bHidden) {
+			[
+				"top5ColumnChartGl",
+				"top5PieChartGl",
+				"top5ColumnChartNonGl",
+				"top5PieChartNonGl"
+			].forEach(function(sChartId) {
+				var oChart = this.byId(sChartId);
+				if (oChart) {
+					oChart.setVisible(!bHidden);
+				}
+			}.bind(this));
 		},
 
 		// =========================================================
@@ -1542,7 +1559,9 @@ sap.ui.define([
 		},
 
 		_buildTop5MonthChartData: function(aRows, bGlMode) {
-			return this._buildTop5ChartData(aRows, bGlMode, "currentMonthValue", "pieValue");
+			return this._buildTop5ChartData(aRows, bGlMode, "currentMonthValue", "pieValue").filter(function(oRow) {
+				return Number(oRow.pieValue || 0) !== 0;
+			});
 		},
 
 		_buildTop5ChartData: function(aRows, bGlMode, sSortKey, sValueKey) {
