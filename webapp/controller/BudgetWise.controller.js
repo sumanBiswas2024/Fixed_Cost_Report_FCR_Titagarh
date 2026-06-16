@@ -1444,48 +1444,56 @@ sap.ui.define([
 					},
 					plotArea: {
 						drawingEffect: "glossy",
+						// 1. Hardcode two distinct, fresh colors not used elsewhere in the app
+						// Index 0: Current Year Budget (Teal)
+						// Index 1: Last Year Actual (Rose)
 						colorPalette: [
-							this._colorForKey("Current Year Budget"),
-							this._colorForKey("Last Year Actual")
-						]
+							"#14b8a6", 
+							"#f43f5e"  
+						],
+						// 2. CRITICAL: Clear rules so the VizFrame maps the colors to the Measures (Yearly vs Last Year) 
+						// rather than trying to color them by GL Group name.
+						dataPointStyle: { 
+							rules: [] 
+						}
 					}
 				});
 			}.bind(this));
 		},
 
-		_dataPointRulesForBudgetChart: function(sChartId) {
-			var oBudget = this.getView().getModel("budget");
-			var aRules = [];
-			var sPath = sChartId === "budgetGlChart" ? "/glChartRows" : "/nonGlChartRows";
-			var aData = oBudget.getProperty(sPath) || [];
+		// _dataPointRulesForBudgetChart: function(sChartId) {
+		// 	var oBudget = this.getView().getModel("budget");
+		// 	var aRules = [];
+		// 	var sPath = sChartId === "budgetGlChart" ? "/glChartRows" : "/nonGlChartRows";
+		// 	var aData = oBudget.getProperty(sPath) || [];
 
-			for (var i = 0; i < aData.length; i++) {
-				var sName = aData[i].name;
-				aRules.push({
-					// This MUST match the DimensionDefinition name="Category" in your Budget XML
-					dataContext: {
-						"G/L Group": sName,
-						"Cost Centre Description": sName
-					},
-					properties: {
-						color: this._colorForKey(sName) // Inherited instantly from View1!
-					}
-				});
-			}
-			return aRules;
-		},
+		// 	for (var i = 0; i < aData.length; i++) {
+		// 		var sName = aData[i].name;
+		// 		aRules.push({
+		// 			// This MUST match the DimensionDefinition name="Category" in your Budget XML
+		// 			dataContext: {
+		// 				"G/L Group": sName,
+		// 				"Cost Centre Description": sName
+		// 			},
+		// 			properties: {
+		// 				color: this._colorForKey(sName) // Inherited instantly from View1!
+		// 			}
+		// 		});
+		// 	}
+		// 	return aRules;
+		// },
 
-		_paletteForBudgetChart: function(sChartId) {
-			var oBudget = this.getView().getModel("budget");
-			var aColors = [];
-			var sPath = sChartId === "budgetGlChart" ? "/glChartRows" : "/nonGlChartRows";
-			var aData = oBudget.getProperty(sPath) || [];
+		// _paletteForBudgetChart: function(sChartId) {
+		// 	var oBudget = this.getView().getModel("budget");
+		// 	var aColors = [];
+		// 	var sPath = sChartId === "budgetGlChart" ? "/glChartRows" : "/nonGlChartRows";
+		// 	var aData = oBudget.getProperty(sPath) || [];
 
-			for (var i = 0; i < aData.length; i++) {
-				aColors.push(this._colorForKey(aData[i].name));
-			}
-			return aColors;
-		},
+		// 	for (var i = 0; i < aData.length; i++) {
+		// 		aColors.push(this._colorForKey(aData[i].name));
+		// 	}
+		// 	return aColors;
+		// },
 
 		_connectBudgetPopovers: function() {
 			[
@@ -1592,7 +1600,8 @@ sap.ui.define([
 					oColChart.setVizProperties({
 						title: {
 							visible: true,
-							text: aConfig[1]
+							// text: aConfig[1]
+							text: ""
 						},
 						legend: {
 							visible: false
@@ -1646,11 +1655,16 @@ sap.ui.define([
 					oPieChart.setVizProperties({
 						title: {
 							visible: true,
-							text: aConfig[1]
+							// text: aConfig[1]
+							text: ""
 						},
 						legend: {
-							visible: true,
-							position: "right"
+							visible: true
+						},
+						legendGroup: { // CRITICAL FIX: Add this object for positioning
+							layout: {
+								position: "left" 
+							}
 						},
 						plotArea: {
 							dataLabel: {

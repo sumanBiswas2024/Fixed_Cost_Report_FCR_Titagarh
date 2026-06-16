@@ -191,7 +191,7 @@
 			<!--// GL Wise //-->
 			<VBox class="fcrContentSection">
 				<VBox visible="{ui>/isGlMode}">
-					<Panel headerText="G/L Group Wise Top 5 Budget View" expandable="false" expanded="true" class="fcrOutPanel sapUiSmallMarginBottom"
+					<Panel headerText="G/L Group Wise Top 5 Budget View (Amounts in ₹ Lakhs)" expandable="false" expanded="true" class="fcrOutPanel sapUiSmallMarginBottom"
 						visible="true">
 						<content>
 							<layout:Grid defaultSpan="L6 M6 S12">
@@ -233,7 +233,7 @@
 													<viz:dataset>
 														<viz.data:FlattenedDataset data="{budget>/top5PieData}">
 															<viz.data:dimensions>
-																<viz.data:DimensionDefinition name="GL Group" value="{budget>displayName}"/>
+																<viz.data:DimensionDefinition name="GL Group" value="{budget>displayName}" displayValue="{budget>glGroup}"/>
 															</viz.data:dimensions>
 															<viz.data:measures>
 																<viz.data:MeasureDefinition name="Current Month Value" value="{budget>pieValue}"/>
@@ -341,8 +341,8 @@
 					</Panel>
 				</VBox>
 				<VBox visible="{ui>/isNonGlMode}">
-					<Panel headerText="Non G/L Wise Top 5 Budget View" expandable="false" expanded="true" class="fcrOutPanel sapUiSmallMarginBottom"
-						visible="false">
+					<Panel headerText="Non G/L Wise Top 5 Budget View (Amounts in ₹ Lakhs)" expandable="false" expanded="true" class="fcrOutPanel sapUiSmallMarginBottom"
+						visible="true">
 						<content>
 							<layout:Grid defaultSpan="L6 M6 S12">
 								<suite:ChartContainer id="ccTop5ColNonGl" title="Top 5 Current Year Budget" showFullScreen="true" showPersonalization="false"
@@ -383,7 +383,7 @@
 													<viz:dataset>
 														<viz.data:FlattenedDataset data="{budget>/top5PieData}">
 															<viz.data:dimensions>
-																<viz.data:DimensionDefinition name="Cost Centre Description" value="{budget>displayName}"/>
+																<viz.data:DimensionDefinition name="Cost Centre Description" value="{budget>displayName}" displayValue="{budget>costCentreDesc}"/>
 															</viz.data:dimensions>
 															<viz.data:measures>
 																<viz.data:MeasureDefinition name="Current Month Value" value="{budget>pieValue}"/>
