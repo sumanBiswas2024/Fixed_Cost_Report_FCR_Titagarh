@@ -65,20 +65,20 @@
 							<!--	<Input value="{filters>/glGroup}" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onGlGroupValueHelp"-->
 							<!--		placeholder="Select G/L Group" valueState="{ui>/glGroupState}"/>-->
 							<!--</VBox>-->
-							<VBox class="fcrField fcrFieldPc">
-								<Label text="Cost Center" required="false"/>
+							<VBox class="fcrField fcrFieldPc" visible="{= !${ui>/isGlMode} }">
+								<Label text="Cost Center" required="true"/>
 								<MultiInput id="costCenterInputBudget" value="{path: 'filters>/costCenter', formatter: '.formatTokenKeys'}" showValueHelp="true"
 									valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onCostCenterValueHelp" placeholder="Select Cost Center"
 									valueState="{ui>/costCenterState}"/>
 							</VBox>
-							<VBox class="fcrField fcrFieldPc">
+							<VBox class="fcrField fcrFieldPc" visible="{= !${ui>/isGlMode} }">
 								<Label text="Cost Center Group" required="false"/>
 								<MultiInput id="costCenterGrpInputBudget" value="{path: 'filters>/costCenterGroup', formatter: '.formatTokenKeys'}" showValueHelp="true"
 									valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onCostCenterGroupValueHelp" placeholder="Select Cost Center Group"
 									valueState="{ui>/costCenterGroupState}"/>
 							</VBox>
-							<VBox class="fcrField fcrFieldGlg">
-								<Label text="G/L Account" required="false"/>
+							<VBox class="fcrField fcrFieldGlg" visible="{ui>/isGlMode}">
+								<Label text="G/L Account" required="true"/>
 								<MultiInput id="glAccountInputBudget" value="{path: 'filters>/glAccount', formatter: '.formatTokenKeys'}" showValueHelp="true"
 									valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onGlAccountValueHelp" placeholder="Select G/L Account"
 									valueState="{ui>/glAccountState}"/>
@@ -195,7 +195,7 @@
 			<VBox class="fcrContentSection">
 				<VBox visible="{ui>/isGlMode}">
 					<Panel headerText="G/L Group Wise Top 5 Budget View (Amounts in ₹ Lakhs)" expandable="false" expanded="true"
-						class="fcrOutPanel sapUiSmallMarginBottom" visible="true">
+						class="fcrOutPanel sapUiSmallMarginBottom" visible="false">
 						<content>
 							<layout:Grid defaultSpan="L6 M6 S12">
 								<suite:ChartContainer id="ccTop5ColGl" title="Top 5 Current Year Budget" showFullScreen="true" showPersonalization="false"
@@ -261,53 +261,57 @@
 					<Panel headerText="" expandable="false" expanded="true" class="fcrOutPanel" visible="true">
 						<content>
 							<suite:ChartContainer id="budgetGlChartContainer" showFullScreen="true" showPersonalization="false" autoAdjustHeight="false"
-								showLegendButton="false" title="G/L Group Wise Details Budget View (Amounts in ₹ Lakhs)" class="fcrChartContainer">
+								showLegendButton="false" title="Cost Centre Wise Details Budget View (Amounts in ₹ Lakhs)" class="fcrChartContainer">
 								<suite:content>
 									<suite:ChartContainerContent icon="sap-icon://table-chart" title="Table View">
 										<suite:content>
-											<table:Table id="budgetGlTable" rows="{budget>/glRows}" visibleRowCount="10" fixedColumnCount="3" selectionMode="None"
+											<table:Table id="budgetGlTable" rows="{budget>/glRows}" visibleRowCount="10" fixedColumnCount="0" selectionMode="None"
 												enableColumnReordering="true" enableCellFilter="true" noDataText="Run report to display G/L budget rows" class="fcrUiTable">
 												<table:columns>
-													<table:Column width="8rem" sortProperty="costCenter" filterProperty="costCenter">
+													<table:Column width="20rem" sortProperty="costCenter" filterProperty="costCenter">
 														<table:label><Label text="Cost Center"/></table:label>
 														<table:template><Text text="{budget>costCenter}"/></table:template>
 													</table:Column>
-													<table:Column width="12rem" sortProperty="costCenterDesc" filterProperty="costCenterDesc">
-														<table:label><Label text="Cost Center Description"/></table:label>
-														<table:template><Text text="{budget>costCenterDesc}"/></table:template>
-													</table:Column>
-													<table:Column width="10rem" sortProperty="coGroup" filterProperty="coGroup">
+													<!--<table:Column width="12rem" sortProperty="costCenterDesc" filterProperty="costCenterDesc">-->
+													<!--	<table:label><Label text="Cost Center Description"/></table:label>-->
+													<!--	<table:template><Text text="{budget>costCenterDesc}"/></table:template>-->
+													<!--</table:Column>-->
+													<table:Column width="20rem" sortProperty="coGroup" filterProperty="coGroup">
 														<table:label><Label text="Cost Centre Group"/></table:label>
 														<table:template><Text text="{budget>coGroup}"/></table:template>
 													</table:Column>
-													<table:Column width="12rem" sortProperty="gl" filterProperty="gl">
-														<table:label><Label text="G/L Account"/></table:label>
-														<table:template><Text text="{budget>gl}"/></table:template>
+													<!--<table:Column width="12rem" sortProperty="gl" filterProperty="gl">-->
+													<!--	<table:label><Label text="G/L Account"/></table:label>-->
+													<!--	<table:template><Text text="{budget>gl}"/></table:template>-->
+													<!--</table:Column>-->
+													<!--<table:Column width="12rem" sortProperty="glDesc" filterProperty="glDesc">-->
+													<!--	<table:label><Label text="G/L Description"/></table:label>-->
+													<!--	<table:template><Text text="{budget>glDesc}"/></table:template>-->
+													<!--</table:Column>-->
+													<!--<table:Column width="12rem" sortProperty="glGroup" filterProperty="glGroup">-->
+													<!--	<table:label><Label text="G/L Group"/></table:label>-->
+													<!--	<table:template><Text text="{budget>glGroup}"/></table:template>-->
+													<!--</table:Column>-->
+													<!--<table:Column width="10rem" sortProperty="oldYearlyValue" filterProperty="oldYearlyValue" hAlign="End">-->
+													<!--	<table:label><Label text="Last Year Actual"/></table:label>-->
+													<!--	<table:template><ObjectNumber number="{path: 'budget>oldYearlyValue', formatter: '.formatTableAmount'}"/></table:template>-->
+													<!--</table:Column>-->
+													<table:Column width="15rem" sortProperty="actulaYearlyBudgetValue" filterProperty="actulaYearlyBudgetValue" hAlign="Begin">
+														<table:label><Label text="Actual Yearly Budget"/></table:label>
+														<table:template><ObjectNumber number="{path: 'budget>actulaYearlyBudgetValue', formatter: '.formatTableAmount'}"/></table:template>
 													</table:Column>
-													<table:Column width="12rem" sortProperty="glDesc" filterProperty="glDesc">
-														<table:label><Label text="G/L Description"/></table:label>
-														<table:template><Text text="{budget>glDesc}"/></table:template>
-													</table:Column>
-													<table:Column width="12rem" sortProperty="glGroup" filterProperty="glGroup">
-														<table:label><Label text="G/L Group"/></table:label>
-														<table:template><Text text="{budget>glGroup}"/></table:template>
-													</table:Column>
-													<table:Column width="10rem" sortProperty="oldYearlyValue" filterProperty="oldYearlyValue" hAlign="End">
-														<table:label><Label text="Last Year Actual"/></table:label>
-														<table:template><ObjectNumber number="{path: 'budget>oldYearlyValue', formatter: '.formatTableAmount'}"/></table:template>
-													</table:Column>
-													<table:Column width="10rem" sortProperty="yearlyBudget" filterProperty="yearlyBudget" hAlign="End">
+													<table:Column width="15rem" sortProperty="yearlyBudget" filterProperty="yearlyBudget" hAlign="Begin">
 														<table:label><Label text="Current Year Budget"/></table:label>
 														<table:template><ObjectNumber number="{path: 'budget>yearlyBudget', formatter: '.formatTableAmount'}"/></table:template>
 													</table:Column>
-													<table:Column width="13rem" sortProperty="previousTwoMonthsValue" filterProperty="previousTwoMonthsValue" hAlign="End">
-														<table:label><Label text="Last Two Months Actual Value"/></table:label>
-														<table:template><ObjectNumber number="{path: 'budget>previousTwoMonthsValue', formatter: '.formatTableAmount'}"/></table:template>
-													</table:Column>
-													<table:Column width="12rem" sortProperty="currentMonthValue" filterProperty="currentMonthValue" hAlign="End">
-														<table:label><Label text="Current Month Value"/></table:label>
-														<table:template><ObjectNumber number="{path: 'budget>currentMonthValue', formatter: '.formatTableAmount'}"/></table:template>
-													</table:Column>
+													<!--<table:Column width="13rem" sortProperty="previousTwoMonthsValue" filterProperty="previousTwoMonthsValue" hAlign="End">-->
+													<!--	<table:label><Label text="Last Two Months Actual Value"/></table:label>-->
+													<!--	<table:template><ObjectNumber number="{path: 'budget>previousTwoMonthsValue', formatter: '.formatTableAmount'}"/></table:template>-->
+													<!--</table:Column>-->
+													<!--<table:Column width="12rem" sortProperty="currentMonthValue" filterProperty="currentMonthValue" hAlign="End">-->
+													<!--	<table:label><Label text="Current Month Value"/></table:label>-->
+													<!--	<table:template><ObjectNumber number="{path: 'budget>currentMonthValue', formatter: '.formatTableAmount'}"/></table:template>-->
+													<!--</table:Column>-->
 												</table:columns>
 											</table:Table>
 										</suite:content>
@@ -345,7 +349,7 @@
 				</VBox>
 				<VBox visible="{ui>/isNonGlMode}">
 					<Panel headerText="Non G/L Wise Top 5 Budget View (Amounts in ₹ Lakhs)" expandable="false" expanded="true"
-						class="fcrOutPanel sapUiSmallMarginBottom" visible="true">
+						class="fcrOutPanel sapUiSmallMarginBottom" visible="false">
 						<content>
 							<layout:Grid defaultSpan="L6 M6 S12">
 								<suite:ChartContainer id="ccTop5ColNonGl" title="Top 5 Current Year Budget" showFullScreen="true" showPersonalization="false"
@@ -411,45 +415,58 @@
 					<Panel headerText="" expandable="false" expanded="true" class="fcrOutPanel" visible="true">
 						<content>
 							<suite:ChartContainer id="budgetNonGlChartContainer" showFullScreen="true" showPersonalization="false" autoAdjustHeight="false"
-								showLegendButton="false" title="Non G/L Wise Details Budget View (Amounts in ₹ Lakhs)" class="fcrChartContainer">
+								showLegendButton="false" title="G/L Wise Details Budget View (Amounts in ₹ Lakhs)" class="fcrChartContainer">
 								<suite:content>
 									<suite:ChartContainerContent icon="sap-icon://table-chart" title="Table View">
 										<suite:content>
-											<table:Table id="budgetNonGlTable" rows="{budget>/nonGlRows}" visibleRowCount="10" fixedColumnCount="2" selectionMode="None"
+											<table:Table id="budgetNonGlTable" rows="{budget>/nonGlRows}" visibleRowCount="10" fixedColumnCount="0" selectionMode="None"
 												enableColumnReordering="true" enableCellFilter="true" noDataText="Run report to display non G/L budget rows" class="fcrUiTable">
 												<table:columns>
-													<table:Column width="10rem" sortProperty="coGroup" filterProperty="coGroup">
-														<table:label><Label text="Cost Centre Group"/></table:label>
-														<table:template><Text text="{budget>coGroup}"/></table:template>
-													</table:Column>
-													<table:Column width="10rem" sortProperty="costCenter" filterProperty="costCenter">
-														<table:label><Label text="Cost Center"/></table:label>
-														<table:template><Text text="{budget>costCenter}"/></table:template>
-													</table:Column>
-													<table:Column width="14rem" sortProperty="costCenterDesc" filterProperty="costCenterDesc">
-														<table:label><Label text="Cost Center Description"/></table:label>
-														<table:template><Text text="{budget>costCenterDesc}"/></table:template>
-													</table:Column>
+													<!--<table:Column width="10rem" sortProperty="coGroup" filterProperty="coGroup">-->
+													<!--	<table:label><Label text="Cost Centre Group"/></table:label>-->
+													<!--	<table:template><Text text="{budget>coGroup}"/></table:template>-->
+													<!--</table:Column>-->
+													<!--<table:Column width="10rem" sortProperty="costCenter" filterProperty="costCenter">-->
+													<!--	<table:label><Label text="Cost Center"/></table:label>-->
+													<!--	<table:template><Text text="{budget>costCenter}"/></table:template>-->
+													<!--</table:Column>-->
+													<!--<table:Column width="14rem" sortProperty="costCenterDesc" filterProperty="costCenterDesc">-->
+													<!--	<table:label><Label text="Cost Center Description"/></table:label>-->
+													<!--	<table:template><Text text="{budget>costCenterDesc}"/></table:template>-->
+													<!--</table:Column>-->
 													<!--<table:Column width="12rem" sortProperty="gl" filterProperty="gl">-->
 													<!--	<table:label><Label text="G/L Account"/></table:label>-->
 													<!--	<table:template><Text text="{budget>gl}"/></table:template>-->
 													<!--</table:Column>-->
-													<table:Column width="10rem" sortProperty="oldYearlyValue" filterProperty="oldYearlyValue" hAlign="End">
-														<table:label><Label text="Last Year Actual"/></table:label>
-														<table:template><ObjectNumber number="{path: 'budget>oldYearlyValue', formatter: '.formatTableAmount'}"/></table:template>
+													
+													<table:Column width="20rem" sortProperty="gl" filterProperty="gl">
+														<table:label><Label text="G/L Account"/></table:label>
+														<table:template><Text text="{budget>gl}"/></table:template>
 													</table:Column>
-													<table:Column width="10rem" sortProperty="yearlyBudget" filterProperty="yearlyBudget" hAlign="End">
+													<table:Column width="20rem" sortProperty="glGroup" filterProperty="glGroup">
+														<table:label><Label text="G/L Group"/></table:label>
+														<table:template><Text text="{budget>glGroup}"/></table:template>
+													</table:Column>
+													<!--<table:Column width="10rem" sortProperty="oldYearlyValue" filterProperty="oldYearlyValue" hAlign="End">-->
+													<!--	<table:label><Label text="Last Year Actual"/></table:label>-->
+													<!--	<table:template><ObjectNumber number="{path: 'budget>oldYearlyValue', formatter: '.formatTableAmount'}"/></table:template>-->
+													<!--</table:Column>-->
+													<table:Column width="15rem" sortProperty="actulaYearlyBudgetValue" filterProperty="actulaYearlyBudgetValue" hAlign="Begin">
+														<table:label><Label text="Actual Yearly Budget"/></table:label>
+														<table:template><ObjectNumber number="{path: 'budget>actulaYearlyBudgetValue', formatter: '.formatTableAmount'}"/></table:template>
+													</table:Column>
+													<table:Column width="15rem" sortProperty="yearlyBudget" filterProperty="yearlyBudget" hAlign="Begin">
 														<table:label><Label text="Current Year Budget"/></table:label>
 														<table:template><ObjectNumber number="{path: 'budget>yearlyBudget', formatter: '.formatTableAmount'}"/></table:template>
 													</table:Column>
-													<table:Column width="13rem" sortProperty="previousTwoMonthsValue" filterProperty="previousTwoMonthsValue" hAlign="End">
-														<table:label><Label text="Last Two Months Actual Value"/></table:label>
-														<table:template><ObjectNumber number="{path: 'budget>previousTwoMonthsValue', formatter: '.formatTableAmount'}"/></table:template>
-													</table:Column>
-													<table:Column width="12rem" sortProperty="currentMonthValue" filterProperty="currentMonthValue" hAlign="End">
-														<table:label><Label text="Current Month Value"/></table:label>
-														<table:template><ObjectNumber number="{path: 'budget>currentMonthValue', formatter: '.formatTableAmount'}"/></table:template>
-													</table:Column>
+													<!--<table:Column width="13rem" sortProperty="previousTwoMonthsValue" filterProperty="previousTwoMonthsValue" hAlign="End">-->
+													<!--	<table:label><Label text="Last Two Months Actual Value"/></table:label>-->
+													<!--	<table:template><ObjectNumber number="{path: 'budget>previousTwoMonthsValue', formatter: '.formatTableAmount'}"/></table:template>-->
+													<!--</table:Column>-->
+													<!--<table:Column width="12rem" sortProperty="currentMonthValue" filterProperty="currentMonthValue" hAlign="End">-->
+													<!--	<table:label><Label text="Current Month Value"/></table:label>-->
+													<!--	<table:template><ObjectNumber number="{path: 'budget>currentMonthValue', formatter: '.formatTableAmount'}"/></table:template>-->
+													<!--</table:Column>-->
 												</table:columns>
 											</table:Table>
 										</suite:content>
