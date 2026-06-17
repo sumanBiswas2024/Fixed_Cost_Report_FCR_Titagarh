@@ -113,17 +113,39 @@ sap.ui.define([
 
 			if (!this._bIsInitiallyLoaded) {
 				var oNav = oShared && oShared.getProperty("/budgetNavigation");
-				var sCurrentFinancialPeriod = this._getCurrentFinancialPeriod();
+				// var sCurrentFinancialPeriod = this._getCurrentFinancialPeriod();
 
-				var sFinalPeriod = sCurrentFinancialPeriod;
+				// var sFinalPeriod = sCurrentFinancialPeriod;
+				// if (oNav && oNav.fromPeriod) {
+				// 	sFinalPeriod = oNav.fromPeriod;
+				// }
+
+				// =========================================================
+				// NEW BUDGET PERIOD LOGIC: Ensure Period is ALWAYS an Array
+				// =========================================================
+				var aInitialPeriod = [];
+
 				if (oNav && oNav.fromPeriod) {
-					sFinalPeriod = oNav.fromPeriod;
+					// 1. User navigated from View 1. Convert the String into our Array format!
+					var sNavPeriod = oNav.fromPeriod;
+					var aPeriods = this._createBudgetPeriods();
+					var oMatched = aPeriods.filter(function(p) {
+						return p.key === sNavPeriod;
+					})[0];
+
+					aInitialPeriod = [{
+						key: sNavPeriod,
+						text: oMatched ? oMatched.text : sNavPeriod
+					}];
+				} else {
+					// 2. Direct load. Use our isolated Budget function to get Current Fiscal Month
+					aInitialPeriod = [this._getBudgetFiscalMonth()];
 				}
 
 				// Set all standard parameters
 				oFiltersModel.setProperty("/companyCode", (oNav && oNav.companyCode) ? oNav.companyCode : "1100");
 				oFiltersModel.setProperty("/fiscalYear", (oNav && oNav.fiscalYear) ? oNav.fiscalYear : String(new Date().getFullYear()));
-				oFiltersModel.setProperty("/period", sFinalPeriod);
+				oFiltersModel.setProperty("/period", aInitialPeriod);
 
 				// Carry over multi-selects from View 1 if they exist (otherwise leave blank [])
 				if (oNav) {
@@ -554,9 +576,27 @@ sap.ui.define([
 					if (oFilters.fiscalYear) {
 						aCommonFilters.push("Gjahr eq '" + that._odataLiteral(oFilters.fiscalYear) + "'");
 					}
-					if (oFilters.period) {
-						// Removes leading zero (e.g., '03' becomes '3') exactly as tested in your backend GUI
-						aCommonFilters.push("Monat eq '" + String(parseInt(oFilters.period, 10)) + "'");
+					// if (oFilters.period) {
+					// 	// Removes leading zero (e.g., '03' becomes '3') exactly as tested in your backend GUI
+					// 	aCommonFilters.push("Monat eq '" + String(parseInt(oFilters.period, 10)) + "'");
+					// }
+					// =======================================
+					// BUDGET MULTI-SELECT FILTERING FIX
+					// =======================================
+					if (oFilters.period && Array.isArray(oFilters.period) && oFilters.period.length > 0) {
+						var aPeriodOrs = oFilters.period.map(function(oItem) {
+							var sKey = oItem.key || oItem;
+							var sPadMonth = parseInt(sKey, 10) < 10 ? "0" + parseInt(sKey, 10) : String(sKey);
+							return "Monat eq '" + sPadMonth + "'";
+						});
+
+						// CRITICAL FIX: Only use parentheses if there are multiple selections!
+						// ABAP crashes if you send (Monat eq '03'), but accepts Monat eq '03'
+						if (aPeriodOrs.length === 1) {
+							aCommonFilters.push(aPeriodOrs[0]);
+						} else {
+							aCommonFilters.push("(" + aPeriodOrs.join(" or ") + ")");
+						}
 					}
 
 					// 2. Multi-Select Array Checks (Common)
@@ -595,8 +635,8 @@ sap.ui.define([
 
 					// Call BOTH endpoints simultaneously passing the RAW STRINGS and SELECT fields
 					return Promise.all([
-						that._readBudgetOData("/COWithGLSet", sGlFilter, sGlSelect),
-						that._readBudgetOData("/COWithoutGLSet", sCommonFilter, sNonGlSelect)
+						that._readBudgetOData("/GLDataSet", sGlFilter, sGlSelect),
+						that._readBudgetOData("/CostCenterDataSet", sCommonFilter, sNonGlSelect)
 					]);
 				}).then(function(aResults) {
 					var aRawGlData = aResults[0] || [];
@@ -1008,6 +1048,224 @@ sap.ui.define([
 				description: "12"
 			}];
 		},
+		// =========================================================
+		// ISOLATED BUDGET PERIOD LOGIC (No borrowing from View 1)
+		// =========================================================
+		_createBudgetPeriods: function() {
+			return [{
+				key: "1",
+				text: "April"
+			}, {
+				key: "2",
+				text: "May"
+			}, {
+				key: "3",
+				text: "June"
+			}, {
+				key: "4",
+				text: "July"
+			}, {
+				key: "5",
+				text: "August"
+			}, {
+				key: "6",
+				text: "September"
+			}, {
+				key: "7",
+				text: "October"
+			}, {
+				key: "8",
+				text: "November"
+			}, {
+				key: "9",
+				text: "December"
+			}, {
+				key: "10",
+				text: "January"
+			}, {
+				key: "11",
+				text: "February"
+			}, {
+				key: "12",
+				text: "March"
+			}];
+		},
+
+		_getBudgetFiscalMonth: function() {
+			var aPeriods = this._createBudgetPeriods();
+			var iMonth = new Date().getMonth(); // 0-11
+			var iFiscalPeriod = (iMonth >= 3) ? (iMonth - 2) : (iMonth + 10);
+			var sKey = String(iFiscalPeriod);
+
+			var oMatched = aPeriods.filter(function(p) {
+				return p.key === sKey;
+			})[0];
+			return {
+				key: sKey,
+				text: oMatched ? oMatched.text : sKey
+			};
+		},
+
+		formatBudgetTokenKeys: function(aSelectedItems) {
+			if (!aSelectedItems) {
+				return "";
+			}
+			if (typeof aSelectedItems === "string") {
+				var aPeriods = this._createBudgetPeriods();
+				var oFound = aPeriods.filter(function(p) {
+					return p.key === aSelectedItems;
+				})[0];
+				return oFound ? oFound.text : aSelectedItems;
+			}
+			if (Array.isArray(aSelectedItems)) {
+				if (aSelectedItems.length === 0) {
+					return "";
+				}
+				return aSelectedItems.map(function(oItem) {
+					return oItem.text || oItem.key || oItem;
+				}).join(", ");
+			}
+			return "";
+		},
+		onBudgetPeriodValueHelp: function() {
+			var oFiltersModel = this.getView().getModel("filters");
+			var aCurrent = oFiltersModel.getProperty("/period") || [];
+			var aPeriods = this._createBudgetPeriods();
+
+			// Fallback if data is corrupted
+			if (!Array.isArray(aCurrent)) {
+				if (typeof aCurrent === "string" && aCurrent !== "") {
+					var oMatched = aPeriods.filter(function(p) {
+						return p.key === aCurrent;
+					})[0];
+					aCurrent = [{
+						key: aCurrent,
+						text: oMatched ? oMatched.text : aCurrent
+					}];
+					oFiltersModel.setProperty("/period", aCurrent);
+				} else {
+					aCurrent = [];
+				}
+			}
+
+			var aSelectedKeys = aCurrent.map(function(item) {
+				return item.key;
+			});
+
+			// Create a completely standalone Dialog just for the Budget View
+			if (!this._oBudgetStandalonePeriodDialog) {
+				this._oBudgetStandalonePeriodDialog = new sap.m.Dialog({
+					title: "Select Period(s)",
+					contentWidth: "300px",
+					contentHeight: "400px",
+
+					// 1. ADD SEARCH FIELD IN SUBHEADER
+					subHeader: new sap.m.Bar({
+						contentMiddle: [
+							new sap.m.SearchField({
+								placeholder: "Search Period...",
+								liveChange: function(oEvent) {
+									var sValue = oEvent.getParameter("newValue");
+									var aFilters = [];
+									if (sValue && sValue.trim() !== "") {
+										aFilters.push(new sap.ui.model.Filter({
+											filters: [
+												new sap.ui.model.Filter("text", sap.ui.model.FilterOperator.Contains, sValue), // Search by Name (e.g., June)
+												new sap.ui.model.Filter("key", sap.ui.model.FilterOperator.Contains, sValue) // Search by Number (e.g., 3)
+											],
+											and: false
+										}));
+									}
+									var oList = this._oBudgetStandalonePeriodDialog.getContent()[0];
+									oList.getBinding("items").filter(aFilters);
+								}.bind(this)
+							})
+						]
+					}),
+
+					content: [
+						new sap.m.List({
+							mode: "MultiSelect",
+							items: {
+								path: "budgetLocal>/periods",
+								template: new sap.m.StandardListItem({
+									title: "{budgetLocal>text}",
+									description: "{budgetLocal>key}"
+								})
+							}
+						})
+					],
+
+					// 2. USE 'BUTTONS' ARRAY FOR OK, CLEAR ALL, AND CANCEL
+					buttons: [
+						new sap.m.Button({
+							text: "OK",
+							type: "Emphasized",
+							press: function() {
+								var oList = this._oBudgetStandalonePeriodDialog.getContent()[0];
+								var aContexts = oList.getSelectedContexts();
+								var aNewSelection = aContexts.map(function(oCtx) {
+									return {
+										key: oCtx.getProperty("key"),
+										text: oCtx.getProperty("text")
+									};
+								});
+								this.getView().getModel("filters").setProperty("/period", aNewSelection);
+								this._updateSelectedParametersText();
+								this._oBudgetStandalonePeriodDialog.close();
+							}.bind(this)
+						}),
+						new sap.m.Button({
+							text: "Clear All",
+							press: function() {
+								// Clears all checks from the list. User must still click OK to apply.
+								var oList = this._oBudgetStandalonePeriodDialog.getContent()[0];
+								oList.removeSelections(true);
+							}.bind(this)
+						}),
+						new sap.m.Button({
+							text: "Cancel",
+							press: function() {
+								this._oBudgetStandalonePeriodDialog.close();
+							}.bind(this)
+						})
+					]
+				});
+				this.getView().addDependent(this._oBudgetStandalonePeriodDialog);
+
+				// Bind local data
+				var oLocalModel = new sap.ui.model.json.JSONModel({
+					periods: aPeriods
+				});
+				this._oBudgetStandalonePeriodDialog.setModel(oLocalModel, "budgetLocal");
+			}
+
+			// --- RESET STATE EVERY TIME DIALOG OPENS ---
+
+			// A. Reset Search Field and List Filters
+			var oSearchField = this._oBudgetStandalonePeriodDialog.getSubHeader().getContentMiddle()[0];
+			oSearchField.setValue("");
+			var oList = this._oBudgetStandalonePeriodDialog.getContent()[0];
+			oList.getBinding("items").filter([]);
+
+			// B. Pre-select active items
+			oList.removeSelections(true);
+			oList.getItems().forEach(function(oItem) {
+				var sKey = oItem.getBindingContext("budgetLocal").getProperty("key");
+				if (aSelectedKeys.indexOf(sKey) !== -1) {
+					oItem.setSelected(true);
+				}
+			});
+
+			this._oBudgetStandalonePeriodDialog.open();
+		},
+
+		onBudgetTokenUpdate: function(oEvent) {
+			if (oEvent.getParameter("type") === "removed") {
+				this.getView().getModel("filters").setProperty("/period", []);
+				this._updateSelectedParametersText();
+			}
+		},
 
 		_syncModeState: function(sMode) {
 			var oUi = this.getView().getModel("ui");
@@ -1043,7 +1301,8 @@ sap.ui.define([
 			this.getView().getModel("filters").setData({
 				companyCode: "1100",
 				fiscalYear: String(new Date().getFullYear()),
-				period: "",
+				// period: "",
+				period: [],
 				glGroup: [],
 				glAccount: [],
 				costCenterGroup: [],
@@ -1253,10 +1512,18 @@ sap.ui.define([
 				aMissing.push("Fiscal Year");
 				bOk = false;
 			}
-			if (!(oFilters.period || "").trim()) {
+			// if (!(oFilters.period || "").trim()) {
+			// 	oUi.setProperty("/periodState", "Error");
+			// 	aMissing.push("Period");
+			// 	bOk = false;
+			// }
+			var aPeriod = oFilters.period;
+			if (!aPeriod || (Array.isArray(aPeriod) && aPeriod.length === 0)) {
 				oUi.setProperty("/periodState", "Error");
 				aMissing.push("Period");
 				bOk = false;
+			} else {
+				oUi.setProperty("/periodState", "None");
 			}
 
 			if (!bOk) MessageBox.error("Please fill mandatory field(s): " + aMissing.join(", ") + ".");
@@ -1281,7 +1548,18 @@ sap.ui.define([
 
 			var sCompany = "Company " + (oFilters.companyCode || "-");
 			var sFY = "FY " + (oFilters.fiscalYear || "-");
-			var sPeriod = oFilters.period ? this._resolveLookupText(oLookups.periods, oFilters.period) : "All periods";
+			// var sPeriod = oFilters.period ? this._resolveLookupText(oLookups.periods, oFilters.period) : "All periods";
+			// CRITICAL FIX: Handle Period as an Array
+			var sPeriod = "All periods";
+			if (oFilters.period && oFilters.period.length > 0) {
+				if (oFilters.period.length === 1) {
+					// If only 1 is selected, show the name (e.g., "June")
+					sPeriod = oFilters.period[0].text || oFilters.period[0].key;
+				} else {
+					// If multiple are selected, show the count (e.g., "3 Periods")
+					sPeriod = oFilters.period.length + " Periods";
+				}
+			}
 
 			// Check lengths of arrays
 			var sCostCenter = (oFilters.costCenter && oFilters.costCenter.length) ? oFilters.costCenter.length + " Cost Centers" :
@@ -1465,13 +1743,13 @@ sap.ui.define([
 						// Index 0: Current Year Budget (Teal)
 						// Index 1: Last Year Actual (Rose)
 						colorPalette: [
-							"#14b8a6", 
-							"#f43f5e"  
+							"#14b8a6",
+							"#f43f5e"
 						],
 						// 2. CRITICAL: Clear rules so the VizFrame maps the colors to the Measures (Yearly vs Last Year) 
 						// rather than trying to color them by GL Group name.
-						dataPointStyle: { 
-							rules: [] 
+						dataPointStyle: {
+							rules: []
 						}
 					}
 				});
@@ -1682,7 +1960,7 @@ sap.ui.define([
 						},
 						legendGroup: { // CRITICAL FIX: Add this object for positioning
 							layout: {
-								position: "left" 
+								position: "left"
 							}
 						},
 						plotArea: {
