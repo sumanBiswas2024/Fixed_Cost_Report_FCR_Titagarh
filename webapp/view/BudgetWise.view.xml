@@ -127,7 +127,19 @@
 						</VBox>
 					</HBox>
 					<!-- KPI 3 -->
-					<HBox class="bwModernCard bwCardBgAmber" alignItems="Center">
+					<HBox class="bwModernCard bwCardBgRed" alignItems="Center">
+						<VBox class="bwModernIconWrap bwIconBgRed">
+							<core:Icon src="sap-icon://table-view" class="bwModernIcon bwIconRed"/>
+						</VBox>
+						<VBox class="bwModernDataWrap">
+							<Text text="Number of Records" class="bwModernTitle"/>
+							<HBox alignItems="Baseline" class="bwModernValueLine">
+								<Text text="{ui>/recordCount}" class="bwModernValue fcrTextDark"/>
+							</HBox>
+						</VBox>
+					</HBox>
+					<!-- KPI 4 -->
+					<HBox class="bwModernCard bwCardBgAmber" alignItems="Center" visible="false">
 						<VBox class="bwModernIconWrap bwIconBgAmber">
 							<core:Icon src="sap-icon://calendar" class="bwModernIcon bwIconAmber"/>
 						</VBox>
@@ -139,8 +151,8 @@
 							</HBox>
 						</VBox>
 					</HBox>
-					<!-- KPI 4 -->
-					<HBox class="bwModernCard bwCardBgGreen" alignItems="Center">
+					<!-- KPI 5 -->
+					<HBox class="bwModernCard bwCardBgGreen" alignItems="Center" visible="false">
 						<VBox class="bwModernIconWrap bwIconBgBlue">
 							<core:Icon src="sap-icon://bullet-text" class="bwModernIcon bwIconBlue"/>
 						</VBox>
@@ -149,18 +161,6 @@
 							<HBox alignItems="Baseline" class="bwModernValueLine">
 								<Text text="{ui>/kpi4Value}" class="bwModernValue bwTextBlue"/>
 								<Text text="Lakhs INR" class="bwModernUnit"/>
-							</HBox>
-						</VBox>
-					</HBox>
-					<!-- KPI 5 -->
-					<HBox class="bwModernCard bwCardBgRed" alignItems="Center">
-						<VBox class="bwModernIconWrap bwIconBgRed">
-							<core:Icon src="sap-icon://table-view" class="bwModernIcon bwIconRed"/>
-						</VBox>
-						<VBox class="bwModernDataWrap">
-							<Text text="Number of Records" class="bwModernTitle"/>
-							<HBox alignItems="Baseline" class="bwModernValueLine">
-								<Text text="{ui>/recordCount}" class="bwModernValue fcrTextDark"/>
 							</HBox>
 						</VBox>
 					</HBox>
@@ -175,8 +175,8 @@
 							<Label text="Report Type"/>
 							<SegmentedButton selectedKey="{ui>/reportType}" selectionChange=".onReportTypeChange" class="fcrViewSwitch">
 								<items>
-									<SegmentedButtonItem key="GL" text="G/L Group Wise" icon="sap-icon://detail-view"/>
-									<SegmentedButtonItem key="NONGL" text="Non G/L wise" icon="sap-icon://money-bills"/>
+									<SegmentedButtonItem key="GL" text="G/L Parameters" icon="sap-icon://detail-view"/>
+									<SegmentedButtonItem key="NONGL" text="Cost Centre Parameters" icon="sap-icon://money-bills"/>
 								</items>
 							</SegmentedButton>
 						</VBox>
@@ -194,11 +194,11 @@
 			<!--// GL Wise //-->
 			<VBox class="fcrContentSection">
 				<VBox visible="{ui>/isGlMode}">
-					<Panel headerText="G/L Group Wise Top 5 Budget View (Amounts in ₹ Lakhs)" expandable="false" expanded="true"
-						class="fcrOutPanel sapUiSmallMarginBottom" visible="false">
+					<Panel headerText="Cost Centre Wise Top 3 Budget View (Amounts in ₹ Lakhs)" expandable="false" expanded="true"
+						class="fcrOutPanel sapUiSmallMarginBottom" visible="true">
 						<content>
 							<layout:Grid defaultSpan="L6 M6 S12">
-								<suite:ChartContainer id="ccTop5ColGl" title="Top 5 Current Year Budget" showFullScreen="true" showPersonalization="false"
+								<suite:ChartContainer id="ccTop5ColGl" title="Top 3 Current Year Budget" showFullScreen="true" showPersonalization="false"
 									autoAdjustHeight="false" showLegendButton="false">
 									<suite:content>
 										<suite:ChartContainerContent icon="sap-icon://bar-chart" title="Column Chart View">
@@ -207,8 +207,8 @@
 													<viz:dataset>
 														<viz.data:FlattenedDataset data="{budget>/top5ColumnData}">
 															<viz.data:dimensions>
-																<viz.data:DimensionDefinition name="GL Account" value="{budget>glAccount}"/>
-																<viz.data:DimensionDefinition name="GL Group" value="{budget>glGroup}"/>
+																<viz.data:DimensionDefinition name="Cost Centre" value="{budget>costCentre}"/>
+																<viz.data:DimensionDefinition name="Cost Centre Group" value="{budget>coGroup}"/>
 															</viz.data:dimensions>
 															<viz.data:measures>
 																<viz.data:MeasureDefinition name="Current Year Budget" value="{budget>columnValue}"/>
@@ -217,7 +217,7 @@
 													</viz:dataset>
 													<viz:feeds>
 														<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Current Year Budget"/>
-														<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="GL Account,GL Group"/>
+														<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Cost Centre,Cost Centre Group"/>
 													</viz:feeds>
 													<viz:dependents>
 														<viz:Popover id="top5ColumnPopoverGl"/>
@@ -227,7 +227,7 @@
 										</suite:ChartContainerContent>
 									</suite:content>
 								</suite:ChartContainer>
-								<suite:ChartContainer id="ccTop5PieGl" title="Top 5 Current Month Value" showFullScreen="true" showPersonalization="false"
+								<suite:ChartContainer id="ccTop5PieGl" title="Top 3 Actual Yearly Budget Value" showFullScreen="true" showPersonalization="false"
 									autoAdjustHeight="false" showLegendButton="false">
 									<suite:content>
 										<suite:ChartContainerContent icon="sap-icon://pie-chart" title="Pie Chart View">
@@ -236,16 +236,17 @@
 													<viz:dataset>
 														<viz.data:FlattenedDataset data="{budget>/top5PieData}">
 															<viz.data:dimensions>
-																<viz.data:DimensionDefinition name="GL Group" value="{budget>displayName}" displayValue="{budget>glGroup}"/>
+																<viz.data:DimensionDefinition name="Cost Centre" value="{budget>costCentre}"/>
+																<viz.data:DimensionDefinition name="Cost Centre Group" value="{budget>coGroup}"/>
 															</viz.data:dimensions>
 															<viz.data:measures>
-																<viz.data:MeasureDefinition name="Current Month Value" value="{budget>pieValue}"/>
+																<viz.data:MeasureDefinition name="Actual Yearly Budget" value="{budget>pieValue}"/>
 															</viz.data:measures>
 														</viz.data:FlattenedDataset>
 													</viz:dataset>
 													<viz:feeds>
-														<viz.feeds:FeedItem uid="size" type="Measure" values="Current Month Value"/>
-														<viz.feeds:FeedItem uid="color" type="Dimension" values="GL Group"/>
+														<viz.feeds:FeedItem uid="size" type="Measure" values="Actual Yearly Budget"/>
+														<viz.feeds:FeedItem uid="color" type="Dimension" values="Cost Centre,Cost Centre Group"/>
 													</viz:feeds>
 													<viz:dependents>
 														<viz:Popover id="top5PiePopoverGl"/>
@@ -348,11 +349,11 @@
 					</Panel>
 				</VBox>
 				<VBox visible="{ui>/isNonGlMode}">
-					<Panel headerText="Non G/L Wise Top 5 Budget View (Amounts in ₹ Lakhs)" expandable="false" expanded="true"
-						class="fcrOutPanel sapUiSmallMarginBottom" visible="false">
+					<Panel headerText="G/L Wise Top 3 Budget View (Amounts in ₹ Lakhs)" expandable="false" expanded="true"
+						class="fcrOutPanel sapUiSmallMarginBottom" visible="true">
 						<content>
 							<layout:Grid defaultSpan="L6 M6 S12">
-								<suite:ChartContainer id="ccTop5ColNonGl" title="Top 5 Current Year Budget" showFullScreen="true" showPersonalization="false"
+								<suite:ChartContainer id="ccTop5ColNonGl" title="Top 3 Current Year Budget" showFullScreen="true" showPersonalization="false"
 									autoAdjustHeight="false" showLegendButton="false">
 									<suite:content>
 										<suite:ChartContainerContent icon="sap-icon://bar-chart" title="Column Chart View">
@@ -361,8 +362,8 @@
 													<viz:dataset>
 														<viz.data:FlattenedDataset data="{budget>/top5ColumnData}">
 															<viz.data:dimensions>
-																<viz.data:DimensionDefinition name="Cost Centre" value="{budget>costCentre}"/>
-																<viz.data:DimensionDefinition name="Cost Centre Description" value="{budget>costCentreDesc}"/>
+																<viz.data:DimensionDefinition name="G/L Account" value="{budget>glAccount}"/>
+																<viz.data:DimensionDefinition name="G/L Group" value="{budget>glGroup}"/>
 															</viz.data:dimensions>
 															<viz.data:measures>
 																<viz.data:MeasureDefinition name="Current Year Budget" value="{budget>columnValue}"/>
@@ -371,7 +372,7 @@
 													</viz:dataset>
 													<viz:feeds>
 														<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Current Year Budget"/>
-														<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Cost Centre,Cost Centre Description"/>
+														<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="G/L Account,G/L Group"/>
 													</viz:feeds>
 													<viz:dependents>
 														<viz:Popover id="top5ColumnPopoverNonGl"/>
@@ -381,7 +382,7 @@
 										</suite:ChartContainerContent>
 									</suite:content>
 								</suite:ChartContainer>
-								<suite:ChartContainer id="ccTop5PieNonGl" title="Top 5 Current Month Value" showFullScreen="true" showPersonalization="false"
+								<suite:ChartContainer id="ccTop5PieNonGl" title="Top 3 Actual Yearly Budget Value" showFullScreen="true" showPersonalization="false"
 									autoAdjustHeight="false" showLegendButton="false">
 									<suite:content>
 										<suite:ChartContainerContent icon="sap-icon://pie-chart" title="Pie Chart View">
@@ -390,16 +391,17 @@
 													<viz:dataset>
 														<viz.data:FlattenedDataset data="{budget>/top5PieData}">
 															<viz.data:dimensions>
-																<viz.data:DimensionDefinition name="Cost Centre Description" value="{budget>displayName}" displayValue="{budget>costCentreDesc}"/>
+																<viz.data:DimensionDefinition name="G/L Account" value="{budget>glAccount}"/>
+																<viz.data:DimensionDefinition name="G/L Group" value="{budget>glGroup}"/>
 															</viz.data:dimensions>
 															<viz.data:measures>
-																<viz.data:MeasureDefinition name="Current Month Value" value="{budget>pieValue}"/>
+																<viz.data:MeasureDefinition name="Actual Yearly Budget" value="{budget>pieValue}"/>
 															</viz.data:measures>
 														</viz.data:FlattenedDataset>
 													</viz:dataset>
 													<viz:feeds>
-														<viz.feeds:FeedItem uid="size" type="Measure" values="Current Month Value"/>
-														<viz.feeds:FeedItem uid="color" type="Dimension" values="Cost Centre Description"/>
+														<viz.feeds:FeedItem uid="size" type="Measure" values="Actual Yearly Budget"/>
+														<viz.feeds:FeedItem uid="color" type="Dimension" values="G/L Account,G/L Group"/>
 													</viz:feeds>
 													<viz:dependents>
 														<viz:Popover id="top5PiePopoverNonGl"/>
@@ -438,7 +440,6 @@
 													<!--	<table:label><Label text="G/L Account"/></table:label>-->
 													<!--	<table:template><Text text="{budget>gl}"/></table:template>-->
 													<!--</table:Column>-->
-													
 													<table:Column width="20rem" sortProperty="gl" filterProperty="gl">
 														<table:label><Label text="G/L Account"/></table:label>
 														<table:template><Text text="{budget>gl}"/></table:template>

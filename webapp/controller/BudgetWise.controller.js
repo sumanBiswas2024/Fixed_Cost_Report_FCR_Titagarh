@@ -90,7 +90,8 @@ sap.ui.define([
 				periodText: "",
 				selectedParamsText: "",
 				kpi1Label: "Total Current Year Budget",
-				kpi2Label: "Total Last Year Actual",
+				// kpi2Label: "Total Last Year Actual",
+				kpi2Label: "Total Actual Yearly Budget",
 				kpi3Label: "Total Last Two Months Actual",
 				kpi4Label: "Total Up To Current Month",
 				kpi1Value: "0.00",
@@ -123,13 +124,15 @@ sap.ui.define([
 
 				// 2. Fetch ONLY the F4 Dropdown lookups from the Backend
 				this._initBudgetOData().then(function() {
-					
+
 					// F4 Data is loaded! Now we set our Period arrays safely.
 					var aInitialPeriod = [];
 					if (oNav && oNav.fromPeriod) {
 						var sNavPeriod = oNav.fromPeriod;
 						var aPeriods = this._createBudgetPeriods();
-						var oMatched = aPeriods.filter(function(p) { return p.key === sNavPeriod; })[0];
+						var oMatched = aPeriods.filter(function(p) {
+							return p.key === sNavPeriod;
+						})[0];
 						aInitialPeriod = [{
 							key: sNavPeriod,
 							text: oMatched ? oMatched.text : sNavPeriod
@@ -163,7 +166,7 @@ sap.ui.define([
 					this._updateSelectedParametersText();
 
 					this._bIsInitiallyLoaded = true;
-					
+
 					// 3. STOP. We close the dialog and wait for the user to press 'Run Report'
 					oBusyDialog.close();
 
@@ -320,7 +323,6 @@ sap.ui.define([
 
 			return Promise.all([pCoGrp, pCc, pGlAcc, pGlGrp]);
 		},
-
 
 		// _fetchBudgetData: function(bMarkRun) {
 		// 	var that = this;
@@ -500,7 +502,7 @@ sap.ui.define([
 		// 		});
 		// 	}, 50);
 		// },
-		
+
 		_fetchBudgetData: function(bMarkRun) {
 			var that = this;
 			var oFilters = this.getView().getModel("filters").getData();
@@ -516,7 +518,7 @@ sap.ui.define([
 
 			// We use a timeout to let the Busy Dialog physically render on screen
 			setTimeout(function() {
-				
+
 				// We wait for F4 init just as a safety net, but it will resolve instantly
 				that._initBudgetOData().then(function() {
 					var aCommonFilters = [];
@@ -560,7 +562,7 @@ sap.ui.define([
 					if (bGlMode) {
 						// === FETCH GL DATA ONLY ===
 						var aGlFilters = aCommonFilters.slice();
-						
+
 						if (oFilters.glAccount && oFilters.glAccount.length > 0) {
 							var aGlAccOrs = oFilters.glAccount.map(function(oItem) {
 								return "Saknr eq '" + that._odataLiteral(oItem.key) + "'";
@@ -580,14 +582,14 @@ sap.ui.define([
 
 						return that._readBudgetOData("/GLDataSet", sGlFilter, sGlSelect).then(function(aRawGlData) {
 							var aMappedGlRows = (aRawGlData || []).map(that._mapGlRow.bind(that)).filter(Boolean);
-							
+
 							oBudget.setProperty("/glRows", aMappedGlRows);
 							oBudget.setProperty("/glChartRows", that._createBudgetChartRows(aMappedGlRows, "GL"));
-							
+
 							// Wipe hidden tab to prevent confusion
 							oBudget.setProperty("/nonGlRows", []);
 							oBudget.setProperty("/nonGlChartRows", []);
-							
+
 							return aMappedGlRows.length === 0; // Return empty state
 						});
 
@@ -598,14 +600,14 @@ sap.ui.define([
 
 						return that._readBudgetOData("/CostCenterDataSet", sCommonFilter, sNonGlSelect).then(function(aRawNonGlData) {
 							var aMappedNonGlRows = (aRawNonGlData || []).map(that._mapNonGlRow.bind(that)).filter(Boolean);
-							
+
 							oBudget.setProperty("/nonGlRows", aMappedNonGlRows);
 							oBudget.setProperty("/nonGlChartRows", that._createBudgetChartRows(aMappedNonGlRows, "NONGL"));
-							
+
 							// Wipe hidden tab to prevent confusion
 							oBudget.setProperty("/glRows", []);
 							oBudget.setProperty("/glChartRows", []);
-							
+
 							return aMappedNonGlRows.length === 0; // Return empty state
 						});
 					}
@@ -735,7 +737,7 @@ sap.ui.define([
 		// 			// UNIVERSAL MULTI-SELECT PARENTHESIS FIX
 		// 			// Never use () if there is only 1 selection
 		// 			// =======================================
-					
+
 		// 			// A. PERIOD FIX
 		// 			if (oFilters.period && Array.isArray(oFilters.period) && oFilters.period.length > 0) {
 		// 				var aPeriodOrs = oFilters.period.map(function(oItem) {
@@ -907,9 +909,9 @@ sap.ui.define([
 			var fLakhs = 100000; // Conversion factor
 			var fYearlyBudget = Number(oRow.YrValue || 0) / fLakhs;
 			var fOldYearlyValue = Number(oRow.OldyValue || 0) / fLakhs;
-			
+
 			var fActulaYearlyBudgetValue = Number(oRow.YrActual || 0) / fLakhs;
-			
+
 			var fPreviousTwoMonths = Number(oRow.PrevTwo || 0) / fLakhs;
 			var fCurrentMonth = Number(oRow.CurrMonth || 0) / fLakhs;
 			var sCostCenter = oRow.Kostl || "";
@@ -928,9 +930,9 @@ sap.ui.define([
 				glGroup: oRow.Gl_grp || "",
 				yearlyBudget: fYearlyBudget,
 				oldYearlyValue: fOldYearlyValue,
-				
-				actulaYearlyBudgetValue:fActulaYearlyBudgetValue,
-				
+
+				actulaYearlyBudgetValue: fActulaYearlyBudgetValue,
+
 				previousTwoMonthsValue: fPreviousTwoMonths,
 				currentMonthValue: fCurrentMonth,
 				lastYearActual: fOldYearlyValue,
@@ -948,7 +950,7 @@ sap.ui.define([
 			var fCurrentMonth = Number(oRow.CurrMonth || 0) / fLakhs;
 			var sCostCenter = oRow.Kostl || "";
 			var sGlAccount = oRow.Saknr || "";
-			
+
 			var fActulaYearlyBudgetValue = Number(oRow.YrActual || 0) / fLakhs;
 			return {
 				companyCode: oRow.Bukrs || "",
@@ -962,7 +964,7 @@ sap.ui.define([
 				glAccount: sGlAccount,
 				yearlyBudget: fYearlyBudget,
 				oldYearlyValue: fOldYearlyValue,
-				actulaYearlyBudgetValue:fActulaYearlyBudgetValue,
+				actulaYearlyBudgetValue: fActulaYearlyBudgetValue,
 				previousTwoMonthsValue: fPreviousTwoMonths,
 				currentMonthValue: fCurrentMonth,
 				lastYearActual: fOldYearlyValue,
@@ -1021,7 +1023,8 @@ sap.ui.define([
 			// Active KPI Calculation looping through backend data
 			aRows.forEach(function(oRow) {
 				iKpi1 += Number(oRow.yearlyBudget || 0);
-				iKpi2 += Number(oRow.oldYearlyValue || 0);
+				// iKpi2 += Number(oRow.oldYearlyValue || 0);
+				iKpi2 += Number(oRow.fActulaYearlyBudgetValue || 0);
 				iKpi3 += Number(oRow.previousTwoMonthsValue || 0);
 				iKpi4 += Number(oRow.currentMonthValue || 0);
 			});
@@ -1723,14 +1726,14 @@ sap.ui.define([
 			oUi.setProperty("/costCenterGroupState", "None");
 			oUi.setProperty("/costCenterState", "None");
 		},
-		
+
 		_updateSelectedParametersText: function() {
 			var oFilters = this.getView().getModel("filters").getData();
 			var bGlMode = this.getView().getModel("ui").getProperty("/isGlMode");
 
 			var sCompany = "Company " + (oFilters.companyCode || "-");
 			var sFY = "FY " + (oFilters.fiscalYear || "-");
-			
+
 			var sPeriod = "All periods";
 			if (oFilters.period && oFilters.period.length > 0) {
 				if (oFilters.period.length === 1) {
@@ -1746,15 +1749,18 @@ sap.ui.define([
 			// 2. Add Tab-Specific Parameters
 			if (bGlMode) {
 				// GL Mode: Show only GL Account and GL Group
-				var sGlAccount = (oFilters.glAccount && oFilters.glAccount.length) ? oFilters.glAccount.length + " G/L Accounts" : "All G/L Accounts";
+				var sGlAccount = (oFilters.glAccount && oFilters.glAccount.length) ? oFilters.glAccount.length + " G/L Accounts" :
+					"All G/L Accounts";
 				var sGlGroup = (oFilters.glGroup && oFilters.glGroup.length) ? oFilters.glGroup.length + " G/L Groups" : "All G/L Groups";
-				
+
 				aTextParts.push(sGlAccount, sGlGroup);
 			} else {
 				// Non-GL Mode: Show only Cost Center and Cost Center Group
-				var sCostCenter = (oFilters.costCenter && oFilters.costCenter.length) ? oFilters.costCenter.length + " Cost Centers" : "All Cost Centers";
-				var sCostCenterGroup = (oFilters.costCenterGroup && oFilters.costCenterGroup.length) ? oFilters.costCenterGroup.length + " Cost Center Groups" : "All Cost Center Groups";
-				
+				var sCostCenter = (oFilters.costCenter && oFilters.costCenter.length) ? oFilters.costCenter.length + " Cost Centers" :
+					"All Cost Centers";
+				var sCostCenterGroup = (oFilters.costCenterGroup && oFilters.costCenterGroup.length) ? oFilters.costCenterGroup.length +
+					" Cost Center Groups" : "All Cost Center Groups";
+
 				aTextParts.push(sCostCenter, sCostCenterGroup);
 			}
 
@@ -2020,41 +2026,58 @@ sap.ui.define([
 		},
 
 		_buildTop5MonthChartData: function(aRows, bGlMode) {
-			return this._buildTop5ChartData(aRows, bGlMode, "currentMonthValue", "pieValue").filter(function(oRow) {
+			return this._buildTop5ChartData(aRows, bGlMode, "actualYearlyBudget", "pieValue").filter(function(oRow) {
 				return Number(oRow.pieValue || 0) !== 0;
 			});
 		},
 
 		_buildTop5ChartData: function(aRows, bGlMode, sSortKey, sValueKey) {
 			var aSorted = (aRows || []).slice().sort(function(a, b) {
-				return (b[sSortKey] || 0) - (a[sSortKey] || 0);
-			}).slice(0, 5);
+				var fValA = Math.abs(parseFloat(a[sSortKey]) || 0);
+				var fValB = Math.abs(parseFloat(b[sSortKey]) || 0);
+				return fValB - fValA;
+			}).slice(0, 3); // CRITICAL FIX: Changed from Top 5 to Top 3
 
 			return aSorted.map(function(oRow, iIndex) {
 				var oData = this._getTop5DimensionData(oRow, bGlMode);
-				oData[sValueKey] = oRow[sSortKey] || 0;
+				oData[sValueKey] = parseFloat(oRow[sSortKey]) || 0;
 				oData.colorIndex = iIndex;
 				return oData;
 			}.bind(this));
 		},
 
+		// _getTop5DimensionData: function(oRow, bGlMode) {
+		// 	if (bGlMode) {
+		// 		return {
+		// 			glAccount: oRow.glAccount || oRow.gl || "",
+		// 			glGroup: oRow.glGroup || "",
+		// 			displayName: [oRow.glAccount || oRow.gl || "", oRow.glGroup || ""].filter(function(sVal) {
+		// 				return !!String(sVal || "").trim();
+		// 			}).join(" - ")
+		// 		};
+		// 	}
+
+		// 	return {
+		// 		costCentre: oRow.costCenter || "",
+		// 		costCentreDesc: oRow.costCenterDesc || "",
+		// 		displayName: [oRow.costCenter || "", oRow.costCenterDesc || ""].filter(function(sVal) {
+		// 			return !!String(sVal || "").trim();
+		// 		}).join(" - ")
+		// 	};
+		// },
 		_getTop5DimensionData: function(oRow, bGlMode) {
 			if (bGlMode) {
+				// GL Mode -> Show Cost Center & Group
 				return {
-					glAccount: oRow.glAccount || oRow.gl || "",
-					glGroup: oRow.glGroup || "",
-					displayName: [oRow.glAccount || oRow.gl || "", oRow.glGroup || ""].filter(function(sVal) {
-						return !!String(sVal || "").trim();
-					}).join(" - ")
+					costCentre: oRow.costCenter || "",
+					coGroup: oRow.coGroup || ""
 				};
 			}
 
+			// Non-GL Mode -> Show GL Account & Group
 			return {
-				costCentre: oRow.costCenter || "",
-				costCentreDesc: oRow.costCenterDesc || "",
-				displayName: [oRow.costCenter || "", oRow.costCenterDesc || ""].filter(function(sVal) {
-					return !!String(sVal || "").trim();
-				}).join(" - ")
+				glAccount: oRow.glAccount || "",
+				glGroup: oRow.glGroup || ""
 			};
 		},
 
@@ -2072,8 +2095,8 @@ sap.ui.define([
 
 		_configureTop5Charts: function() {
 			[
-				["top5ColumnChartGl", "Top 5 Current Year Budget", "G/L Account + G/L Group"],
-				["top5ColumnChartNonGl", "Top 5 Current Year Budget", "Cost Centre + Cost Centre Description"]
+				["top5ColumnChartGl", "Top 3 Current Year Budget", "Cost Centre, Cost Centre Group"],
+				["top5ColumnChartNonGl", "Top 3 Current Year Budget", "G/L Account, G/L Group"]
 			].forEach(function(aConfig) {
 				var oColChart = this.byId(aConfig[0]);
 				if (oColChart && !oColChart.data("configured")) {
@@ -2127,8 +2150,8 @@ sap.ui.define([
 			}.bind(this));
 
 			[
-				["top5PieChartGl", "Top 5 Current Month Value", "G/L Account + G/L Group"],
-				["top5PieChartNonGl", "Top 5 Current Month Value", "Cost Centre + Cost Centre Description"]
+				["top5PieChartGl", "Top 3 Actual Yearly Budget", "Cost Centre, Cost Centre Group"],
+				["top5PieChartNonGl", "Top 3 Actual Yearly Budget", "G/L Account, G/L Group"]
 			].forEach(function(aConfig) {
 				var oPieChart = this.byId(aConfig[0]);
 				if (oPieChart && !oPieChart.data("configured")) {
@@ -2170,20 +2193,22 @@ sap.ui.define([
 
 			var sColChartId = bGlMode ? "top5ColumnChartGl" : "top5ColumnChartNonGl";
 			var sPieChartId = bGlMode ? "top5PieChartGl" : "top5PieChartNonGl";
-			var sScope = bGlMode ? "GL" : "NONGL";
 
 			var oColChart = this.byId(sColChartId);
 			if (oColChart) {
 				var aColData = oBudget.getProperty("/top5ColumnData") || [];
 				var iYearOffset = bGlMode ? 0 : 6;
 				var aRules = aColData.map(function(d) {
+
+					// CRITICAL FIX: Mapping the TWO dimensions directly
 					var oDimContext = bGlMode ? {
-						"GL Account": d.glAccount || "",
-						"GL Group": d.glGroup || ""
-					} : {
 						"Cost Centre": d.costCentre || "",
-						"Cost Centre Description": d.costCentreDesc || ""
+						"Cost Centre Group": d.coGroup || ""
+					} : {
+						"G/L Account": d.glAccount || "",
+						"G/L Group": d.glGroup || ""
 					};
+
 					return {
 						dataContext: oDimContext,
 						properties: {
@@ -2191,6 +2216,7 @@ sap.ui.define([
 						}
 					};
 				}.bind(this));
+
 				var aColPalette = aColData.map(function(d) {
 					return this._top5ColorByIndex(iYearOffset + (d.colorIndex || 0));
 				}.bind(this));
@@ -2213,11 +2239,8 @@ sap.ui.define([
 				var aPiePalette = aPieData.map(function(d) {
 					return this._top5ColorByIndex(iMonthOffset + (d.colorIndex || 0));
 				}.bind(this));
+
 				oPieChart.setVizProperties({
-					legend: {
-						visible: true,
-						position: "right"
-					},
 					plotArea: {
 						colorPalette: aPiePalette
 					}
