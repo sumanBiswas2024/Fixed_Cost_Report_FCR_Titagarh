@@ -586,10 +586,6 @@ sap.ui.define([
 							oBudget.setProperty("/glRows", aMappedGlRows);
 							oBudget.setProperty("/glChartRows", that._createBudgetChartRows(aMappedGlRows, "GL"));
 
-							// Wipe hidden tab to prevent confusion
-							oBudget.setProperty("/nonGlRows", []);
-							oBudget.setProperty("/nonGlChartRows", []);
-
 							return aMappedGlRows.length === 0; // Return empty state
 						});
 
@@ -603,10 +599,6 @@ sap.ui.define([
 
 							oBudget.setProperty("/nonGlRows", aMappedNonGlRows);
 							oBudget.setProperty("/nonGlChartRows", that._createBudgetChartRows(aMappedNonGlRows, "NONGL"));
-
-							// Wipe hidden tab to prevent confusion
-							oBudget.setProperty("/glRows", []);
-							oBudget.setProperty("/glChartRows", []);
 
 							return aMappedNonGlRows.length === 0; // Return empty state
 						});
@@ -2272,61 +2264,83 @@ sap.ui.define([
 
 		_getGlColumns: function() {
 			return [{
-				key: "costCenter",
-				label: "Cost Center"
-			}, {
-				key: "costCenterDesc",
-				label: "Cost Center Description"
-			}, {
-				key: "coGroup",
-				label: "Cost Centre Group"
-			}, {
-				key: "gl",
-				label: "G/L Account"
-			}, {
-				key: "glDesc",
-				label: "G/L Description"
-			}, {
-				key: "glGroup",
-				label: "G/L Group"
-			}, {
-				key: "oldYearlyValue",
-				label: "Last Year Actual"
-			}, {
-				key: "yearlyBudget",
-				label: "Current Year Budget"
-			}, {
-				key: "previousTwoMonthsValue",
-				label: "Last Two Months Actual Value"
-			}, {
-				key: "currentMonthValue",
-				label: "Current Month Value"
-			}];
+					key: "costCenter",
+					label: "Cost Center"
+				},
+				// {
+				// 	key: "costCenterDesc",
+				// 	label: "Cost Center Description"
+				// }, 
+				{
+					key: "coGroup",
+					label: "Cost Centre Group"
+				},
+				// {
+				// 	key: "gl",
+				// 	label: "G/L Account"
+				// }, {
+				// 	key: "glDesc",
+				// 	label: "G/L Description"
+				// }, {
+				// 	key: "glGroup",
+				// 	label: "G/L Group"
+				// }, {
+				// 	key: "oldYearlyValue",
+				// 	label: "Last Year Actual"
+				// },
+				{
+					key: "actulaYearlyBudgetValue",
+					label: "Actual Yearly Budget"
+				}, {
+					key: "yearlyBudget",
+					label: "Current Year Budget"
+				}
+				// {
+				// 	key: "previousTwoMonthsValue",
+				// 	label: "Last Two Months Actual Value"
+				// }, {
+				// 	key: "currentMonthValue",
+				// 	label: "Current Month Value"
+				// }
+			];
 		},
 
 		_getNonGlColumns: function() {
-			return [{
-				key: "coGroup",
-				label: "Cost Centre Group"
-			}, {
-				key: "costCenter",
-				label: "Cost Center"
-			}, {
-				key: "costCenterDesc",
-				label: "Cost Center Description"
-			}, {
-				key: "oldYearlyValue",
-				label: "Last Year Actual"
-			}, {
-				key: "yearlyBudget",
-				label: "Current Year Budget"
-			}, {
-				key: "previousTwoMonthsValue",
-				label: "Last Two Months Actual Value"
-			}, {
-				key: "currentMonthValue",
-				label: "Current Month Value"
-			}];
+			return [
+				// 	{
+				// 	key: "coGroup",
+				// 	label: "Cost Centre Group"
+				// }, {
+				// 	key: "costCenter",
+				// 	label: "Cost Center"
+				// }, {
+				// 	key: "costCenterDesc",
+				// 	label: "Cost Center Description"
+				// }, {
+				// 	key: "oldYearlyValue",
+				// 	label: "Last Year Actual"
+				// }, 
+				{
+					key: "gl",
+					label: "G/L Account"
+				}, {
+					key: "glGroup",
+					label: "G/L Group"
+				}, {
+					key: "actulaYearlyBudgetValue",
+					label: "Actual Yearly Budget"
+				}, {
+					key: "yearlyBudget",
+					label: "Current Year Budget"
+				}
+				// {
+				// 	key: "previousTwoMonthsValue",
+				// 	label: "Last Two Months Actual Value"
+				// }, {
+				// 	key: "currentMonthValue",
+				// 	label: "Current Month Value"
+				// }
+			];
 		},
 
 		_toCsv: function(aRows, aColumns) {
