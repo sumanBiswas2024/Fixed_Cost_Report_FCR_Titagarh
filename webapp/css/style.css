@@ -1883,6 +1883,15 @@
     border-color: #92cc6a !important;
 }
 
+.bwIconBgGreen {
+    background-color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.bwIconGreen {
+    color: #16a34a !important;
+}
+
 .bwTextGreen {
     color: #16a34a !important;
 }
@@ -1929,4 +1938,45 @@
     .bwKpiGrid.sapUiRespGrid {
         grid-template-columns: repeat(1, 1fr) !important;
     }
+}
+
+/* ========================================================= */
+/* BASE SUBTEXT CLASS (Formatting only, no hardcoded color)  */
+/* ========================================================= */
+.bwModernSubTextTitle {
+    font-weight: 700 !important; /* 700 looks cleaner and more modern for subtext than 900 */
+    font-size: 0.85rem !important; /* Slightly smaller to contrast with the main title */
+    line-height: 1.2 !important;
+    margin-bottom: 0.15rem !important;
+    white-space: normal !important;
+    /* Default elegant slate gray fallback just in case */
+    color: #4b5563 !important; 
+}
+
+/* ========================================================= */
+/* THEME-SPECIFIC SUBTEXT COLORS (High contrast, deep shades)*/
+/* ========================================================= */
+/* For the Blue Card */
+.bwSubTextBlue { 
+    color: #0369a1 !important; /* Deep Ocean Blue */
+}
+
+/* For the Purple Card */
+.bwSubTextPurple { 
+    color: #5b21b6 !important; /* Deep Royal Purple */
+}
+
+/* For the Amber Card */
+.bwSubTextAmber { 
+    color: #92400e !important; /* Deep Rust/Brown (Reads beautifully on yellow/amber) */
+}
+
+/* For the Green Card */
+.bwSubTextGreen { 
+    color: #15803d !important; /* Deep Forest Green */
+}
+
+/* For the Red Card */
+.bwSubTextRed { 
+    color: #b91c1c !important; /* Deep Crimson Red */
 }

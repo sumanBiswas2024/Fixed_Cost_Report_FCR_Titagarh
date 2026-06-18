@@ -92,12 +92,19 @@ sap.ui.define([
 				kpi1Label: "Total Current Year Budget",
 				// kpi2Label: "Total Last Year Actual",
 				kpi2Label: "Total Actual Yearly Budget",
-				kpi3Label: "Total Last Two Months Actual",
-				kpi4Label: "Total Up To Current Month",
+				// kpi3Label: "Total Last Two Months Actual",
+				// kpi4Label: "Total Up To Current Month",
+				kpi4Label: "Highest CY Budget (Cost Centre)",
+				kpi5Label:"Highest Actual Budget (Cost Centre)",
 				kpi1Value: "0.00",
 				kpi2Value: "0.00",
 				kpi3Value: "0.00",
 				kpi4Value: "0.00",
+				kpi5Value: "0.00",
+				
+				kpi4Subtext: "No Data",
+				kpi5Subtext: "No Data",
+				
 				recordCount: "0"
 			}), "ui");
 
@@ -1002,30 +1009,109 @@ sap.ui.define([
 		// KPI & UI UPDATES
 		// =========================================================
 
+		// _updateKpisFromActiveMode: function() {
+		// 	var oUi = this.getView().getModel("ui");
+		// 	var oBudget = this.getView().getModel("budget");
+		// 	var bGlMode = oUi.getProperty("/isGlMode");
+		// 	var aRows = bGlMode ? (oBudget.getProperty("/glRows") || []) : (oBudget.getProperty("/nonGlRows") || []);
+		// 	var iKpi1 = 0,
+		// 		iKpi2 = 0,
+		// 		iKpi3 = 0,
+		// 		iKpi4 = 0;
+
+		// 	// Active KPI Calculation looping through backend data
+		// 	aRows.forEach(function(oRow) {
+		// 		iKpi1 += Number(oRow.yearlyBudget || 0);
+		// 		// iKpi2 += Number(oRow.oldYearlyValue || 0);
+		// 		iKpi2 += Number(oRow.fActulaYearlyBudgetValue || 0);
+		// 		iKpi3 += Number(oRow.previousTwoMonthsValue || 0);
+		// 		iKpi4 += Number(oRow.currentMonthValue || 0);
+		// 	});
+
+		// 	oUi.setProperty("/kpi1Value", this._formatAmount(iKpi1));
+		// 	oUi.setProperty("/kpi2Value", this._formatAmount(iKpi2));
+		// 	oUi.setProperty("/kpi3Value", this._formatAmount(iKpi3));
+		// 	oUi.setProperty("/kpi4Value", this._formatAmount(iKpi4));
+		// 	oUi.setProperty("/recordCount", this._oIntegerFormat.format(aRows.length));
+		// },
 		_updateKpisFromActiveMode: function() {
 			var oUi = this.getView().getModel("ui");
 			var oBudget = this.getView().getModel("budget");
 			var bGlMode = oUi.getProperty("/isGlMode");
 			var aRows = bGlMode ? (oBudget.getProperty("/glRows") || []) : (oBudget.getProperty("/nonGlRows") || []);
-			var iKpi1 = 0,
-				iKpi2 = 0,
-				iKpi3 = 0,
-				iKpi4 = 0;
 
-			// Active KPI Calculation looping through backend data
+			// Track Totals for KPI 1 and 2
+			var fTotalCyBudget = 0;
+			var fTotalActualBudget = 0;
+
+			// Track Highest for KPI 4 and 5
+			var oHighestCy = null;
+			var oHighestActual = null;
+			var fMaxCy = -Infinity;
+			var fMaxActual = -Infinity;
+
+			// Single loop to calculate everything efficiently
 			aRows.forEach(function(oRow) {
-				iKpi1 += Number(oRow.yearlyBudget || 0);
-				// iKpi2 += Number(oRow.oldYearlyValue || 0);
-				iKpi2 += Number(oRow.fActulaYearlyBudgetValue || 0);
-				iKpi3 += Number(oRow.previousTwoMonthsValue || 0);
-				iKpi4 += Number(oRow.currentMonthValue || 0);
+				var fCy = parseFloat(oRow.yearlyBudget) || 0;
+				var fAct = parseFloat(oRow.actualYearlyBudget) || 0;
+
+				// 1. Accumulate Totals
+				fTotalCyBudget += fCy;
+				fTotalActualBudget += fAct;
+
+				// 2. Check for Highest Current Year Budget
+				if (fCy > fMaxCy) {
+					fMaxCy = fCy;
+					oHighestCy = oRow;
+				}
+
+				// 3. Check for Highest Actual Yearly Budget
+				if (fAct > fMaxActual) {
+					fMaxActual = fAct;
+					oHighestActual = oRow;
+				}
 			});
 
-			oUi.setProperty("/kpi1Value", this._formatAmount(iKpi1));
-			oUi.setProperty("/kpi2Value", this._formatAmount(iKpi2));
-			oUi.setProperty("/kpi3Value", this._formatAmount(iKpi3));
-			oUi.setProperty("/kpi4Value", this._formatAmount(iKpi4));
+			// --- SET KPI 1, 2, and 3 (Totals and Count) ---
+			oUi.setProperty("/kpi1Value", this._formatAmount(fTotalCyBudget));
+			oUi.setProperty("/kpi2Value", this._formatAmount(fTotalActualBudget));
 			oUi.setProperty("/recordCount", this._oIntegerFormat.format(aRows.length));
+
+			// --- SET KPI 4 and 5 (Highest Values) ---
+			oUi.setProperty("/kpi4Value", (fMaxCy !== -Infinity) ? this._formatAmount(fMaxCy) : "0.00");
+			oUi.setProperty("/kpi5Value", (fMaxActual !== -Infinity) ? this._formatAmount(fMaxActual) : "0.00");
+
+			// --- SET DYNAMIC LABELS AND SUBTEXT ---
+			var sKpi4Subtext = "No Data";
+			var sKpi5Subtext = "No Data";
+
+			if (bGlMode) {
+				// GL MODE: Combinations are Cost Centre & Cost Centre Group
+				oUi.setProperty("/kpi4Label", "Highest CY Budget (Cost Centre)");
+				oUi.setProperty("/kpi5Label", "Highest Actual Budget (Cost Centre)");
+				
+				if (oHighestCy) {
+					sKpi4Subtext = [oHighestCy.costCenter, oHighestCy.coGroup].filter(Boolean).join(" - ");
+				}
+				if (oHighestActual) {
+					sKpi5Subtext = [oHighestActual.costCenter, oHighestActual.coGroup].filter(Boolean).join(" - ");
+				}
+			} else {
+				// NON-GL MODE: Combinations are G/L Account & G/L Group
+				oUi.setProperty("/kpi4Label", "Highest CY Budget (G/L Account)");
+				oUi.setProperty("/kpi5Label", "Highest Actual Budget (G/L Account)");
+				
+				if (oHighestCy) {
+					sKpi4Subtext = [oHighestCy.glAccount, oHighestCy.glGroup].filter(Boolean).join(" - ");
+				}
+				if (oHighestActual) {
+					sKpi5Subtext = [oHighestActual.glAccount, oHighestActual.glGroup].filter(Boolean).join(" - ");
+				}
+			}
+
+			// Apply subtexts to the budget model
+			oUi.setProperty("/kpi4Subtext", sKpi4Subtext);
+			oUi.setProperty("/kpi5Subtext", sKpi5Subtext);
 		},
 
 		onSearch: function() {

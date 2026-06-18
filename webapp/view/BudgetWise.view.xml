@@ -138,30 +138,31 @@
 							</HBox>
 						</VBox>
 					</HBox>
-					<!-- KPI 4 -->
-					<HBox class="bwModernCard bwCardBgAmber" alignItems="Center" visible="false">
+					<!--New KPIs-->
+					<HBox class="bwModernCard bwCardBgAmber" alignItems="Center" visible="true">
 						<VBox class="bwModernIconWrap bwIconBgAmber">
-							<core:Icon src="sap-icon://calendar" class="bwModernIcon bwIconAmber"/>
-						</VBox>
-						<VBox class="bwModernDataWrap">
-							<Text text="{ui>/kpi3Label}" class="bwModernTitle"/>
-							<HBox alignItems="Baseline" class="bwModernValueLine">
-								<Text text="{ui>/kpi3Value}" class="bwModernValue bwTextGreen"/>
-								<Text text="Lakhs INR" class="bwModernUnit"/>
-							</HBox>
-						</VBox>
-					</HBox>
-					<!-- KPI 5 -->
-					<HBox class="bwModernCard bwCardBgGreen" alignItems="Center" visible="false">
-						<VBox class="bwModernIconWrap bwIconBgBlue">
-							<core:Icon src="sap-icon://bullet-text" class="bwModernIcon bwIconBlue"/>
+							<core:Icon src="sap-icon://trend-up" class="bwModernIcon bwIconAmber"/>
 						</VBox>
 						<VBox class="bwModernDataWrap">
 							<Text text="{ui>/kpi4Label}" class="bwModernTitle"/>
 							<HBox alignItems="Baseline" class="bwModernValueLine">
-								<Text text="{ui>/kpi4Value}" class="bwModernValue bwTextBlue"/>
+								<Text text="{ui>/kpi4Value}" class="bwModernValue bwTextGreen"/>
 								<Text text="Lakhs INR" class="bwModernUnit"/>
 							</HBox>
+							<Text text="{ui>/kpi4Subtext}" class="bwModernSubTextTitle bwSubTextAmber sapUiTinyMarginTop" wrapping="true"/>
+						</VBox>
+					</HBox>
+					<HBox class="bwModernCard bwCardBgGreen" alignItems="Center" visible="true">
+						<VBox class="bwModernIconWrap bwIconBgGreen">
+							<core:Icon src="sap-icon://lead" class="bwModernIcon bwTextGreen"/>
+						</VBox>
+						<VBox class="bwModernDataWrap">
+							<Text text="{ui>/kpi5Label}" class="bwModernTitle"/>
+							<HBox alignItems="Baseline" class="bwModernValueLine">
+								<Text text="{ui>/kpi5Value}" class="bwModernValue bwTextBlue"/>
+								<Text text="Lakhs INR" class="bwModernUnit"/>
+							</HBox>
+							<Text text="{ui>/kpi5Subtext}" class="bwModernSubTextTitle bwSubTextGreen sapUiTinyMarginTop" wrapping="true"/>
 						</VBox>
 					</HBox>
 				</layout:Grid>
