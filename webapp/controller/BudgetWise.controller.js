@@ -194,8 +194,8 @@ sap.ui.define([
 			// this._configureBudgetChart("budgetGlChart", "Current Yearly Budget by Cost Center and G/L Group");
 			// this._configureBudgetChart("budgetNonGlChart", "Current Yearly Budget by Cost Center Group");
 
-			this._configureBudgetChart("budgetGlChart", "Last Year Actual vs Current Year Budget by Cost Center and G/L Group");
-			this._configureBudgetChart("budgetNonGlChart", "Last Year Actual vs Current Year Budget by Cost Center");
+			this._configureBudgetChart("budgetGlChart", "Current Year Budget by Cost Centre - Cost Centre Group");
+			this._configureBudgetChart("budgetNonGlChart", "Current Year Budget by GL Account - GL Group");
 
 			this._configureTop5Charts();
 			this._connectBudgetPopovers();
@@ -984,24 +984,43 @@ sap.ui.define([
 		// 	});
 		// },
 		_createBudgetChartRows: function(aRows, sMode) {
+			// return aRows.map(function(oRow) {
+			// 	var oData = {
+			// 		currentYearBudget: parseFloat(oRow.yearlyBudget || 0),
+			// 		lastYearActual: parseFloat(oRow.oldYearlyValue || 0)
+			// 	};
+
+			// 	if (sMode === "GL") {
+			// 		// GL Mode: Add hierarchical dimensions
+			// 		oData.glAccount = (oRow.gl || oRow.Saknr);
+			// 		oData.glGroup = (oRow.glGroup || oRow.Gl_grp);
+			// 	} else {
+			// 		// Non-GL Mode: Keep your original flat dimension label
+			// 		// oData.costCentreDesc = oRow.name || oRow.costCenterDesc || oRow.costCenter;
+			// 		oData.costCentre = (oRow.costCenter);
+			// 		oData.costCentreDesc = (oRow.costCenterDesc);
+			// 	}
+
+			// 	return oData;
+			// });
 			return aRows.map(function(oRow) {
-				var oData = {
+				// We pass ALL properties so the XML can easily bind to whichever it needs for Pie/Column charts
+				return {
+					// Cost Centre Fields
+					costCenter: oRow.costCenter || "",
+					costCentre: oRow.costCenter || "", // Adding alternate spelling just in case
+					coGroup: oRow.coGroup || "",
+					costCentreDesc: oRow.costCenterDesc || "",
+					
+					// G/L Fields
+					glAccount: oRow.glAccount || "",
+					glGroup: oRow.glGroup || "",
+					
+					// Measure Fields
 					currentYearBudget: parseFloat(oRow.yearlyBudget || 0),
-					lastYearActual: parseFloat(oRow.oldYearlyValue || 0)
+					lastYearActual: parseFloat(oRow.oldYearlyValue || 0),
+					actualYearlyBudget: parseFloat(oRow.actulaYearlyBudgetValue || 0)
 				};
-
-				if (sMode === "GL") {
-					// GL Mode: Add hierarchical dimensions
-					oData.glAccount = (oRow.gl || oRow.Saknr);
-					oData.glGroup = (oRow.glGroup || oRow.Gl_grp);
-				} else {
-					// Non-GL Mode: Keep your original flat dimension label
-					// oData.costCentreDesc = oRow.name || oRow.costCenterDesc || oRow.costCenter;
-					oData.costCentre = (oRow.costCenter);
-					oData.costCentreDesc = (oRow.costCenterDesc);
-				}
-
-				return oData;
 			});
 		},
 
@@ -1993,33 +2012,57 @@ sap.ui.define([
 		// =========================================================
 
 		_refreshBudgetChartStyling: function() {
+			// ["budgetGlChart", "budgetNonGlChart"].forEach(function(sChartId) {
+			// 	var oVizFrame = this.byId(sChartId);
+			// 	if (!oVizFrame) {
+			// 		return;
+			// 	}
+
+			// 	oVizFrame.setVizProperties({
+			// 		legend: {
+			// 			visible: true,
+			// 			position: "bottom"
+			// 		},
+			// 		plotArea: {
+			// 			drawingEffect: "glossy",
+			// 			// 1. Hardcode two distinct, fresh colors not used elsewhere in the app
+			// 			// Index 0: Current Year Budget (Teal)
+			// 			// Index 1: Last Year Actual (Rose)
+			// 			colorPalette: [
+			// 				"#14b8a6",
+			// 				"#f43f5e"
+			// 			],
+			// 			// 2. CRITICAL: Clear rules so the VizFrame maps the colors to the Measures (Yearly vs Last Year) 
+			// 			// rather than trying to color them by GL Group name.
+			// 			dataPointStyle: {
+			// 				rules: []
+			// 			}
+			// 		}
+			// 	});
+			// }.bind(this));
 			["budgetGlChart", "budgetNonGlChart"].forEach(function(sChartId) {
 				var oVizFrame = this.byId(sChartId);
 				if (!oVizFrame) {
 					return;
 				}
 
-				oVizFrame.setVizProperties({
-					legend: {
-						visible: true,
-						position: "bottom"
-					},
-					plotArea: {
-						drawingEffect: "glossy",
-						// 1. Hardcode two distinct, fresh colors not used elsewhere in the app
-						// Index 0: Current Year Budget (Teal)
-						// Index 1: Last Year Actual (Rose)
-						colorPalette: [
-							"#14b8a6",
-							"#f43f5e"
-						],
-						// 2. CRITICAL: Clear rules so the VizFrame maps the colors to the Measures (Yearly vs Last Year) 
-						// rather than trying to color them by GL Group name.
-						dataPointStyle: {
-							rules: []
-						}
-					}
-				});
+				// Only set properties once to prevent unnecessary re-rendering
+				if (!oVizFrame.data("configured")) {
+					oVizFrame.setVizProperties({
+						plotArea: {
+							dataLabel: { visible: true },
+							drawingEffect: "glossy"
+							// Notice there is NO colorPalette or rules array here.
+							// This allows SAP Fiori to automatically generate distinct
+							// colors for every slice of the pie based on your dimensions!
+						},
+						legendGroup: { 
+							layout: { position: "right" } 
+						},
+						title: { visible: false }
+					});
+					oVizFrame.data("configured", true);
+				}
 			}.bind(this));
 		},
 

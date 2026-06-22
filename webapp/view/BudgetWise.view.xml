@@ -318,25 +318,45 @@
 											</table:Table>
 										</suite:content>
 									</suite:ChartContainerContent>
-									<suite:ChartContainerContent icon="sap-icon://bar-chart" title="Chart View">
+									<suite:ChartContainerContent icon="sap-icon://bar-chart" title="Chart View" >
 										<suite:content>
-											<viz:VizFrame id="budgetGlChart" width="100%" height="380px" vizType="column" uiConfig="{applicationSet:'fiori'}">
+											<!--<viz:VizFrame id="budgetGlChart" width="100%" height="380px" vizType="column" uiConfig="{applicationSet:'fiori'}">-->
+											<!--	<viz:dataset>-->
+											<!--		<viz.data:FlattenedDataset data="{budget>/glChartRows}">-->
+											<!--			<viz.data:dimensions>-->
+											<!--				<viz.data:DimensionDefinition name="G/L Group" value="{budget>name}"/>-->
+											<!--				<viz.data:DimensionDefinition name="GL Account" value="{budget>glAccount}"/>-->
+											<!--				<viz.data:DimensionDefinition name="GL Group" value="{budget>glGroup}"/>-->
+											<!--			</viz.data:dimensions>-->
+											<!--			<viz.data:measures>-->
+											<!--				<viz.data:MeasureDefinition name="Last Year Actual" value="{budget>lastYearActual}"/>-->
+											<!--				<viz.data:MeasureDefinition name="Current Year Budget" value="{budget>currentYearBudget}"/>-->
+											<!--			</viz.data:measures>-->
+											<!--		</viz.data:FlattenedDataset>-->
+											<!--	</viz:dataset>-->
+											<!--	<viz:feeds>-->
+											<!--		<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Last Year Actual,Current Year Budget"/>-->
+											<!--		<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="GL Account,GL Group"/>-->
+											<!--	</viz:feeds>-->
+											<!--	<viz:dependents>-->
+											<!--		<viz:Popover id="budgetGlPopover"/>-->
+											<!--	</viz:dependents>-->
+											<!--</viz:VizFrame>-->
+											<viz:VizFrame id="budgetGlChart" width="100%" height="380px" vizType="pie" uiConfig="{applicationSet:'fiori'}">
 												<viz:dataset>
 													<viz.data:FlattenedDataset data="{budget>/glChartRows}">
 														<viz.data:dimensions>
-															<!--<viz.data:DimensionDefinition name="G/L Group" value="{budget>name}"/>-->
-															<viz.data:DimensionDefinition name="GL Account" value="{budget>glAccount}"/>
-															<viz.data:DimensionDefinition name="GL Group" value="{budget>glGroup}"/>
+															<viz.data:DimensionDefinition name="Cost Centre" value="{budget>costCentre}"/>
+															<viz.data:DimensionDefinition name="Cost Centre Group" value="{budget>coGroup}"/>
 														</viz.data:dimensions>
 														<viz.data:measures>
-															<viz.data:MeasureDefinition name="Last Year Actual" value="{budget>lastYearActual}"/>
 															<viz.data:MeasureDefinition name="Current Year Budget" value="{budget>currentYearBudget}"/>
 														</viz.data:measures>
 													</viz.data:FlattenedDataset>
 												</viz:dataset>
 												<viz:feeds>
-													<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Last Year Actual,Current Year Budget"/>
-													<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="GL Account,GL Group"/>
+													<viz.feeds:FeedItem uid="size" type="Measure" values="Current Year Budget"/>
+													<viz.feeds:FeedItem uid="color" type="Dimension" values="Cost Centre,Cost Centre Group"/>
 												</viz:feeds>
 												<viz:dependents>
 													<viz:Popover id="budgetGlPopover"/>
@@ -344,6 +364,7 @@
 											</viz:VizFrame>
 										</suite:content>
 									</suite:ChartContainerContent>
+									
 								</suite:content>
 							</suite:ChartContainer>
 						</content>
@@ -475,23 +496,43 @@
 									</suite:ChartContainerContent>
 									<suite:ChartContainerContent icon="sap-icon://bar-chart" title="Chart View">
 										<suite:content>
-											<viz:VizFrame id="budgetNonGlChart" width="100%" height="380px" vizType="column" uiConfig="{applicationSet:'fiori'}">
+											<!--<viz:VizFrame id="budgetNonGlChart" width="100%" height="380px" vizType="column" uiConfig="{applicationSet:'fiori'}">-->
+											<!--	<viz:dataset>-->
+											<!--		<viz.data:FlattenedDataset data="{budget>/nonGlChartRows}">-->
+											<!--			<viz.data:dimensions>-->
+											<!--				<viz.data:DimensionDefinition name="Cost Centre Description" value="{budget>name}"/>-->
+											<!--				<viz.data:DimensionDefinition name="Cost Centre" value="{budget>costCentre}"/>-->
+											<!--				<viz.data:DimensionDefinition name="Cost Centre Description" value="{budget>costCentreDesc}"/>-->
+											<!--			</viz.data:dimensions>-->
+											<!--			<viz.data:measures>-->
+											<!--				<viz.data:MeasureDefinition name="Last Year Actual" value="{budget>lastYearActual}"/>-->
+											<!--				<viz.data:MeasureDefinition name="Current Year Budget" value="{budget>currentYearBudget}"/>-->
+											<!--			</viz.data:measures>-->
+											<!--		</viz.data:FlattenedDataset>-->
+											<!--	</viz:dataset>-->
+											<!--	<viz:feeds>-->
+											<!--		<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Last Year Actual,Current Year Budget"/>-->
+											<!--		<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Cost Centre,Cost Centre Description"/>-->
+											<!--	</viz:feeds>-->
+											<!--	<viz:dependents>-->
+											<!--		<viz:Popover id="budgetNonGlPopover"/>-->
+											<!--	</viz:dependents>-->
+											<!--</viz:VizFrame>-->
+											<viz:VizFrame id="budgetNonGlChart" width="100%" height="380px" vizType="pie" uiConfig="{applicationSet:'fiori'}">
 												<viz:dataset>
 													<viz.data:FlattenedDataset data="{budget>/nonGlChartRows}">
 														<viz.data:dimensions>
-															<!--<viz.data:DimensionDefinition name="Cost Centre Description" value="{budget>name}"/>-->
-															<viz.data:DimensionDefinition name="Cost Centre" value="{budget>costCentre}"/>
-															<viz.data:DimensionDefinition name="Cost Centre Description" value="{budget>costCentreDesc}"/>
+															<viz.data:DimensionDefinition name="G/L Account" value="{budget>glAccount}"/>
+															<viz.data:DimensionDefinition name="G/L Group" value="{budget>glGroup}"/>
 														</viz.data:dimensions>
 														<viz.data:measures>
-															<viz.data:MeasureDefinition name="Last Year Actual" value="{budget>lastYearActual}"/>
 															<viz.data:MeasureDefinition name="Current Year Budget" value="{budget>currentYearBudget}"/>
 														</viz.data:measures>
 													</viz.data:FlattenedDataset>
 												</viz:dataset>
 												<viz:feeds>
-													<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Last Year Actual,Current Year Budget"/>
-													<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Cost Centre,Cost Centre Description"/>
+													<viz.feeds:FeedItem uid="size" type="Measure" values="Current Year Budget"/>
+													<viz.feeds:FeedItem uid="color" type="Dimension" values="G/L Account,G/L Group"/>
 												</viz:feeds>
 												<viz:dependents>
 													<viz:Popover id="budgetNonGlPopover"/>
