@@ -927,6 +927,11 @@ sap.ui.define([
 			var oList = new List({
 				mode: "MultiSelect",
 				includeItemInSelection: true,
+				
+				growing: true,
+				growingScrollToLoad: true,
+				growingThreshold: 100, // Loads 100 records at a time as the user scrolls
+				
 				items: {
 					path: "lookups>/" + sLookupPath,
 					template: new StandardListItem({

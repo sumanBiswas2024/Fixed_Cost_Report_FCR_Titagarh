@@ -282,10 +282,20 @@ sap.ui.define([
 
 		_loadBudgetLookups: function() {
 			var oLookups = this.getView().getModel("lookups");
+			// // Ensure lookups model exists
+			// if (!oLookups) {
+			// 	oLookups = new sap.ui.model.json.JSONModel({});
+			// 	this.getView().setModel(oLookups, "lookups");
+			// }
 			// Ensure lookups model exists
 			if (!oLookups) {
 				oLookups = new sap.ui.model.json.JSONModel({});
+				// CRITICAL FIX 1: Increase the binding limit from 100 to 50000
+				oLookups.setSizeLimit(50000);
 				this.getView().setModel(oLookups, "lookups");
+			} else {
+				// Ensure it's set even if the model already existed
+				oLookups.setSizeLimit(50000);
 			}
 
 			// 1. CO Group F4 (Metadata has only Co_grp)
