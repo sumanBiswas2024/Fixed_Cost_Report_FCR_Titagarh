@@ -45,7 +45,7 @@
 							<!--		valueHelpOnly="true" tokenUpdate=".onBudgetTokenUpdate" valueHelpRequest=".onBudgetPeriodValueHelp" placeholder="Select Period(s)"-->
 							<!--		valueState="{ui>/periodState}"/>-->
 							<!--</VBox>-->
-							<VBox class="fcrField">
+							<VBox class="fcrField fcrFieldQtr">
 								<Label text="Period" required="false"/>
 								<MultiInput id="periodInputBudget" value="{path: 'filters>/period', formatter: '.formatTokenKeys'}" showValueHelp="true"
 									valueHelpOnly="true" tokenUpdate=".onBudgetTokenUpdate" valueHelpRequest=".onBudgetPeriodValueHelp" placeholder="Select Period(s)"
@@ -53,7 +53,7 @@
 									valueState="{ui>/periodState}"/>
 							</VBox>
 
-							<VBox class="fcrField">
+							<VBox class="fcrField fcrFieldQtr">
 								<Label text="Quarter"/>
 								<MultiInput id="quarterInputBudget" value="{path: 'filters>/quarters', formatter: '.formatTokenKeys'}" showValueHelp="true"
 									valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onQuarterValueHelp" placeholder="Select Quarter(s)"
@@ -104,6 +104,15 @@
 									valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onGlGroupValueHelp" placeholder="Select G/L Group"
 									valueState="{ui>/glGroupState}"/>
 							</VBox>
+							<VBox class="fcrField fcrFieldQtr">
+								<Label text="Utiliation Basis" required="false"/>
+								<Select id="budgetCategorySelect" selectedKey="{filters>/budgetCategory}" change=".onBudgetCategoryChange" width="100%">
+									<core:Item key="" text="Select Category" />
+									<core:Item key="TB" text="Total Budget" />
+									<core:Item key="RB" text="Released Budget" />
+								</Select>
+							</VBox>
+							
 							<HBox class="fcrActionsContainer" alignItems="Center">
 								<Button icon="sap-icon://reset" tooltip="Reset" press=".onReset" class="fcrBtnReset"/>
 								<Button text="Run Report" icon="sap-icon://play" type="Emphasized" press=".onSearch" class="fcrBtnRun"/>

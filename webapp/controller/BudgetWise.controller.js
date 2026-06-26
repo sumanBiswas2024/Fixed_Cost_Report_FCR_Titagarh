@@ -64,7 +64,8 @@ sap.ui.define([
 				glGroup: [], // Changed to Array
 				glAccount: [], // Changed to Array
 				costCenterGroup: [], // Changed to Array
-				costCenter: [] // Changed to Array
+				costCenter: [], // Changed to Array
+				budgetCategory: ""
 			}), "filters");
 
 			this.getView().setModel(new JSONModel({
@@ -119,9 +120,10 @@ sap.ui.define([
 				kpi5Subtext: "No Data",
 
 				recordCount: "0",
-				
-				periodEnabled: true, quarterEnabled: false
-				
+
+				periodEnabled: true,
+				quarterEnabled: false
+
 			}), "ui");
 
 			this._syncModeState("GL");
@@ -603,6 +605,15 @@ sap.ui.define([
 						aCommonFilters.push("Gjahr eq '" + that._odataLiteral(oFilters.fiscalYear) + "'");
 					}
 
+					// ==========================================
+					// NEW: BUDGET CATEGORY FIX
+					// Passes 'TB' or 'RB' to the backend
+					// IMPORTANT: Change 'Budcat' below to match your exact OData Property Name!
+					// ==========================================
+					if (oFilters.budgetCategory) {
+						aCommonFilters.push("Budcat eq '" + that._odataLiteral(oFilters.budgetCategory) + "'");
+					}
+
 					// PERIOD FIX
 					if (oFilters.period && Array.isArray(oFilters.period) && oFilters.period.length > 0) {
 						var aPeriodOrs = oFilters.period.map(function(oItem) {
@@ -612,7 +623,7 @@ sap.ui.define([
 						});
 						aCommonFilters.push(aPeriodOrs.length === 1 ? aPeriodOrs[0] : "(" + aPeriodOrs.join(" or ") + ")");
 					}
-					
+
 					// QUARTER FIX
 					if (oFilters.quarters && Array.isArray(oFilters.quarters) && oFilters.quarters.length > 0) {
 						var aQuarterOrs = [];
@@ -1634,6 +1645,10 @@ sap.ui.define([
 			this._updateSelectedParametersText();
 		},
 
+		onBudgetCategoryChange: function() {
+			this._updateSelectedParametersText();
+		},
+
 		onPeriodChange: function() {
 			this._updateSelectedParametersText();
 		},
@@ -1651,7 +1666,8 @@ sap.ui.define([
 				glGroup: [],
 				glAccount: [],
 				costCenterGroup: [],
-				costCenter: []
+				costCenter: [],
+				budgetCategory: ""
 			});
 
 			this._clearValueStates();
@@ -2047,6 +2063,14 @@ sap.ui.define([
 			var sCompany = "Company " + (oFilters.companyCode || "-");
 			var sFY = "FY " + (oFilters.fiscalYear || "-");
 
+			// FIX: Handle the blank state gracefully
+			var sBudCat = "All Categories";
+			if (oFilters.budgetCategory === "RB") {
+				sBudCat = "Released Budget";
+			} else if (oFilters.budgetCategory === "TB") {
+				sBudCat = "Total Budget";
+			}
+
 			var sPeriod = "All periods";
 			if (oFilters.period && oFilters.period.length > 0) {
 				sPeriod = oFilters.period.length === 1 ? (oFilters.period[0].text || oFilters.period[0].key) : oFilters.period.length + " Periods";
@@ -2056,7 +2080,7 @@ sap.ui.define([
 			}
 
 			// 1. Start with the Universal Parameters
-			var aTextParts = [sCompany, sFY, sPeriod];
+			var aTextParts = [sCompany, sFY, sPeriod, sBudCat];
 
 			// 2. Add Tab-Specific Parameters
 			if (bGlMode) {
