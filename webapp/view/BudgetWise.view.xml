@@ -37,13 +37,28 @@
 									<core:Item key="{lookups>key}" text="{lookups>text}"/>
 								</ComboBox>
 							</VBox>
-							<VBox class="fcrField fcrFieldQtr">
-								<Label text="Period" required="true"/>
+							<!--<VBox class="fcrField fcrFieldQtr">-->
+							<!--	<Label text="Period" required="false"/>-->
 								<!--<Input value="{parts:[{path:'filters>/period'},{path:'lookups>/periods'}], formatter: '.formatLookupText'}" showValueHelp="true"-->
 								<!--	valueHelpOnly="true" valueHelpRequest=".onPeriodValueHelp" placeholder="Select Period" valueState="{ui>/periodState}"/>-->
-								<MultiInput id="periodInputBudget" value="{path: 'filters>/period', formatter: '.formatBudgetTokenKeys'}" showValueHelp="true"
+							<!--	<MultiInput id="periodInputBudget" value="{path: 'filters>/period', formatter: '.formatBudgetTokenKeys'}" showValueHelp="true"-->
+							<!--		valueHelpOnly="true" tokenUpdate=".onBudgetTokenUpdate" valueHelpRequest=".onBudgetPeriodValueHelp" placeholder="Select Period(s)"-->
+							<!--		valueState="{ui>/periodState}"/>-->
+							<!--</VBox>-->
+							<VBox class="fcrField">
+								<Label text="Period" required="false"/>
+								<MultiInput id="periodInputBudget" value="{path: 'filters>/period', formatter: '.formatTokenKeys'}" showValueHelp="true"
 									valueHelpOnly="true" tokenUpdate=".onBudgetTokenUpdate" valueHelpRequest=".onBudgetPeriodValueHelp" placeholder="Select Period(s)"
+									enabled="{ui>/periodEnabled}" tooltip="Choose either Period or Quarter. Do not use both together."
 									valueState="{ui>/periodState}"/>
+							</VBox>
+
+							<VBox class="fcrField">
+								<Label text="Quarter"/>
+								<MultiInput id="quarterInputBudget" value="{path: 'filters>/quarters', formatter: '.formatTokenKeys'}" showValueHelp="true"
+									valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onQuarterValueHelp" placeholder="Select Quarter(s)"
+									enabled="{ui>/quarterEnabled}" tooltip="Choose either Period or Quarter. Do not use both together."
+									valueState="{ui>/quarterState}"/>
 							</VBox>
 							<!--<VBox class="fcrField fcrFieldPc">-->
 							<!--	<Label text="Cost Center" required="false"/>-->
@@ -66,7 +81,7 @@
 							<!--		placeholder="Select G/L Group" valueState="{ui>/glGroupState}"/>-->
 							<!--</VBox>-->
 							<VBox class="fcrField fcrFieldPc" visible="{= !${ui>/isGlMode} }">
-								<Label text="Cost Center" required="true"/>
+								<Label text="Cost Center" required="false"/>
 								<MultiInput id="costCenterInputBudget" value="{path: 'filters>/costCenter', formatter: '.formatTokenKeys'}" showValueHelp="true"
 									valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onCostCenterValueHelp" placeholder="Select Cost Center"
 									valueState="{ui>/costCenterState}"/>
@@ -78,7 +93,7 @@
 									valueState="{ui>/costCenterGroupState}"/>
 							</VBox>
 							<VBox class="fcrField fcrFieldGlg" visible="{ui>/isGlMode}">
-								<Label text="G/L Account" required="true"/>
+								<Label text="G/L Account" required="false"/>
 								<MultiInput id="glAccountInputBudget" value="{path: 'filters>/glAccount', formatter: '.formatTokenKeys'}" showValueHelp="true"
 									valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onGlAccountValueHelp" placeholder="Select G/L Account"
 									valueState="{ui>/glAccountState}"/>

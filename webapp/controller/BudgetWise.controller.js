@@ -36,15 +36,27 @@ sap.ui.define([
 
 			this._mValueHelpData = {
 				fiscalYear: this._createFiscalYearItems(),
-				period: this._createPeriodItems()
+				period: this._createPeriodItems(),
+				quarter: this._createQuarterItems()
 			};
 
-			var sCurrentFinancialPeriod = this._getCurrentFinancialPeriod(); // Get Current month
+			// var sCurrentFinancialPeriod = this._getCurrentFinancialPeriod(); // Get Current month
+			var sCurrentFinancialPeriod = this._getCurrentFinancialPeriod();
+			var aPeriodsLookup = this._mValueHelpData.period || [];
+			var oMatchedPeriod = aPeriodsLookup.filter(function(p) {
+				return p.key === sCurrentFinancialPeriod;
+			})[0];
+			var sInitialPeriodText = oMatchedPeriod ? oMatchedPeriod.text : sCurrentFinancialPeriod;
 
 			this.getView().setModel(new JSONModel({
 				companyCode: "1100",
 				fiscalYear: String(new Date().getFullYear()),
-				period: sCurrentFinancialPeriod,
+				// period: sCurrentFinancialPeriod,
+				period: [{
+					key: sCurrentFinancialPeriod,
+					text: sInitialPeriodText // Now this says "June", not "3"
+				}],
+				quarters: [],
 				// glGroup: "",
 				// glAccount: "",
 				// costCenterGroup: "",
@@ -59,6 +71,7 @@ sap.ui.define([
 				companyCodes: this._mValueHelpData.companyCode || [],
 				fiscalYears: this._mValueHelpData.fiscalYear,
 				periods: this._mValueHelpData.period,
+				quarters: this._mValueHelpData.quarter,
 				glGroups: [],
 				glAccounts: [],
 				costCenterGroups: [],
@@ -95,20 +108,24 @@ sap.ui.define([
 				// kpi3Label: "Total Last Two Months Actual",
 				// kpi4Label: "Total Up To Current Month",
 				kpi4Label: "Highest CY Budget (Cost Centre)",
-				kpi5Label:"Highest Actual Budget (Cost Centre)",
+				kpi5Label: "Highest Actual Budget (Cost Centre)",
 				kpi1Value: "0.00",
 				kpi2Value: "0.00",
 				kpi3Value: "0.00",
 				kpi4Value: "0.00",
 				kpi5Value: "0.00",
-				
+
 				kpi4Subtext: "No Data",
 				kpi5Subtext: "No Data",
+
+				recordCount: "0",
 				
-				recordCount: "0"
+				periodEnabled: true, quarterEnabled: false
+				
 			}), "ui");
 
 			this._syncModeState("GL");
+			this._syncPeriodSelectorState();
 			this._updateSelectedParametersText();
 
 			this.getOwnerComponent().getRouter().getRoute("budgetWise").attachPatternMatched(this._onBudgetRouteMatched, this);
@@ -211,6 +228,45 @@ sap.ui.define([
 			// Uses the SAPUI5 NumberFormat you already initialized in onInit to add commas and decimals
 			return this._oAmountFormat ? this._oAmountFormat.format(Number(vValue)) : Number(vValue).toFixed(2);
 		},
+
+		// 1. QUARTER DATA DICTIONARY
+		_createQuarterItems: function() {
+			return [{
+				key: "Q1",
+				text: "Q1 - Period April to June"
+			}, {
+				key: "Q2",
+				text: "Q2 - Period July to September"
+			}, {
+				key: "Q3",
+				text: "Q3 - Period October to December"
+			}, {
+				key: "Q4",
+				text: "Q4 - Period January to March"
+			}];
+		},
+
+		// 2. DYNAMIC TOKEN FORMATTER (Tokens show "Q1", but Periods show "June")
+		formatTokenKeys: function(aSelectedItems) {
+			if (!aSelectedItems) return "";
+			if (typeof aSelectedItems === "string") return aSelectedItems;
+			if (!Array.isArray(aSelectedItems) || aSelectedItems.length === 0) return "";
+			return aSelectedItems.map(function(oItem) {
+				if (oItem.key && String(oItem.key).indexOf("Q") === 0) return oItem.key;
+				return oItem.text || oItem.key || oItem;
+			}).join(", ");
+		},
+
+		// 3. MUTUAL EXCLUSION LOCK LOGIC
+		_syncPeriodSelectorState: function() {
+			var oFilters = this.getView().getModel("filters").getData();
+			var oUiModel = this.getView().getModel("ui");
+			var bQuarterSelected = oFilters.quarters && oFilters.quarters.length > 0;
+			var bPeriodSelected = oFilters.period && oFilters.period.length > 0;
+			oUiModel.setProperty("/quarterEnabled", !bPeriodSelected);
+			oUiModel.setProperty("/periodEnabled", !bQuarterSelected);
+		},
+
 		_getCurrentFinancialPeriod: function() {
 			var iCalendarMonth = new Date().getMonth() + 1; // 1 (Jan) to 12 (Dec)
 			var iFinancialPeriod;
@@ -555,6 +611,19 @@ sap.ui.define([
 							return "Monat eq '" + sPadMonth + "'";
 						});
 						aCommonFilters.push(aPeriodOrs.length === 1 ? aPeriodOrs[0] : "(" + aPeriodOrs.join(" or ") + ")");
+					}
+					
+					// QUARTER FIX
+					if (oFilters.quarters && Array.isArray(oFilters.quarters) && oFilters.quarters.length > 0) {
+						var aQuarterOrs = [];
+						oFilters.quarters.forEach(function(oQ) {
+							var sQ = String(oQ.key || oQ);
+							if (sQ === "Q1") aQuarterOrs.push("(Monat eq '01' or Monat eq '02' or Monat eq '03')");
+							if (sQ === "Q2") aQuarterOrs.push("(Monat eq '04' or Monat eq '05' or Monat eq '06')");
+							if (sQ === "Q3") aQuarterOrs.push("(Monat eq '07' or Monat eq '08' or Monat eq '09')");
+							if (sQ === "Q4") aQuarterOrs.push("(Monat eq '10' or Monat eq '11' or Monat eq '12')");
+						});
+						aCommonFilters.push("(" + aQuarterOrs.join(" or ") + ")");
 					}
 
 					// COST CENTRE FIX
@@ -1021,11 +1090,11 @@ sap.ui.define([
 					costCentre: oRow.costCenter || "", // Adding alternate spelling just in case
 					coGroup: oRow.coGroup || "",
 					costCentreDesc: oRow.costCenterDesc || "",
-					
+
 					// G/L Fields
 					glAccount: oRow.glAccount || "",
 					glGroup: oRow.glGroup || "",
-					
+
 					// Measure Fields
 					currentYearBudget: parseFloat(oRow.yearlyBudget || 0),
 					lastYearActual: parseFloat(oRow.oldYearlyValue || 0),
@@ -1118,7 +1187,7 @@ sap.ui.define([
 				// GL MODE: Combinations are Cost Centre & Cost Centre Group
 				oUi.setProperty("/kpi4Label", "Highest CY Budget (Cost Centre)");
 				oUi.setProperty("/kpi5Label", "Highest Actual Budget (Cost Centre)");
-				
+
 				if (oHighestCy) {
 					sKpi4Subtext = [oHighestCy.costCenter, oHighestCy.coGroup].filter(Boolean).join(" - ");
 				}
@@ -1129,7 +1198,7 @@ sap.ui.define([
 				// NON-GL MODE: Combinations are G/L Account & G/L Group
 				oUi.setProperty("/kpi4Label", "Highest CY Budget (G/L Account)");
 				oUi.setProperty("/kpi5Label", "Highest Actual Budget (G/L Account)");
-				
+
 				if (oHighestCy) {
 					sKpi4Subtext = [oHighestCy.glAccount, oHighestCy.glGroup].filter(Boolean).join(" - ");
 				}
@@ -1484,6 +1553,7 @@ sap.ui.define([
 									};
 								});
 								this.getView().getModel("filters").setProperty("/period", aNewSelection);
+								this._syncPeriodSelectorState();
 								this._updateSelectedParametersText();
 								this._oBudgetStandalonePeriodDialog.close();
 							}.bind(this)
@@ -1536,6 +1606,7 @@ sap.ui.define([
 		onBudgetTokenUpdate: function(oEvent) {
 			if (oEvent.getParameter("type") === "removed") {
 				this.getView().getModel("filters").setProperty("/period", []);
+				this._syncPeriodSelectorState();
 				this._updateSelectedParametersText();
 			}
 		},
@@ -1576,6 +1647,7 @@ sap.ui.define([
 				fiscalYear: String(new Date().getFullYear()),
 				// period: "",
 				period: [],
+				quarters: [],
 				glGroup: [],
 				glAccount: [],
 				costCenterGroup: [],
@@ -1584,6 +1656,7 @@ sap.ui.define([
 
 			this._clearValueStates();
 			this._syncModeState(sMode);
+			this._syncPeriodSelectorState();
 			this._updateSelectedParametersText();
 			this.getView().getModel("budget").setData({
 				glRows: [],
@@ -1629,28 +1702,28 @@ sap.ui.define([
 			this._getBusyDialog().open();
 			this._initBudgetOData().then(function() {
 				this._getBusyDialog().close();
-				this._openMultiSelectValueHelp("G/L Group", "glGroups", "glGroup");
+				this._openBudgetMultiSelectValueHelp("G/L Group", "glGroups", "glGroup");
 			}.bind(this));
 		},
 		onGlAccountValueHelp: function() {
 			this._getBusyDialog().open();
 			this._initBudgetOData().then(function() {
 				this._getBusyDialog().close();
-				this._openMultiSelectValueHelp("G/L Account", "glAccounts", "glAccount");
+				this._openBudgetMultiSelectValueHelp("G/L Account", "glAccounts", "glAccount");
 			}.bind(this));
 		},
 		onCostCenterGroupValueHelp: function() {
 			this._getBusyDialog().open();
 			this._initBudgetOData().then(function() {
 				this._getBusyDialog().close();
-				this._openMultiSelectValueHelp("CO Group", "costCenterGroups", "costCenterGroup");
+				this._openBudgetMultiSelectValueHelp("CO Group", "costCenterGroups", "costCenterGroup");
 			}.bind(this));
 		},
 		onCostCenterValueHelp: function() {
 			this._getBusyDialog().open();
 			this._initBudgetOData().then(function() {
 				this._getBusyDialog().close();
-				this._openMultiSelectValueHelp("Cost Center", "costCenters", "costCenter");
+				this._openBudgetMultiSelectValueHelp("Cost Center", "costCenters", "costCenter");
 			}.bind(this));
 		},
 
@@ -1659,6 +1732,9 @@ sap.ui.define([
 		},
 		onCompanyCodeValueHelp: function() {
 			this._openSingleSelectValueHelp("Company Code", "companyCodes", "/companyCode");
+		},
+		onQuarterValueHelp: function() {
+			this._openBudgetMultiSelectValueHelp("Quarter", "quarters", "quarters");
 		},
 
 		_openSingleSelectValueHelp: function(sTitle, sLookupPath, sFilterPropPath) {
@@ -1745,6 +1821,123 @@ sap.ui.define([
 			this.getView().addDependent(oDialog);
 			oDialog.open();
 		},
+		// =========================================================
+		// ISOLATED BUDGET MULTI-SELECT (Completely Separate from View1)
+		// =========================================================
+		_openBudgetMultiSelectValueHelp: function(sTitle, sLookupPath, sFilterPath) {
+			var oView = this.getView();
+			var oFiltersModel = oView.getModel("filters");
+			var aCurrent = oFiltersModel.getProperty("/" + sFilterPath) || [];
+			var mSelected = {};
+
+			if (!Array.isArray(aCurrent)) {
+				if (typeof aCurrent === "string" && aCurrent !== "") aCurrent = [{
+					key: aCurrent,
+					text: aCurrent
+				}];
+				else aCurrent = [];
+			}
+
+			aCurrent.forEach(function(oItem) {
+				mSelected[oItem.key] = true;
+			});
+
+			var oList = new sap.m.List({
+				mode: "MultiSelect",
+				includeItemInSelection: true,
+				growing: true,
+				growingScrollToLoad: true,
+				growingThreshold: 100,
+				items: {
+					path: "lookups>/" + sLookupPath,
+					template: new sap.m.StandardListItem({
+						title: "{lookups>key}",
+						description: "{lookups>text}"
+					})
+				}
+			});
+
+			oList.attachSelectionChange(function(oEvent) {
+				var oItem = oEvent.getParameter("listItem");
+				if (oItem) mSelected[oItem.getBindingContext("lookups").getProperty("key")] = oItem.getSelected();
+			});
+
+			oList.attachUpdateFinished(function() {
+				oList.getItems().forEach(function(oItem) {
+					oItem.setSelected(!!mSelected[oItem.getBindingContext("lookups").getProperty("key")]);
+				});
+			});
+
+			var oSearch = new sap.m.SearchField({
+				width: "100%",
+				placeholder: "Search " + sTitle,
+				liveChange: function(oEvent) {
+					var sValue = oEvent.getParameter("newValue");
+					var aFilters = [];
+					if (sValue) {
+						aFilters.push(new sap.ui.model.Filter({
+							filters: [
+								new sap.ui.model.Filter("key", sap.ui.model.FilterOperator.Contains, sValue),
+								new sap.ui.model.Filter("text", sap.ui.model.FilterOperator.Contains, sValue)
+							],
+							and: false
+						}));
+					}
+					oList.getBinding("items").filter(aFilters);
+				}
+			});
+
+			var oDialog = new sap.m.Dialog({
+				title: "Select " + sTitle,
+				contentWidth: "30rem",
+				contentHeight: "34rem",
+				stretchOnPhone: true,
+				content: [oSearch, oList],
+				buttons: [
+					new sap.m.Button({
+						text: "Clear",
+						press: function() {
+							oList.removeSelections(true);
+							mSelected = {};
+						}
+					}),
+					new sap.m.Button({
+						text: "OK",
+						type: "Emphasized",
+						press: function() {
+							var aSelected = oList.getSelectedItems().map(function(oItem) {
+								var oData = oItem.getBindingContext("lookups").getObject();
+								return {
+									key: oData.key,
+									text: oData.text
+								};
+							});
+
+							oFiltersModel.setProperty("/" + sFilterPath, aSelected);
+
+							// MUTUAL EXCLUSION CLEARING
+							if (sFilterPath === "period" && aSelected.length > 0) oFiltersModel.setProperty("/quarters", []);
+							else if (sFilterPath === "quarters" && aSelected.length > 0) oFiltersModel.setProperty("/period", []);
+
+							this._syncPeriodSelectorState();
+							this._updateSelectedParametersText();
+							oDialog.close();
+						}.bind(this)
+					}),
+					new sap.m.Button({
+						text: "Cancel",
+						press: function() {
+							oDialog.close();
+						}
+					})
+				],
+				afterClose: function() {
+					oDialog.destroy();
+				}
+			});
+			oView.addDependent(oDialog);
+			oDialog.open();
+		},
 
 		// Override View 1's refresh function so it updates the bottom text when clicking "OK" in dialog
 		_refreshSelectionTexts: function() {
@@ -1754,16 +1947,15 @@ sap.ui.define([
 		// Handle user clicking the 'x' on tokens to remove them
 		onTokenUpdate: function(oEvent) {
 			var oFiltersModel = this.getView().getModel("filters");
-			var sType = oEvent.getParameter("type");
-
-			if (sType === "removed") {
+			if (oEvent.getParameter("type") === "removed") {
 				var sId = oEvent.getSource().getId();
 				if (sId.includes("costCenterGrpInputBudget")) oFiltersModel.setProperty("/costCenterGroup", []);
 				else if (sId.includes("costCenterInputBudget")) oFiltersModel.setProperty("/costCenter", []);
 				else if (sId.includes("glAccountInputBudget")) oFiltersModel.setProperty("/glAccount", []);
 				else if (sId.includes("glGroupInputBudget")) oFiltersModel.setProperty("/glGroup", []);
+				else if (sId.includes("quarterInputBudget")) oFiltersModel.setProperty("/quarters", []);
 			}
-
+			this._syncPeriodSelectorState();
 			this._updateSelectedParametersText();
 		},
 
@@ -1790,31 +1982,45 @@ sap.ui.define([
 				oUi.setProperty("/yearState", "None");
 			}
 
-			var aPeriod = oFilters.period;
-			if (!aPeriod || (Array.isArray(aPeriod) && aPeriod.length === 0)) {
+			// var aPeriod = oFilters.period;
+			// if (!aPeriod || (Array.isArray(aPeriod) && aPeriod.length === 0)) {
+			// 	oUi.setProperty("/periodState", "Error");
+			// 	aMissing.push("Period");
+			// 	bOk = false;
+			// } else {
+			// 	oUi.setProperty("/periodState", "None");
+			// }
+
+			// Allow execution if EITHER Period or Quarter is selected
+			var bHasPeriod = oFilters.period && oFilters.period.length > 0;
+			var bHasQuarter = oFilters.quarters && oFilters.quarters.length > 0;
+
+			if (!bHasPeriod && !bHasQuarter) {
 				oUi.setProperty("/periodState", "Error");
-				aMissing.push("Period");
+				oUi.setProperty("/quarterState", "Error");
+				aMissing.push("Period OR Quarter");
 				bOk = false;
 			} else {
 				oUi.setProperty("/periodState", "None");
+				oUi.setProperty("/quarterState", "None");
 			}
 
 			// =======================================================
 			// NEW: Mutually Exclusive Mandatory Fields
 			// =======================================================
-			if (bGlMode) {
-				var aGlAccount = oFilters.glAccount;
-				if (!aGlAccount || (Array.isArray(aGlAccount) && aGlAccount.length === 0)) {
-					aMissing.push("G/L Account");
-					bOk = false;
-				}
-			} else {
-				var aCostCenter = oFilters.costCenter;
-				if (!aCostCenter || (Array.isArray(aCostCenter) && aCostCenter.length === 0)) {
-					aMissing.push("Cost Centre");
-					bOk = false;
-				}
-			}
+			// if (bGlMode) {
+			// 	var aGlAccount = oFilters.glAccount;
+			// 	if (!aGlAccount || (Array.isArray(aGlAccount) && aGlAccount.length === 0)) {
+			// 		aMissing.push("G/L Account");
+			// 		bOk = false;
+			// 	}
+			// } else {
+			// 	var aCostCenter = oFilters.costCenter;
+			// 	if (!aCostCenter || (Array.isArray(aCostCenter) && aCostCenter.length === 0)) {
+			// 		aMissing.push("Cost Centre");
+			// 		bOk = false;
+			// 	}
+			// }
 
 			if (!bOk) {
 				sap.m.MessageBox.error("Please provide mandatory parameters:\n\n" + aMissing.join("\n"));
@@ -1843,11 +2049,10 @@ sap.ui.define([
 
 			var sPeriod = "All periods";
 			if (oFilters.period && oFilters.period.length > 0) {
-				if (oFilters.period.length === 1) {
-					sPeriod = oFilters.period[0].text || oFilters.period[0].key;
-				} else {
-					sPeriod = oFilters.period.length + " Periods";
-				}
+				sPeriod = oFilters.period.length === 1 ? (oFilters.period[0].text || oFilters.period[0].key) : oFilters.period.length + " Periods";
+			} else if (oFilters.quarters && oFilters.quarters.length > 0) {
+				sPeriod = oFilters.quarters.length === 1 ? (oFilters.quarters[0].text || oFilters.quarters[0].key) : oFilters.quarters.length +
+					" Quarters";
 			}
 
 			// 1. Start with the Universal Parameters
@@ -2060,16 +2265,22 @@ sap.ui.define([
 				if (!oVizFrame.data("configured")) {
 					oVizFrame.setVizProperties({
 						plotArea: {
-							dataLabel: { visible: true },
+							dataLabel: {
+								visible: true
+							},
 							drawingEffect: "glossy"
-							// Notice there is NO colorPalette or rules array here.
-							// This allows SAP Fiori to automatically generate distinct
-							// colors for every slice of the pie based on your dimensions!
+								// Notice there is NO colorPalette or rules array here.
+								// This allows SAP Fiori to automatically generate distinct
+								// colors for every slice of the pie based on your dimensions!
 						},
-						legendGroup: { 
-							layout: { position: "right" } 
+						legendGroup: {
+							layout: {
+								position: "right"
+							}
 						},
-						title: { visible: false }
+						title: {
+							visible: false
+						}
 					});
 					oVizFrame.data("configured", true);
 				}
