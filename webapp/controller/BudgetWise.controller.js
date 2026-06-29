@@ -151,11 +151,17 @@ sap.ui.define([
 				// 2. Fetch ONLY the F4 Dropdown lookups from the Backend
 				this._initBudgetOData().then(function() {
 
-					// F4 Data is loaded! Now we set our Period arrays safely.
+					// ========================================================
+					// 3. Safe Period Extraction
+					// ========================================================
 					var aInitialPeriod = [];
+					var aPeriods = this._mValueHelpData ? this._mValueHelpData.period : this._createBudgetPeriods();
+
 					if (oNav && oNav.fromPeriod) {
 						var sNavPeriod = oNav.fromPeriod;
-						var aPeriods = this._createBudgetPeriods();
+						if (Array.isArray(sNavPeriod)) sNavPeriod = sNavPeriod[0].key || sNavPeriod[0];
+						else if (typeof sNavPeriod === "object") sNavPeriod = sNavPeriod.key;
+
 						var oMatched = aPeriods.filter(function(p) {
 							return p.key === sNavPeriod;
 						})[0];
@@ -164,37 +170,64 @@ sap.ui.define([
 							text: oMatched ? oMatched.text : sNavPeriod
 						}];
 					} else {
-						aInitialPeriod = [this._getBudgetFiscalMonth()];
+						// Fallback Extraction (For Browser Refresh)
+						var sFallback = typeof this._getCurrentFinancialPeriod === "function" ? this._getCurrentFinancialPeriod() : "03";
+						if (Array.isArray(sFallback)) sFallback = sFallback[0].key || sFallback[0];
+						else if (typeof sFallback === "object") sFallback = sFallback.key;
+
+						var oMatched2 = aPeriods.filter(function(p) {
+							return p.key === sFallback;
+						})[0];
+						aInitialPeriod = [{
+							key: sFallback,
+							text: oMatched2 ? oMatched2.text : String(sFallback)
+						}];
 					}
 
-					// Set Standards
+					// ========================================================
+					// 4. ONLY Take Company Code, Fiscal Year, and Period
+					// ========================================================
 					oFiltersModel.setProperty("/companyCode", (oNav && oNav.companyCode) ? oNav.companyCode : "1100");
 					oFiltersModel.setProperty("/fiscalYear", (oNav && oNav.fiscalYear) ? oNav.fiscalYear : String(new Date().getFullYear()));
 					oFiltersModel.setProperty("/period", aInitialPeriod);
 
-					// Apply Nav or Leave Blank
-					if (oNav) {
-						if (oNav.glGroups && oNav.glGroups.length > 0) oFiltersModel.setProperty("/glGroup", oNav.glGroups);
-						if (oNav.glAccounts && oNav.glAccounts.length > 0) oFiltersModel.setProperty("/glAccount", oNav.glAccounts);
-						if (oNav.costCenterGroups && oNav.costCenterGroups.length > 0) oFiltersModel.setProperty("/costCenterGroup", oNav.costCenterGroups);
-						if (oNav.costCenters && oNav.costCenters.length > 0) oFiltersModel.setProperty("/costCenter", oNav.costCenters);
-					} else {
-						// Direct Load: Leave mandatory fields BLANK
-						oFiltersModel.setProperty("/glAccount", []);
-						oFiltersModel.setProperty("/costCenter", []);
-					}
+					// Force clear everything else
+					oFiltersModel.setProperty("/quarters", []);
+					oFiltersModel.setProperty("/budgetCategory", "");
+					oFiltersModel.setProperty("/glGroup", []);
+					oFiltersModel.setProperty("/glAccount", []);
+					oFiltersModel.setProperty("/costCenterGroup", []);
+					oFiltersModel.setProperty("/costCenter", []);
 
+					// Clear navigation flag
 					if (oShared) {
 						oShared.setProperty("/budgetNavigation", null);
 					}
 
+					// Sync UI and Subtitles
 					this._syncModeState(oUi.getProperty("/reportType") || "GL");
+
+					if (typeof this._syncPeriodSelectorState === "function") {
+						this._syncPeriodSelectorState();
+					}
+
 					this._updateSelectedParametersText();
-
 					this._bIsInitiallyLoaded = true;
-
-					// 3. STOP. We close the dialog and wait for the user to press 'Run Report'
 					oBusyDialog.close();
+
+					// ========================================================
+					// 5. CRITICAL FIX: Auto-fetch on ANY fresh load (Nav OR Refresh)
+					// ========================================================
+					// By removing the `if (oNav)` wrapper, this will now execute 
+					// immediately after a browser refresh as well!
+					this._bInitialDualFetchDone = false; 
+
+					setTimeout(function() {
+						if (typeof this._fetchBudgetData === "function") {
+							// 2. Call the function normally (NO 'true' argument needed!)
+							this._fetchBudgetData(); 
+						}
+					}.bind(this), 100);
 
 				}.bind(this)).catch(function(oErr) {
 					oBusyDialog.close();
@@ -202,7 +235,7 @@ sap.ui.define([
 				}.bind(this));
 
 			} else {
-				// Navigating Back: Just sync UI, don't reload
+				// Navigating Back from a 3rd screen: Just sync UI, don't reload
 				this._syncModeState(oUi.getProperty("/reportType") || "GL");
 				this._updateSelectedParametersText();
 				this._updateKpisFromActiveMode();
@@ -247,15 +280,28 @@ sap.ui.define([
 				text: "Q4 - Period January to March"
 			}];
 		},
-
 		// 2. DYNAMIC TOKEN FORMATTER (Tokens show "Q1", but Periods show "June")
 		formatTokenKeys: function(aSelectedItems) {
 			if (!aSelectedItems) return "";
 			if (typeof aSelectedItems === "string") return aSelectedItems;
 			if (!Array.isArray(aSelectedItems) || aSelectedItems.length === 0) return "";
+
 			return aSelectedItems.map(function(oItem) {
+				// Safety check: if the array accidentally contains a string
+				if (typeof oItem === "string") return oItem;
+
+				// Keep Q1, Q2, etc as short tokens
 				if (oItem.key && String(oItem.key).indexOf("Q") === 0) return oItem.key;
-				return oItem.text || oItem.key || oItem;
+
+				// Prefer Text, fallback to Key
+				var sResult = oItem.text || oItem.key || "";
+
+				// CRITICAL FIX: If sResult is STILL an object, do not print it
+				if (typeof sResult === "object") {
+					return sResult.text || sResult.key || "";
+				}
+
+				return sResult;
 			}).join(", ");
 		},
 
@@ -578,12 +624,23 @@ sap.ui.define([
 		// 	}, 50);
 		// },
 
-		_fetchBudgetData: function(bMarkRun) {
+		_fetchBudgetData: function() {
 			var that = this;
 			var oFilters = this.getView().getModel("filters").getData();
 			var oUi = this.getView().getModel("ui");
 			var oBudget = this.getView().getModel("budget");
 			var bGlMode = oUi.getProperty("/isGlMode");
+
+			// =========================================================
+			// FOOLPROOF LOCK LOGIC
+			// Checks if this is the very first dual-fetch. If it is, it sets 
+			// the flag to true so it NEVER runs the dual-fetch again until you reload!
+			// =========================================================
+			var bDoDualFetch = false;
+			if (this._bInitialDualFetchDone === false) {
+				bDoDualFetch = true;
+				this._bInitialDualFetchDone = true; // Lock it instantly!
+			}
 
 			var oBusyDialog = this._getBusyDialog();
 			if (oBusyDialog.setText) {
@@ -594,7 +651,6 @@ sap.ui.define([
 			// We use a timeout to let the Busy Dialog physically render on screen
 			setTimeout(function() {
 
-				// We wait for F4 init just as a safety net, but it will resolve instantly
 				that._initBudgetOData().then(function() {
 					var aCommonFilters = [];
 
@@ -605,11 +661,7 @@ sap.ui.define([
 						aCommonFilters.push("Gjahr eq '" + that._odataLiteral(oFilters.fiscalYear) + "'");
 					}
 
-					// ==========================================
-					// NEW: BUDGET CATEGORY FIX
-					// Passes 'TB' or 'RB' to the backend
-					// IMPORTANT: Change 'Budcat' below to match your exact OData Property Name!
-					// ==========================================
+					// BUDGET CATEGORY
 					if (oFilters.budgetCategory) {
 						aCommonFilters.push("Budcat eq '" + that._odataLiteral(oFilters.budgetCategory) + "'");
 					}
@@ -637,70 +689,88 @@ sap.ui.define([
 						aCommonFilters.push("(" + aQuarterOrs.join(" or ") + ")");
 					}
 
-					// COST CENTRE FIX
-					if (oFilters.costCenter && oFilters.costCenter.length > 0) {
-						var aCcOrs = oFilters.costCenter.map(function(oItem) {
-							return "Kostl eq '" + that._odataLiteral(oItem.key) + "'";
-						});
-						aCommonFilters.push(aCcOrs.length === 1 ? aCcOrs[0] : "(" + aCcOrs.join(" or ") + ")");
-					}
-
-					// COST CENTRE GROUP FIX
-					if (oFilters.costCenterGroup && oFilters.costCenterGroup.length > 0) {
-						var aCcgOrs = oFilters.costCenterGroup.map(function(oItem) {
-							return "Co_grp eq '" + that._odataLiteral(oItem.key) + "'";
-						});
-						aCommonFilters.push(aCcgOrs.length === 1 ? aCcgOrs[0] : "(" + aCcgOrs.join(" or ") + ")");
-					}
+					var sSelectParams = "Bukrs,Gjahr,Monat,Kostl,Co_grp,Saknr,Gl_grp,YrValue,YrActual,Util_basis,Total_spent,Utilisation,Status";
 
 					// =========================================================
-					// ISOLATED BRANCHING: ONLY Fetch Active Tab Data
+					// CONDITION 1: INITIAL LOAD (Uses the new Foolproof Lock)
 					// =========================================================
-					if (bGlMode) {
-						// === FETCH GL DATA ONLY ===
-						var aGlFilters = aCommonFilters.slice();
-
-						if (oFilters.glAccount && oFilters.glAccount.length > 0) {
-							var aGlAccOrs = oFilters.glAccount.map(function(oItem) {
-								return "Saknr eq '" + that._odataLiteral(oItem.key) + "'";
-							});
-							aGlFilters.push(aGlAccOrs.length === 1 ? aGlAccOrs[0] : "(" + aGlAccOrs.join(" or ") + ")");
-						}
-
-						if (oFilters.glGroup && oFilters.glGroup.length > 0) {
-							var aGlGrpOrs = oFilters.glGroup.map(function(oItem) {
-								return "Gl_grp eq '" + that._odataLiteral(oItem.key) + "'";
-							});
-							aGlFilters.push(aGlGrpOrs.length === 1 ? aGlGrpOrs[0] : "(" + aGlGrpOrs.join(" or ") + ")");
-						}
-
-						var sGlFilter = aGlFilters.join(" and ");
-						// var sGlSelect = "Bukrs,Gjahr,Monat,Kostl,Co_grp,Saknr,Gl_grp,YrValue,YrActual";
-						var sGlSelect = "Bukrs,Gjahr,Monat,Kostl,Co_grp,Saknr,Gl_grp,YrValue,YrActual,Util_basis,Total_spent,Utilisation,Status";
-
-						return that._readBudgetOData("/CCR_COGLSet", sGlFilter, sGlSelect).then(function(aRawGlData) {
+					if (bDoDualFetch) {
+						// 1. PREPARE GL
+						var aGlInitFilters = aCommonFilters.slice();
+						var pGlFetch = that._readBudgetOData("/CCR_COGLSet", aGlInitFilters.join(" and "), sSelectParams).then(function(aRawGlData) {
 							var aMappedGlRows = (aRawGlData || []).map(that._mapGlRow.bind(that)).filter(Boolean);
-
 							oBudget.setProperty("/glRows", aMappedGlRows);
 							oBudget.setProperty("/glChartRows", that._createBudgetChartRows(aMappedGlRows, "GL"));
-
-							return aMappedGlRows.length === 0; // Return empty state
+							return aMappedGlRows.length;
 						});
 
-					} else {
-						// === FETCH NON-GL DATA ONLY ===
-						var sCommonFilter = aCommonFilters.join(" and ");
-						// var sNonGlSelect = "Bukrs,Gjahr,Monat,Kostl,Co_grp,Saknr,Gl_grp,YrValue,YrActual";
-						var sNonGlSelect = "Bukrs,Gjahr,Monat,Kostl,Co_grp,Saknr,Gl_grp,YrValue,YrActual,Util_basis,Total_spent,Utilisation,Status";
-
-						return that._readBudgetOData("/CCR_COGLSet", sCommonFilter, sNonGlSelect).then(function(aRawNonGlData) {
+						// 2. PREPARE NON-GL
+						var pNonGlFetch = that._readBudgetOData("/CCR_COGLSet", aCommonFilters.join(" and "), sSelectParams).then(function(
+							aRawNonGlData) {
 							var aMappedNonGlRows = (aRawNonGlData || []).map(that._mapNonGlRow.bind(that)).filter(Boolean);
-
 							oBudget.setProperty("/nonGlRows", aMappedNonGlRows);
 							oBudget.setProperty("/nonGlChartRows", that._createBudgetChartRows(aMappedNonGlRows, "NONGL"));
-
-							return aMappedNonGlRows.length === 0; // Return empty state
+							return aMappedNonGlRows.length;
 						});
+
+						return Promise.all([pGlFetch, pNonGlFetch]).then(function(aResults) {
+							return bGlMode ? (aResults[0] === 0) : (aResults[1] === 0);
+						});
+					}
+
+					// =========================================================
+					// CONDITION 2: STANDARD RUN (Manual Clicks always go here!)
+					// =========================================================
+					else {
+						if (bGlMode) {
+							// === FETCH GL DATA ONLY ===
+							var aGlFilters = aCommonFilters.slice();
+							if (oFilters.glAccount && oFilters.glAccount.length > 0) {
+								var aGlAccOrs = oFilters.glAccount.map(function(oItem) {
+									return "Saknr eq '" + that._odataLiteral(oItem.key) + "'";
+								});
+								aGlFilters.push(aGlAccOrs.length === 1 ? aGlAccOrs[0] : "(" + aGlAccOrs.join(" or ") + ")");
+							}
+							if (oFilters.glGroup && oFilters.glGroup.length > 0) {
+								var aGlGrpOrs = oFilters.glGroup.map(function(oItem) {
+									return "Gl_grp eq '" + that._odataLiteral(oItem.key) + "'";
+								});
+								aGlFilters.push(aGlGrpOrs.length === 1 ? aGlGrpOrs[0] : "(" + aGlGrpOrs.join(" or ") + ")");
+							}
+
+							return that._readBudgetOData("/CCR_COGLSet", aGlFilters.join(" and "), sSelectParams).then(function(aRawGlData) {
+								var aMappedGlRows = (aRawGlData || []).map(that._mapGlRow.bind(that)).filter(Boolean);
+								oBudget.setProperty("/glRows", aMappedGlRows);
+								oBudget.setProperty("/glChartRows", that._createBudgetChartRows(aMappedGlRows, "GL"));
+								return aMappedGlRows.length === 0;
+							});
+						} else {
+							// === FETCH NON-GL DATA ONLY ===
+							var aCostFilters = aCommonFilters.slice();
+
+							// COST CENTRE
+							if (oFilters.costCenter && oFilters.costCenter.length > 0) {
+								var aCcOrs = oFilters.costCenter.map(function(oItem) {
+									return "Kostl eq '" + that._odataLiteral(oItem.key) + "'";
+								});
+								aCostFilters.push(aCcOrs.length === 1 ? aCcOrs[0] : "(" + aCcOrs.join(" or ") + ")");
+							}
+
+							// COST CENTRE GROUP
+							if (oFilters.costCenterGroup && oFilters.costCenterGroup.length > 0) {
+								var aCcgOrs = oFilters.costCenterGroup.map(function(oItem) {
+									return "Co_grp eq '" + that._odataLiteral(oItem.key) + "'";
+								});
+								aCostFilters.push(aCcgOrs.length === 1 ? aCcgOrs[0] : "(" + aCcgOrs.join(" or ") + ")");
+							}
+
+							return that._readBudgetOData("/CCR_COGLSet", aCostFilters.join(" and "), sSelectParams).then(function(aRawNonGlData) {
+								var aMappedNonGlRows = (aRawNonGlData || []).map(that._mapNonGlRow.bind(that)).filter(Boolean);
+								oBudget.setProperty("/nonGlRows", aMappedNonGlRows);
+								oBudget.setProperty("/nonGlChartRows", that._createBudgetChartRows(aMappedNonGlRows, "NONGL"));
+								return aMappedNonGlRows.length === 0;
+							});
+						}
 					}
 
 				}).then(function(bActiveEmpty) {
@@ -754,8 +824,13 @@ sap.ui.define([
 					// Update UI Elements
 					that._applySearch(oUi.getProperty("/globalSearch") || "");
 					that._updateKpisFromActiveMode();
-					that._updateTop5Charts();
-					that._refreshBudgetChartStyling();
+
+					if (typeof that._updateTop5Charts === "function") {
+						that._updateTop5Charts();
+					}
+					if (typeof that._refreshBudgetChartStyling === "function") {
+						that._refreshBudgetChartStyling();
+					}
 
 					oBusyDialog.close();
 
@@ -1002,8 +1077,8 @@ sap.ui.define([
 			var fOldYearlyValue = Number(oRow.OldyValue || 0) / fLakhs;
 
 			var fActulaYearlyBudgetValue = Number(oRow.YrActual || 0) / fLakhs;
-			
-			var fActual= Number(oRow.Total_spent || 0) / fLakhs;
+
+			var fActual = Number(oRow.Total_spent || 0) / fLakhs;
 
 			var fPreviousTwoMonths = Number(oRow.PrevTwo || 0) / fLakhs;
 			var fCurrentMonth = Number(oRow.CurrMonth || 0) / fLakhs;
@@ -1025,7 +1100,7 @@ sap.ui.define([
 				oldYearlyValue: fOldYearlyValue,
 
 				actulaYearlyBudgetValue: fActulaYearlyBudgetValue,
-				
+
 				total_spent: fActual,
 				utilisation: oRow.Utilisation,
 				status: oRow.Status,
@@ -1049,8 +1124,8 @@ sap.ui.define([
 			var sGlAccount = oRow.Saknr || "";
 
 			var fActulaYearlyBudgetValue = Number(oRow.YrActual || 0) / fLakhs;
-			
-			var fActual= Number(oRow.Total_spent || 0) / fLakhs;
+
+			var fActual = Number(oRow.Total_spent || 0) / fLakhs;
 			return {
 				companyCode: oRow.Bukrs || "",
 				fiscalYear: oRow.Gjahr || "",
@@ -1071,7 +1146,7 @@ sap.ui.define([
 				budgetCurrentYear: fYearlyBudget,
 				actualLastTwoMonths: fPreviousTwoMonths,
 				upToCurrentMonth: fCurrentMonth,
-				
+
 				total_spent: fActual,
 				utilisation: oRow.Utilisation,
 				status: oRow.Status
@@ -1301,7 +1376,7 @@ sap.ui.define([
 		formatLookupText: function(sKey, aItems) {
 			return this._resolveLookupText(aItems, sKey);
 		},
-		
+
 		// =========================================================
 		// FORMATTERS FOR UTILIZATION COLUMN
 		// =========================================================
