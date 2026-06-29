@@ -675,9 +675,10 @@ sap.ui.define([
 						}
 
 						var sGlFilter = aGlFilters.join(" and ");
-						var sGlSelect = "Bukrs,Gjahr,Monat,Kostl,Co_grp,Saknr,Gl_grp,YrValue,YrActual";
+						// var sGlSelect = "Bukrs,Gjahr,Monat,Kostl,Co_grp,Saknr,Gl_grp,YrValue,YrActual";
+						var sGlSelect = "Bukrs,Gjahr,Monat,Kostl,Co_grp,Saknr,Gl_grp,YrValue,YrActual,Util_basis,Total_spent,Utilisation,Status";
 
-						return that._readBudgetOData("/GLDataSet", sGlFilter, sGlSelect).then(function(aRawGlData) {
+						return that._readBudgetOData("/CCR_COGLSet", sGlFilter, sGlSelect).then(function(aRawGlData) {
 							var aMappedGlRows = (aRawGlData || []).map(that._mapGlRow.bind(that)).filter(Boolean);
 
 							oBudget.setProperty("/glRows", aMappedGlRows);
@@ -689,9 +690,10 @@ sap.ui.define([
 					} else {
 						// === FETCH NON-GL DATA ONLY ===
 						var sCommonFilter = aCommonFilters.join(" and ");
-						var sNonGlSelect = "Bukrs,Gjahr,Monat,Kostl,Co_grp,Saknr,Gl_grp,YrValue,YrActual";
+						// var sNonGlSelect = "Bukrs,Gjahr,Monat,Kostl,Co_grp,Saknr,Gl_grp,YrValue,YrActual";
+						var sNonGlSelect = "Bukrs,Gjahr,Monat,Kostl,Co_grp,Saknr,Gl_grp,YrValue,YrActual,Util_basis,Total_spent,Utilisation,Status";
 
-						return that._readBudgetOData("/CostCenterDataSet", sCommonFilter, sNonGlSelect).then(function(aRawNonGlData) {
+						return that._readBudgetOData("/CCR_COGLSet", sCommonFilter, sNonGlSelect).then(function(aRawNonGlData) {
 							var aMappedNonGlRows = (aRawNonGlData || []).map(that._mapNonGlRow.bind(that)).filter(Boolean);
 
 							oBudget.setProperty("/nonGlRows", aMappedNonGlRows);
@@ -1000,6 +1002,8 @@ sap.ui.define([
 			var fOldYearlyValue = Number(oRow.OldyValue || 0) / fLakhs;
 
 			var fActulaYearlyBudgetValue = Number(oRow.YrActual || 0) / fLakhs;
+			
+			var fActual= Number(oRow.Total_spent || 0) / fLakhs;
 
 			var fPreviousTwoMonths = Number(oRow.PrevTwo || 0) / fLakhs;
 			var fCurrentMonth = Number(oRow.CurrMonth || 0) / fLakhs;
@@ -1021,6 +1025,10 @@ sap.ui.define([
 				oldYearlyValue: fOldYearlyValue,
 
 				actulaYearlyBudgetValue: fActulaYearlyBudgetValue,
+				
+				total_spent: fActual,
+				utilisation: oRow.Utilisation,
+				status: oRow.Status,
 
 				previousTwoMonthsValue: fPreviousTwoMonths,
 				currentMonthValue: fCurrentMonth,
@@ -1041,6 +1049,8 @@ sap.ui.define([
 			var sGlAccount = oRow.Saknr || "";
 
 			var fActulaYearlyBudgetValue = Number(oRow.YrActual || 0) / fLakhs;
+			
+			var fActual= Number(oRow.Total_spent || 0) / fLakhs;
 			return {
 				companyCode: oRow.Bukrs || "",
 				fiscalYear: oRow.Gjahr || "",
@@ -1051,6 +1061,7 @@ sap.ui.define([
 				costCenterDesc: oRow.Ltext || "",
 				gl: sGlAccount,
 				glAccount: sGlAccount,
+				glGroup: oRow.Gl_grp || "",
 				yearlyBudget: fYearlyBudget,
 				oldYearlyValue: fOldYearlyValue,
 				actulaYearlyBudgetValue: fActulaYearlyBudgetValue,
@@ -1059,7 +1070,11 @@ sap.ui.define([
 				lastYearActual: fOldYearlyValue,
 				budgetCurrentYear: fYearlyBudget,
 				actualLastTwoMonths: fPreviousTwoMonths,
-				upToCurrentMonth: fCurrentMonth
+				upToCurrentMonth: fCurrentMonth,
+				
+				total_spent: fActual,
+				utilisation: oRow.Utilisation,
+				status: oRow.Status
 			};
 		},
 
@@ -1285,6 +1300,24 @@ sap.ui.define([
 
 		formatLookupText: function(sKey, aItems) {
 			return this._resolveLookupText(aItems, sKey);
+		},
+		
+		// =========================================================
+		// FORMATTERS FOR UTILIZATION COLUMN
+		// =========================================================
+		formatUtilizationText: function(sValue) {
+			if (!sValue) return "0%";
+			return sValue + "%";
+		},
+
+		formatUtilizationColor: function(sStatus) {
+			// Returns 'Success' (Green) or 'Error' (Red)
+			if (sStatus === "GREEN") {
+				return "Success";
+			} else if (sStatus === "RED") {
+				return "Error";
+			}
+			return "None";
 		},
 
 		setUpFiscalYear: function() {
