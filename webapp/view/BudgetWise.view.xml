@@ -108,7 +108,7 @@
 									valueState="{ui>/glGroupState}"/>
 							</VBox>
 							<VBox class="fcrField fcrFieldQtr">
-								<Label text="Utiliation Basis" required="false"/>
+								<Label text="Utilisation Basis" required="false"/>
 								<Select id="budgetCategorySelect" selectedKey="{filters>/budgetCategory}" change=".onBudgetCategoryChange" width="100%">
 									<core:Item key="" text="Select Category"/>
 									<core:Item key="TB" text="Total Budget"/>
@@ -125,7 +125,69 @@
 			</VBox>
 			<!--// KPIs //-->
 			<VBox>
-				<layout:Grid defaultSpan="XL2 L2 M4 S12" class="bwKpiGrid sapUiSmallMarginBottom">
+				<layout:Grid defaultSpan="XL4 L4 M6 S12" class="bwKpiGrid bwKpiGridSecondary">
+					<!-- KPI 6 -->
+					<HBox class="bwModernCard bwCardBgAmber" alignItems="Center">
+						<VBox class="bwModernIconWrap bwIconBgAmber">
+							<core:Icon src="sap-icon://group" class="bwModernIcon bwIconAmber"/>
+						</VBox>
+						<!--<VBox class="bwModernDataWrap">-->
+						<!--	<Text text="{= ${ui>/isGlMode} ? 'Highest Total Budget Cost Centre Group' : 'Highest Total Budget GL Group' }"-->
+						<!--		tooltip="{= ${ui>/isGlMode} ? 'Highest Total Budget Cost Centre Group' : 'Highest Total Budget GL Group' }"-->
+						<!--		class="bwKpiLeadText" wrapping="true"/>-->
+						<!--	<HBox alignItems="Baseline" class="bwModernValueLine">-->
+						<!--		<Text text="{ui>/kpi6Value}" class="bwKpiLeadAmount bwTextGreen"/>-->
+						<!--		<Text text="Lakhs INR" class="bwKpiLeadUnit"/>-->
+						<!--	</HBox>-->
+						<!--	<Text text="{ui>/kpi6Subtext}" class="bwModernSubTextTitle bwSubTextAmber sapUiTinyMarginTop" wrapping="true"/>-->
+						<!--</VBox>-->
+						<VBox class="bwModernDataWrap">
+							<Text text="{= ${ui>/isGlMode} ? 'Highest Total Budget Cost Centre Group' : 'Highest Total Budget GL Group' }"
+								tooltip="{= ${ui>/isGlMode} ? 'Highest Total Budget Cost Centre Group' : 'Highest Total Budget GL Group' }" class="bwKpiLeadText"
+								wrapping="true"/>
+							<Text text="{ui>/kpi6Subtext}" tooltip="{ui>/kpi6Subtext}" class="fcrModernValue fcrTextBlue fcrGlNameText"/>
+							<HBox alignItems="Baseline" class="fcrModernValueLine">
+								<Text text="{ui>/kpi6Value}" class="bwKpiLeadAmount bwTextGreen"/>
+								<Text text=" Lakhs INR" class="bwKpiLeadUnit"/>
+							</HBox>
+						</VBox>
+					</HBox>
+					<!-- KPI 7 -->
+					<HBox class="bwModernCard bwCardBgGreen" alignItems="Center">
+						<VBox class="bwModernIconWrap bwIconBgGreen">
+							<core:Icon src="sap-icon://lead" class="bwModernIcon bwIconGreen"/>
+						</VBox>
+						<VBox class="bwModernDataWrap">
+							<Text text="{= ${ui>/isGlMode} ? 'Highest Released Budget Cost Centre Group' : 'Highest Released Budget GL Group' }"
+								tooltip="{= ${ui>/isGlMode} ? 'Highest Released Budget Cost Centre Group' : 'Highest Released Budget GL Group' }" class="bwKpiLeadText"
+								wrapping="true"/>
+							<Text text="{ui>/kpi7Subtext}" tooltip="{ui>/kpi7Subtext}" class="fcrModernValue fcrTextBlue fcrGlNameText"/>
+							<HBox alignItems="Baseline" class="fcrModernValueLine">
+								<Text text="{ui>/kpi7Value}" class="bwKpiLeadAmount bwTextGreen"/>
+								<Text text=" Lakhs INR" class="bwKpiLeadUnit"/>
+							</HBox>
+						</VBox>
+					</HBox>
+					<!-- KPI 8 -->
+					<HBox class="bwModernCard bwCardBgPurple" alignItems="Center">
+						<VBox class="bwModernIconWrap bwIconBgPurple">
+							<core:Icon src="sap-icon://list" class="bwModernIcon bwIconPurple"/>
+						</VBox>
+						<VBox class="bwModernDataWrap">
+							<Text text="{= ${ui>/isGlMode} ? 'Top 3 Cost Centre Groups by Total Budget' : 'Top 3 GL Groups by Total Budget' }" class="bwModernTitle"
+								wrapping="true"/>
+							<List class="bwKpiBulletList" items="{ui>/kpi8Bullets}" showSeparators="None" mode="None">
+								<CustomListItem>
+									<HBox class="bwKpiBulletItem" alignItems="Start">
+										<Text text="&#8226;" class="bwKpiBulletDot"/>
+										<Text text="{ui>text}" class="bwKpiBulletText" wrapping="true"/>
+									</HBox>
+								</CustomListItem>
+							</List>
+						</VBox>
+					</HBox>
+				</layout:Grid>
+				<layout:Grid defaultSpan="XL2 L2 M4 S12" class="bwKpiGrid">
 					<!-- KPI 1 -->
 					<HBox class="bwModernCard bwCardBgBlue" alignItems="Center">
 						<VBox class="bwModernIconWrap bwIconBgBlue">
@@ -191,70 +253,6 @@
 								<Text text="&#9660;" visible="{= ${ui>/kpi5ValueRaw} &lt; 100 }" class="bwKpiTrendArrow bwTrendDown"/>
 								<Text text="%" class="bwModernUnit"/>
 							</HBox>
-						</VBox>
-					</HBox>
-				</layout:Grid>
-				<layout:Grid defaultSpan="XL4 L4 M6 S12" class="bwKpiGrid bwKpiGridSecondary sapUiSmallMarginTop">
-					<!-- KPI 6 -->
-					<HBox class="bwModernCard bwCardBgAmber" alignItems="Center">
-						<VBox class="bwModernIconWrap bwIconBgAmber">
-							<core:Icon src="sap-icon://group" class="bwModernIcon bwIconAmber"/>
-						</VBox>
-						<!--<VBox class="bwModernDataWrap">-->
-						<!--	<Text text="{= ${ui>/isGlMode} ? 'Highest Total Budget Cost Centre Group' : 'Highest Total Budget GL Group' }"-->
-						<!--		tooltip="{= ${ui>/isGlMode} ? 'Highest Total Budget Cost Centre Group' : 'Highest Total Budget GL Group' }"-->
-						<!--		class="bwKpiLeadText" wrapping="true"/>-->
-						<!--	<HBox alignItems="Baseline" class="bwModernValueLine">-->
-						<!--		<Text text="{ui>/kpi6Value}" class="bwKpiLeadAmount bwTextGreen"/>-->
-						<!--		<Text text="Lakhs INR" class="bwKpiLeadUnit"/>-->
-						<!--	</HBox>-->
-						<!--	<Text text="{ui>/kpi6Subtext}" class="bwModernSubTextTitle bwSubTextAmber sapUiTinyMarginTop" wrapping="true"/>-->
-						<!--</VBox>-->
-						<VBox class="bwModernDataWrap">
-							<Text text="{= ${ui>/isGlMode} ? 'Highest Total Budget Cost Centre Group' : 'Highest Total Budget GL Group' }"
-								tooltip="{= ${ui>/isGlMode} ? 'Highest Total Budget Cost Centre Group' : 'Highest Total Budget GL Group' }"
-								class="bwKpiLeadText" wrapping="true"/>
-							<Text text="{ui>/kpi6Subtext}" tooltip="{ui>/kpi6Subtext}" class="fcrModernValue fcrTextBlue fcrGlNameText"/>
-							<HBox alignItems="Baseline" class="fcrModernValueLine">
-								<Text text="{ui>/kpi6Value}" class="bwKpiLeadAmount bwTextGreen"/>
-								<Text text=" Lakhs INR" class="bwKpiLeadUnit"/>
-							</HBox>
-						</VBox>
-					</HBox>
-					<!-- KPI 7 -->
-					<HBox class="bwModernCard bwCardBgGreen" alignItems="Center">
-						<VBox class="bwModernIconWrap bwIconBgGreen">
-							<core:Icon src="sap-icon://lead" class="bwModernIcon bwIconGreen"/>
-						</VBox>
-						<VBox class="bwModernDataWrap">
-							<Text text="{= ${ui>/isGlMode} ? 'Highest Released Budget Cost Centre Group' : 'Highest Released Budget GL Group' }"
-								tooltip="{= ${ui>/isGlMode} ? 'Highest Released Budget Cost Centre Group' : 'Highest Released Budget GL Group' }" class="bwKpiLeadText"
-								wrapping="true"/>
-								
-								<Text text="{ui>/kpi7Subtext}" tooltip="{ui>/kpi7Subtext}" class="fcrModernValue fcrTextBlue fcrGlNameText"/>
-							<HBox alignItems="Baseline" class="fcrModernValueLine">
-								<Text text="{ui>/kpi7Value}" class="bwKpiLeadAmount bwTextGreen"/>
-								<Text text=" Lakhs INR" class="bwKpiLeadUnit"/>
-							</HBox>
-
-						</VBox>
-					</HBox>
-					<!-- KPI 8 -->
-					<HBox class="bwModernCard bwCardBgPurple" alignItems="Center">
-						<VBox class="bwModernIconWrap bwIconBgPurple">
-							<core:Icon src="sap-icon://list" class="bwModernIcon bwIconPurple"/>
-						</VBox>
-						<VBox class="bwModernDataWrap">
-							<Text text="{= ${ui>/isGlMode} ? 'Top 3 Cost Centre Groups by Total Budget' : 'Top 3 GL Groups by Total Budget' }" class="bwModernTitle"
-								wrapping="true"/>
-							<List class="bwKpiBulletList" items="{ui>/kpi8Bullets}" showSeparators="None" mode="None">
-								<CustomListItem>
-									<HBox class="bwKpiBulletItem" alignItems="Start">
-										<Text text="&#8226;" class="bwKpiBulletDot"/>
-										<Text text="{ui>text}" class="bwKpiBulletText" wrapping="true"/>
-									</HBox>
-								</CustomListItem>
-							</List>
 						</VBox>
 					</HBox>
 				</layout:Grid>
