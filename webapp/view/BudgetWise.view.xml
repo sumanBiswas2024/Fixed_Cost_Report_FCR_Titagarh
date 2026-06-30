@@ -89,6 +89,12 @@
 									valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onCostCenterGroupValueHelp" placeholder="Select Cost Center Group"
 									valueState="{ui>/costCenterGroupState}"/>
 							</VBox>
+							<VBox class="fcrField fcrFieldPc" visible="{= !${ui>/isGlMode} }">
+								<Label text="Cost Centre Owner" required="false"/>
+								<MultiInput id="costCenterOwnerInputBudget" value="{path: 'filters>/costCenterOwner', formatter: '.formatTokenKeys'}" showValueHelp="true"
+									valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onCostCenterOwnerValueHelp" placeholder="Select Cost Centre Owner"
+									valueState="{ui>/costCenterOwnerState}"/>
+							</VBox>
 							<VBox class="fcrField fcrFieldGlg" visible="{ui>/isGlMode}">
 								<Label text="G/L Account" required="false"/>
 								<MultiInput id="glAccountInputBudget" value="{path: 'filters>/glAccount', formatter: '.formatTokenKeys'}" showValueHelp="true"

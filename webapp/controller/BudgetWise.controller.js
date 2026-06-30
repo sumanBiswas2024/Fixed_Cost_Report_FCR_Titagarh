@@ -65,6 +65,7 @@ sap.ui.define([
 				glAccount: [], // Changed to Array
 				costCenterGroup: [], // Changed to Array
 				costCenter: [], // Changed to Array
+				costCenterOwner: [], // Changed to Array
 				budgetCategory: ""
 			}), "filters");
 
@@ -76,7 +77,8 @@ sap.ui.define([
 				glGroups: [],
 				glAccounts: [],
 				costCenterGroups: [],
-				costCenters: []
+				costCenters: [],
+				costCenterOwners: []
 			}), "lookups");
 
 			this.getView().setModel(new JSONModel({
@@ -101,6 +103,7 @@ sap.ui.define([
 				glAccountState: "None",
 				costCenterGroupState: "None",
 				costCenterState: "None",
+				costCenterOwnerState: "None",
 				periodText: "",
 				selectedParamsText: "",
 				kpi1Value: "0.00",
@@ -420,7 +423,17 @@ sap.ui.define([
 				}));
 			});
 
-			// 3. GL Account F4 (Metadata has Saknr & Txt50)
+			// 3. Cost Centre Owner F4 (Metadata has Owner entity field via VERAK)
+			var pCcOwner = this._readBudgetOData("/CC_OwnerSet", "").then(function(aRes) {
+				oLookups.setProperty("/costCenterOwners", (aRes || []).map(function(o) {
+					return {
+						key: o.VERAK,
+						text: o.VERAK
+					};
+				}));
+			});
+
+			// 4. GL Account F4 (Metadata has Saknr & Txt50)
 			var pGlAcc = this._readBudgetOData("/GLAccountF4Set", "").then(function(aRes) {
 				oLookups.setProperty("/glAccounts", (aRes || []).map(function(o) {
 					return {
@@ -430,7 +443,7 @@ sap.ui.define([
 				}));
 			});
 
-			// 4. GL Group F4 (Metadata has only Gl_grp)
+			// 5. GL Group F4 (Metadata has only Gl_grp)
 			var pGlGrp = this._readBudgetOData("/GLGroupF4Set", "").then(function(aRes) {
 				oLookups.setProperty("/glGroups", (aRes || []).map(function(o) {
 					return {
@@ -440,7 +453,7 @@ sap.ui.define([
 				}));
 			});
 
-			return Promise.all([pCoGrp, pCc, pGlAcc, pGlGrp]);
+			return Promise.all([pCoGrp, pCc, pCcOwner, pGlAcc, pGlGrp]);
 		},
 
 		// _fetchBudgetData: function(bMarkRun) {
@@ -687,7 +700,7 @@ sap.ui.define([
 						aCommonFilters.push("(" + aQuarterOrs.join(" or ") + ")");
 					}
 
-					var sSelectParams = "Bukrs,Gjahr,Monat,Kostl,Co_grp,Saknr,Gl_grp,YrValue,YrActual,Util_basis,Total_spent,Utilisation,Status";
+					var sSelectParams = "Bukrs,Gjahr,Monat,Kostl,Co_grp,Owner,Saknr,Gl_grp,YrValue,YrActual,Util_basis,Total_spent,Utilisation,Status";
 
 					// =========================================================
 					// CONDITION 1: INITIAL LOAD (Uses the new Foolproof Lock)
@@ -760,6 +773,14 @@ sap.ui.define([
 									return "Co_grp eq '" + that._odataLiteral(oItem.key) + "'";
 								});
 								aCostFilters.push(aCcgOrs.length === 1 ? aCcgOrs[0] : "(" + aCcgOrs.join(" or ") + ")");
+							}
+
+							// COST CENTRE OWNER
+							if (oFilters.costCenterOwner && oFilters.costCenterOwner.length > 0) {
+								var aCcoOrs = oFilters.costCenterOwner.map(function(oItem) {
+									return "Owner eq '" + that._odataLiteral(oItem.key) + "'";
+								});
+								aCostFilters.push(aCcoOrs.length === 1 ? aCcoOrs[0] : "(" + aCcoOrs.join(" or ") + ")");
 							}
 
 							return that._readBudgetOData("/CCR_COGLSet", aCostFilters.join(" and "), sSelectParams).then(function(aRawNonGlData) {
@@ -1090,6 +1111,7 @@ sap.ui.define([
 				costCenterDesc: oRow.Ltext || "",
 				coGroup: oRow.Co_grp || "",
 				costCenterGroup: oRow.Co_grp || "",
+				owner: oRow.Owner || "",
 				gl: sGlAccount,
 				glAccount: sGlAccount,
 				glDesc: oRow.Txt50 || "",
@@ -1133,6 +1155,7 @@ sap.ui.define([
 				costCenterGroup: oRow.Co_grp || "",
 				costCenter: sCostCenter,
 				costCenterDesc: oRow.Ltext || "",
+				owner: oRow.Owner || "",
 				gl: sGlAccount,
 				glAccount: sGlAccount,
 				glGroup: oRow.Gl_grp || "",
@@ -1784,6 +1807,7 @@ sap.ui.define([
 				glAccount: [],
 				costCenterGroup: [],
 				costCenter: [],
+				costCenterOwner: [],
 				budgetCategory: ""
 			});
 
@@ -1850,6 +1874,13 @@ sap.ui.define([
 			this._initBudgetOData().then(function() {
 				this._getBusyDialog().close();
 				this._openBudgetMultiSelectValueHelp("CO Group", "costCenterGroups", "costCenterGroup");
+			}.bind(this));
+		},
+		onCostCenterOwnerValueHelp: function() {
+			this._getBusyDialog().open();
+			this._initBudgetOData().then(function() {
+				this._getBusyDialog().close();
+				this._openBudgetMultiSelectValueHelp("Cost Centre Owner", "costCenterOwners", "costCenterOwner");
 			}.bind(this));
 		},
 		onCostCenterValueHelp: function() {
@@ -2084,6 +2115,7 @@ sap.ui.define([
 				var sId = oEvent.getSource().getId();
 				if (sId.includes("costCenterGrpInputBudget")) oFiltersModel.setProperty("/costCenterGroup", []);
 				else if (sId.includes("costCenterInputBudget")) oFiltersModel.setProperty("/costCenter", []);
+				else if (sId.includes("costCenterOwnerInputBudget")) oFiltersModel.setProperty("/costCenterOwner", []);
 				else if (sId.includes("glAccountInputBudget")) oFiltersModel.setProperty("/glAccount", []);
 				else if (sId.includes("glGroupInputBudget")) oFiltersModel.setProperty("/glGroup", []);
 				else if (sId.includes("quarterInputBudget")) oFiltersModel.setProperty("/quarters", []);
@@ -2171,6 +2203,7 @@ sap.ui.define([
 			oUi.setProperty("/glAccountState", "None");
 			oUi.setProperty("/costCenterGroupState", "None");
 			oUi.setProperty("/costCenterState", "None");
+			oUi.setProperty("/costCenterOwnerState", "None");
 		},
 
 		_updateSelectedParametersText: function() {
@@ -2213,8 +2246,10 @@ sap.ui.define([
 					"All Cost Centers";
 				var sCostCenterGroup = (oFilters.costCenterGroup && oFilters.costCenterGroup.length) ? oFilters.costCenterGroup.length +
 					" Cost Center Groups" : "All Cost Center Groups";
+				var sCostCenterOwner = (oFilters.costCenterOwner && oFilters.costCenterOwner.length) ? oFilters.costCenterOwner.length +
+					" Cost Centre Owners" : "All Cost Centre Owners";
 
-				aTextParts.push(sCostCenter, sCostCenterGroup);
+				aTextParts.push(sCostCenter, sCostCenterGroup, sCostCenterOwner);
 			}
 
 			// 3. Set the final string
@@ -2276,8 +2311,8 @@ sap.ui.define([
 			}
 
 			var aProps = this.getView().getModel("ui").getProperty("/isGlMode") ? ["costCenter", "costCenterDesc", "coGroup", "gl",
-				"glAccount", "glDesc", "glGroup"
-			] : ["coGroup", "costCenter", "costCenterDesc", "gl", "glAccount"];
+				"glAccount", "glDesc", "glGroup", "owner"
+			] : ["coGroup", "costCenter", "costCenterDesc", "gl", "glAccount", "owner"];
 
 			oTable.getBinding("rows").filter(new Filter({
 				filters: aProps.map(function(sProp) {
