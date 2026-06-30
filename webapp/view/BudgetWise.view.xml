@@ -119,14 +119,14 @@
 			</VBox>
 			<!--// KPIs //-->
 			<VBox>
-				<layout:Grid defaultSpan="XL3 L3 M6 S12" class="bwKpiGrid sapUiSmallMarginBottom">
+				<layout:Grid defaultSpan="XL2 L2 M4 S12" class="bwKpiGrid sapUiSmallMarginBottom">
 					<!-- KPI 1 -->
 					<HBox class="bwModernCard bwCardBgBlue" alignItems="Center">
 						<VBox class="bwModernIconWrap bwIconBgBlue">
 							<core:Icon src="sap-icon://money-bills" class="bwModernIcon bwIconBlue"/>
 						</VBox>
 						<VBox class="bwModernDataWrap">
-							<Text text="{ui>/kpi1Label}" class="bwModernTitle"/>
+							<Text text="Total Budget" class="bwModernTitle"/>
 							<HBox alignItems="Baseline" class="bwModernValueLine">
 								<Text text="{ui>/kpi1Value}" class="bwModernValue bwTextGreen"/>
 								<Text text="Lakhs INR" class="bwModernUnit"/>
@@ -139,7 +139,7 @@
 							<core:Icon src="sap-icon://history" class="bwModernIcon bwIconPurple"/>
 						</VBox>
 						<VBox class="bwModernDataWrap">
-							<Text text="{ui>/kpi2Label}" class="bwModernTitle"/>
+							<Text text="Total Released Budget" class="bwModernTitle"/>
 							<HBox alignItems="Baseline" class="bwModernValueLine">
 								<Text text="{ui>/kpi2Value}" class="bwModernValue bwTextBlue"/>
 								<Text text="Lakhs INR" class="bwModernUnit"/>
@@ -149,40 +149,87 @@
 					<!-- KPI 3 -->
 					<HBox class="bwModernCard bwCardBgRed" alignItems="Center">
 						<VBox class="bwModernIconWrap bwIconBgRed">
-							<core:Icon src="sap-icon://table-view" class="bwModernIcon bwIconRed"/>
+							<core:Icon src="sap-icon://expense-report" class="bwModernIcon bwIconRed"/>
 						</VBox>
 						<VBox class="bwModernDataWrap">
-							<Text text="Number of Records" class="bwModernTitle"/>
+							<Text text="Total Spent" class="bwModernTitle"/>
 							<HBox alignItems="Baseline" class="bwModernValueLine">
-								<Text text="{ui>/recordCount}" class="bwModernValue fcrTextDark"/>
+								<Text text="{ui>/kpi3Value}" class="bwModernValue fcrTextDark"/>
+								<Text text="Lakhs INR" class="bwModernUnit"/>
 							</HBox>
 						</VBox>
 					</HBox>
-					<!--New KPIs-->
-					<HBox class="bwModernCard bwCardBgAmber" alignItems="Center" visible="true">
+					<!-- KPI 4 -->
+					<HBox class="bwModernCard bwCardBgAmber" alignItems="Center">
 						<VBox class="bwModernIconWrap bwIconBgAmber">
-							<core:Icon src="sap-icon://trend-up" class="bwModernIcon bwIconAmber"/>
+							<core:Icon src="sap-icon://value-help" class="bwModernIcon bwIconAmber"/>
 						</VBox>
 						<VBox class="bwModernDataWrap">
-							<Text text="{ui>/kpi4Label}" class="bwModernTitle"/>
+							<Text text="Available Budget" class="bwModernTitle"/>
 							<HBox alignItems="Baseline" class="bwModernValueLine">
 								<Text text="{ui>/kpi4Value}" class="bwModernValue bwTextGreen"/>
 								<Text text="Lakhs INR" class="bwModernUnit"/>
 							</HBox>
-							<Text text="{ui>/kpi4Subtext}" class="bwModernSubTextTitle bwSubTextAmber sapUiTinyMarginTop" wrapping="true"/>
 						</VBox>
 					</HBox>
-					<HBox class="bwModernCard bwCardBgGreen" alignItems="Center" visible="true">
+					<!-- KPI 5 -->
+					<HBox class="bwModernCard bwCardBgGreen" alignItems="Center">
 						<VBox class="bwModernIconWrap bwIconBgGreen">
-							<core:Icon src="sap-icon://lead" class="bwModernIcon bwTextGreen"/>
+							<core:Icon src="sap-icon://performance" class="bwModernIcon bwIconGreen"/>
 						</VBox>
 						<VBox class="bwModernDataWrap">
-							<Text text="{ui>/kpi5Label}" class="bwModernTitle"/>
+							<Text text="Utilisation (%)" class="bwModernTitle"/>
 							<HBox alignItems="Baseline" class="bwModernValueLine">
 								<Text text="{ui>/kpi5Value}" class="bwModernValue bwTextBlue"/>
+								<Text text="%" class="bwModernUnit"/>
+							</HBox>
+						</VBox>
+					</HBox>
+				</layout:Grid>
+				<layout:Grid defaultSpan="XL4 L4 M6 S12" class="bwKpiGrid bwKpiGridSecondary sapUiSmallMarginTop">
+					<!-- KPI 6 -->
+					<HBox class="bwModernCard bwCardBgAmber" alignItems="Center">
+						<VBox class="bwModernIconWrap bwIconBgAmber">
+							<core:Icon src="sap-icon://group" class="bwModernIcon bwIconAmber"/>
+						</VBox>
+						<VBox class="bwModernDataWrap">
+							<Text text="{= ${ui>/isGlMode} ? 'Highest Total Budget Cost Centre Group' : 'Highest Total Budget GL Group' }" class="bwModernTitle" wrapping="true"/>
+							<HBox alignItems="Baseline" class="bwModernValueLine">
+								<Text text="{ui>/kpi6Value}" class="bwModernValue bwTextGreen"/>
 								<Text text="Lakhs INR" class="bwModernUnit"/>
 							</HBox>
-							<Text text="{ui>/kpi5Subtext}" class="bwModernSubTextTitle bwSubTextGreen sapUiTinyMarginTop" wrapping="true"/>
+							<Text text="{ui>/kpi6Subtext}" class="bwModernSubTextTitle bwSubTextAmber sapUiTinyMarginTop" wrapping="true"/>
+						</VBox>
+					</HBox>
+					<!-- KPI 7 -->
+					<HBox class="bwModernCard bwCardBgGreen" alignItems="Center">
+						<VBox class="bwModernIconWrap bwIconBgGreen">
+							<core:Icon src="sap-icon://lead" class="bwModernIcon bwIconGreen"/>
+						</VBox>
+						<VBox class="bwModernDataWrap">
+							<Text text="{= ${ui>/isGlMode} ? 'Highest Released Budget Cost Centre Group' : 'Highest Released Budget GL Group' }" class="bwModernTitle" wrapping="true"/>
+							<HBox alignItems="Baseline" class="bwModernValueLine">
+								<Text text="{ui>/kpi7Value}" class="bwModernValue bwTextBlue"/>
+								<Text text="Lakhs INR" class="bwModernUnit"/>
+							</HBox>
+							<Text text="{ui>/kpi7Subtext}" class="bwModernSubTextTitle bwSubTextGreen sapUiTinyMarginTop" wrapping="true"/>
+						</VBox>
+					</HBox>
+					<!-- KPI 8 -->
+					<HBox class="bwModernCard bwCardBgPurple" alignItems="Center">
+						<VBox class="bwModernIconWrap bwIconBgPurple">
+							<core:Icon src="sap-icon://list" class="bwModernIcon bwIconPurple"/>
+						</VBox>
+						<VBox class="bwModernDataWrap">
+							<Text text="{= ${ui>/isGlMode} ? 'Top 3 Cost Centre Groups by Total Budget' : 'Top 3 GL Groups by Total Budget' }" class="bwModernTitle" wrapping="true"/>
+							<List class="bwKpiBulletList" items="{ui>/kpi8Bullets}" showSeparators="None" mode="None">
+								<CustomListItem>
+									<HBox class="bwKpiBulletItem" alignItems="Start">
+										<Text text="&#8226;" class="bwKpiBulletDot"/>
+										<Text text="{ui>text}" class="bwKpiBulletText" wrapping="true"/>
+									</HBox>
+								</CustomListItem>
+							</List>
 						</VBox>
 					</HBox>
 				</layout:Grid>
@@ -597,3 +644,4 @@
 		</content>
 	</Page>
 </mvc:View>
+

@@ -103,21 +103,18 @@ sap.ui.define([
 				costCenterState: "None",
 				periodText: "",
 				selectedParamsText: "",
-				kpi1Label: "Total Current Year Budget",
-				// kpi2Label: "Total Last Year Actual",
-				kpi2Label: "Total Actual Yearly Budget",
-				// kpi3Label: "Total Last Two Months Actual",
-				// kpi4Label: "Total Up To Current Month",
-				kpi4Label: "Highest CY Budget (Cost Centre)",
-				kpi5Label: "Highest Actual Budget (Cost Centre)",
 				kpi1Value: "0.00",
 				kpi2Value: "0.00",
 				kpi3Value: "0.00",
 				kpi4Value: "0.00",
 				kpi5Value: "0.00",
-
-				kpi4Subtext: "No Data",
-				kpi5Subtext: "No Data",
+				kpi6Value: "0.00",
+				kpi7Value: "0.00",
+				kpi6Subtext: "No Data",
+				kpi7Subtext: "No Data",
+				kpi8Bullets: [{
+					text: "No Data"
+				}],
 
 				recordCount: "0",
 
@@ -1239,78 +1236,86 @@ sap.ui.define([
 			var bGlMode = oUi.getProperty("/isGlMode");
 			var aRows = bGlMode ? (oBudget.getProperty("/glRows") || []) : (oBudget.getProperty("/nonGlRows") || []);
 
-			// Track Totals for KPI 1 and 2
-			var fTotalCyBudget = 0;
-			var fTotalActualBudget = 0;
+			var oGroupConfig = bGlMode ? {
+				primaryKey: "costCenter",
+				secondaryKey: "coGroup"
+			} : {
+				primaryKey: "glAccount",
+				secondaryKey: "glGroup"
+			};
+			var mGroups = {};
+			var fTotalBudget = 0;
+			var fTotalReleasedBudget = 0;
+			var fTotalSpent = 0;
 
-			// Track Highest for KPI 4 and 5
-			var oHighestCy = null;
-			var oHighestActual = null;
-			var fMaxCy = -Infinity;
-			var fMaxActual = -Infinity;
-
-			// Single loop to calculate everything efficiently
 			aRows.forEach(function(oRow) {
-				var fCy = parseFloat(oRow.yearlyBudget) || 0;
-				var fAct = parseFloat(oRow.actualYearlyBudget) || 0;
+				var fBudget = Number(oRow.yearlyBudget || 0);
+				var fReleased = Number(oRow.actulaYearlyBudgetValue || 0);
+				var fSpent = Number(oRow.total_spent || 0);
+				var sPrimary = String(oRow[oGroupConfig.primaryKey] || "").trim();
+				var sSecondary = String(oRow[oGroupConfig.secondaryKey] || "").trim();
+				var sGroupKey = [sPrimary, sSecondary].join("||");
 
-				// 1. Accumulate Totals
-				fTotalCyBudget += fCy;
-				fTotalActualBudget += fAct;
+				fTotalBudget += fBudget;
+				fTotalReleasedBudget += fReleased;
+				fTotalSpent += fSpent;
 
-				// 2. Check for Highest Current Year Budget
-				if (fCy > fMaxCy) {
-					fMaxCy = fCy;
-					oHighestCy = oRow;
+				if (!mGroups[sGroupKey]) {
+					mGroups[sGroupKey] = {
+						primary: sPrimary,
+						secondary: sSecondary,
+						totalBudget: 0,
+						releasedBudget: 0,
+						spentBudget: 0
+					};
 				}
 
-				// 3. Check for Highest Actual Yearly Budget
-				if (fAct > fMaxActual) {
-					fMaxActual = fAct;
-					oHighestActual = oRow;
-				}
+				mGroups[sGroupKey].totalBudget += fBudget;
+				mGroups[sGroupKey].releasedBudget += fReleased;
+				mGroups[sGroupKey].spentBudget += fSpent;
 			});
 
-			// --- SET KPI 1, 2, and 3 (Totals and Count) ---
-			oUi.setProperty("/kpi1Value", this._formatAmount(fTotalCyBudget));
-			oUi.setProperty("/kpi2Value", this._formatAmount(fTotalActualBudget));
+			var aGroupSummaries = Object.keys(mGroups).map(function(sKey) {
+				var oGroup = mGroups[sKey];
+				var sLabel = [oGroup.primary, oGroup.secondary].filter(Boolean).join(" - ");
+				return {
+					key: sKey,
+					label: sLabel || "Unassigned",
+					totalBudget: oGroup.totalBudget,
+					releasedBudget: oGroup.releasedBudget,
+					spentBudget: oGroup.spentBudget
+				};
+			}).sort(function(a, b) {
+				return b.totalBudget - a.totalBudget;
+			});
+
+			var oHighestTotalBudgetGroup = aGroupSummaries[0] || null;
+			var oHighestReleasedBudgetGroup = aGroupSummaries.slice().sort(function(a, b) {
+				return b.releasedBudget - a.releasedBudget;
+			})[0] || null;
+			var aTop3Groups = aGroupSummaries.slice(0, 3);
+
+			var fAvailableBudget = fTotalReleasedBudget - fTotalSpent;
+			var fUtilisation = fTotalSpent === 0 ? 0 : (fTotalReleasedBudget / fTotalSpent) * 100;
+
+			oUi.setProperty("/kpi1Value", this._formatAmount(fTotalBudget));
+			oUi.setProperty("/kpi2Value", this._formatAmount(fTotalReleasedBudget));
+			oUi.setProperty("/kpi3Value", this._formatAmount(fTotalSpent));
+			oUi.setProperty("/kpi4Value", this._formatAmount(fAvailableBudget));
+			oUi.setProperty("/kpi5Value", this._formatAmount(fUtilisation));
 			oUi.setProperty("/recordCount", this._oIntegerFormat.format(aRows.length));
 
-			// --- SET KPI 4 and 5 (Highest Values) ---
-			oUi.setProperty("/kpi4Value", (fMaxCy !== -Infinity) ? this._formatAmount(fMaxCy) : "0.00");
-			oUi.setProperty("/kpi5Value", (fMaxActual !== -Infinity) ? this._formatAmount(fMaxActual) : "0.00");
-
-			// --- SET DYNAMIC LABELS AND SUBTEXT ---
-			var sKpi4Subtext = "No Data";
-			var sKpi5Subtext = "No Data";
-
-			if (bGlMode) {
-				// GL MODE: Combinations are Cost Centre & Cost Centre Group
-				oUi.setProperty("/kpi4Label", "Highest CY Budget (Cost Centre)");
-				oUi.setProperty("/kpi5Label", "Highest Actual Budget (Cost Centre)");
-
-				if (oHighestCy) {
-					sKpi4Subtext = [oHighestCy.costCenter, oHighestCy.coGroup].filter(Boolean).join(" - ");
-				}
-				if (oHighestActual) {
-					sKpi5Subtext = [oHighestActual.costCenter, oHighestActual.coGroup].filter(Boolean).join(" - ");
-				}
-			} else {
-				// NON-GL MODE: Combinations are G/L Account & G/L Group
-				oUi.setProperty("/kpi4Label", "Highest CY Budget (G/L Account)");
-				oUi.setProperty("/kpi5Label", "Highest Actual Budget (G/L Account)");
-
-				if (oHighestCy) {
-					sKpi4Subtext = [oHighestCy.glAccount, oHighestCy.glGroup].filter(Boolean).join(" - ");
-				}
-				if (oHighestActual) {
-					sKpi5Subtext = [oHighestActual.glAccount, oHighestActual.glGroup].filter(Boolean).join(" - ");
-				}
-			}
-
-			// Apply subtexts to the budget model
-			oUi.setProperty("/kpi4Subtext", sKpi4Subtext);
-			oUi.setProperty("/kpi5Subtext", sKpi5Subtext);
+			oUi.setProperty("/kpi6Value", oHighestTotalBudgetGroup ? this._formatAmount(oHighestTotalBudgetGroup.totalBudget) : "0.00");
+			oUi.setProperty("/kpi7Value", oHighestReleasedBudgetGroup ? this._formatAmount(oHighestReleasedBudgetGroup.releasedBudget) : "0.00");
+			oUi.setProperty("/kpi6Subtext", oHighestTotalBudgetGroup ? oHighestTotalBudgetGroup.label : "No Data");
+			oUi.setProperty("/kpi7Subtext", oHighestReleasedBudgetGroup ? oHighestReleasedBudgetGroup.label : "No Data");
+			oUi.setProperty("/kpi8Bullets", aTop3Groups.length ? aTop3Groups.map(function(oGroup) {
+				return {
+					text: oGroup.label
+				};
+			}) : [{
+				text: "No Data"
+			}]);
 		},
 
 		onSearch: function() {

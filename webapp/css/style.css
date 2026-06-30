@@ -1725,6 +1725,20 @@
     display: flex !important;
 }
 
+.bwKpiGridSecondary.sapUiRespGrid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 0.5rem !important;
+    margin-top: 0.5rem;
+    padding-top: 0;
+}
+
+.bwKpiGridSecondary.sapUiRespGrid > div {
+    width: 100% !important;
+    margin: 0 !important;
+    display: flex !important;
+}
+
 
 /* 2. Compact Card Base */
 
@@ -1742,6 +1756,11 @@
     min-height: 5.5rem !important;
     /* Smaller height */
     width: 100%;
+}
+
+.bwKpiGridSecondary .bwModernCard {
+    min-height: 7.25rem !important;
+    align-items: flex-start !important;
 }
 
 .bwModernCard:hover {
@@ -1774,6 +1793,41 @@
     overflow: hidden;
     min-width: 0;
     /* Critical for shrinking text */
+}
+
+.bwKpiBulletList {
+    margin-top: 0.15rem;
+    border: none !important;
+    background: transparent !important;
+}
+
+.bwKpiBulletList .sapMListItems {
+    padding: 0 !important;
+}
+
+.bwKpiBulletList .sapMLIB {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    min-height: auto !important;
+}
+
+.bwKpiBulletItem {
+    width: 100%;
+    gap: 0.35rem;
+}
+
+.bwKpiBulletDot {
+    font-size: 1rem !important;
+    line-height: 1 !important;
+    color: #374151 !important;
+    margin-top: 0.1rem;
+}
+
+.bwKpiBulletText {
+    font-size: 0.8rem !important;
+    line-height: 1.2 !important;
+    color: #1f2937 !important;
 }
 
 .bwModernTitle {
@@ -1926,16 +1980,28 @@
     .bwKpiGrid.sapUiRespGrid {
         grid-template-columns: repeat(3, 1fr) !important;
     }
+
+    .bwKpiGridSecondary.sapUiRespGrid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
 }
 
 @media (max-width: 900px) {
     .bwKpiGrid.sapUiRespGrid {
         grid-template-columns: repeat(2, 1fr) !important;
     }
+
+    .bwKpiGridSecondary.sapUiRespGrid {
+        grid-template-columns: repeat(1, 1fr) !important;
+    }
 }
 
 @media (max-width: 600px) {
     .bwKpiGrid.sapUiRespGrid {
+        grid-template-columns: repeat(1, 1fr) !important;
+    }
+
+    .bwKpiGridSecondary.sapUiRespGrid {
         grid-template-columns: repeat(1, 1fr) !important;
     }
 }
