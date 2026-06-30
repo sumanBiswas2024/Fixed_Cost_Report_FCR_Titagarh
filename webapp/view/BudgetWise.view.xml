@@ -318,13 +318,13 @@
 													<!--	<table:label><Label text="Last Year Actual"/></table:label>-->
 													<!--	<table:template><ObjectNumber number="{path: 'budget>oldYearlyValue', formatter: '.formatTableAmount'}"/></table:template>-->
 													<!--</table:Column>-->
-													<table:Column width="10rem" sortProperty="actulaYearlyBudgetValue" filterProperty="actulaYearlyBudgetValue" hAlign="Begin">
-														<table:label><Label text="Actual Yearly Budget"/></table:label>
-														<table:template><ObjectNumber number="{path: 'budget>actulaYearlyBudgetValue', formatter: '.formatTableAmount'}"/></table:template>
-													</table:Column>
 													<table:Column width="10rem" sortProperty="yearlyBudget" filterProperty="yearlyBudget" hAlign="Begin">
-														<table:label><Label text="Current Year Budget"/></table:label>
+														<table:label><Label text="Total Budget"/></table:label>
 														<table:template><ObjectNumber number="{path: 'budget>yearlyBudget', formatter: '.formatTableAmount'}"/></table:template>
+													</table:Column>
+													<table:Column width="10rem" sortProperty="actulaYearlyBudgetValue" filterProperty="actulaYearlyBudgetValue" hAlign="Begin">
+														<table:label><Label text="Released Budget"/></table:label>
+														<table:template><ObjectNumber number="{path: 'budget>actulaYearlyBudgetValue', formatter: '.formatTableAmount'}"/></table:template>
 													</table:Column>
 													<table:Column width="10rem" sortProperty="total_spent" filterProperty="total_spent" hAlign="Begin">
 														<table:label><Label text="Actual"/></table:label>
@@ -511,13 +511,13 @@
 													<!--	<table:label><Label text="Last Year Actual"/></table:label>-->
 													<!--	<table:template><ObjectNumber number="{path: 'budget>oldYearlyValue', formatter: '.formatTableAmount'}"/></table:template>-->
 													<!--</table:Column>-->
-													<table:Column width="10rem" sortProperty="actulaYearlyBudgetValue" filterProperty="actulaYearlyBudgetValue" hAlign="Begin">
-														<table:label><Label text="Actual Yearly Budget"/></table:label>
-														<table:template><ObjectNumber number="{path: 'budget>actulaYearlyBudgetValue', formatter: '.formatTableAmount'}"/></table:template>
-													</table:Column>
 													<table:Column width="10rem" sortProperty="yearlyBudget" filterProperty="yearlyBudget" hAlign="Begin">
-														<table:label><Label text="Current Year Budget"/></table:label>
+														<table:label><Label text="Total Budget"/></table:label>
 														<table:template><ObjectNumber number="{path: 'budget>yearlyBudget', formatter: '.formatTableAmount'}"/></table:template>
+													</table:Column>
+													<table:Column width="10rem" sortProperty="actulaYearlyBudgetValue" filterProperty="actulaYearlyBudgetValue" hAlign="Begin">
+														<table:label><Label text="Released Budget"/></table:label>
+														<table:template><ObjectNumber number="{path: 'budget>actulaYearlyBudgetValue', formatter: '.formatTableAmount'}"/></table:template>
 													</table:Column>
 													<table:Column width="10rem" sortProperty="total_spent" filterProperty="total_spent" hAlign="Begin">
 														<table:label><Label text="Actual"/></table:label>
