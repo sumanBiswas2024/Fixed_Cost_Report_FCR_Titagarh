@@ -108,6 +108,7 @@ sap.ui.define([
 				kpi3Value: "0.00",
 				kpi4Value: "0.00",
 				kpi5Value: "0.00",
+				kpi5ValueRaw: 0,
 				kpi6Value: "0.00",
 				kpi7Value: "0.00",
 				kpi6Subtext: "No Data",
@@ -1099,6 +1100,7 @@ sap.ui.define([
 				actulaYearlyBudgetValue: fActulaYearlyBudgetValue,
 
 				total_spent: fActual,
+				utilization: oRow.Utilisation,
 				utilisation: oRow.Utilisation,
 				status: oRow.Status,
 
@@ -1145,6 +1147,7 @@ sap.ui.define([
 				upToCurrentMonth: fCurrentMonth,
 
 				total_spent: fActual,
+				utilization: oRow.Utilisation,
 				utilisation: oRow.Utilisation,
 				status: oRow.Status
 			};
@@ -1296,13 +1299,14 @@ sap.ui.define([
 			var aTop3Groups = aGroupSummaries.slice(0, 3);
 
 			var fAvailableBudget = fTotalReleasedBudget - fTotalSpent;
-			var fUtilisation = fTotalSpent === 0 ? 0 : (fTotalReleasedBudget / fTotalSpent) * 100;
+			var fUtilisation = fTotalSpent === 0 ? 0 : ( fTotalSpent / fTotalReleasedBudget) * 100;
 
 			oUi.setProperty("/kpi1Value", this._formatAmount(fTotalBudget));
 			oUi.setProperty("/kpi2Value", this._formatAmount(fTotalReleasedBudget));
 			oUi.setProperty("/kpi3Value", this._formatAmount(fTotalSpent));
 			oUi.setProperty("/kpi4Value", this._formatAmount(fAvailableBudget));
 			oUi.setProperty("/kpi5Value", this._formatAmount(fUtilisation));
+			oUi.setProperty("/kpi5ValueRaw", fUtilisation);
 			oUi.setProperty("/recordCount", this._oIntegerFormat.format(aRows.length));
 
 			oUi.setProperty("/kpi6Value", oHighestTotalBudgetGroup ? this._formatAmount(oHighestTotalBudgetGroup.totalBudget) : "0.00");
@@ -2754,60 +2758,28 @@ sap.ui.define([
 					key: "costCenter",
 					label: "Cost Center"
 				},
-				// {
-				// 	key: "costCenterDesc",
-				// 	label: "Cost Center Description"
-				// }, 
 				{
 					key: "coGroup",
 					label: "Cost Centre Group"
 				},
-				// {
-				// 	key: "gl",
-				// 	label: "G/L Account"
-				// }, {
-				// 	key: "glDesc",
-				// 	label: "G/L Description"
-				// }, {
-				// 	key: "glGroup",
-				// 	label: "G/L Group"
-				// }, {
-				// 	key: "oldYearlyValue",
-				// 	label: "Last Year Actual"
-				// },
 				{
 					key: "actulaYearlyBudgetValue",
-					label: "Actual Yearly Budget"
+					label: "Released Budget"
 				}, {
 					key: "yearlyBudget",
 					label: "Current Year Budget"
+				}, {
+					key: "total_spent",
+					label: "Actual"
+				}, {
+					key: "utilization",
+					label: "Utilization (%)"
 				}
-				// {
-				// 	key: "previousTwoMonthsValue",
-				// 	label: "Last Two Months Actual Value"
-				// }, {
-				// 	key: "currentMonthValue",
-				// 	label: "Current Month Value"
-				// }
 			];
 		},
 
 		_getNonGlColumns: function() {
-			return [
-				// 	{
-				// 	key: "coGroup",
-				// 	label: "Cost Centre Group"
-				// }, {
-				// 	key: "costCenter",
-				// 	label: "Cost Center"
-				// }, {
-				// 	key: "costCenterDesc",
-				// 	label: "Cost Center Description"
-				// }, {
-				// 	key: "oldYearlyValue",
-				// 	label: "Last Year Actual"
-				// }, 
-				{
+			return [{
 					key: "gl",
 					label: "G/L Account"
 				}, {
@@ -2815,18 +2787,17 @@ sap.ui.define([
 					label: "G/L Group"
 				}, {
 					key: "actulaYearlyBudgetValue",
-					label: "Actual Yearly Budget"
+					label: "Released Budget"
 				}, {
 					key: "yearlyBudget",
 					label: "Current Year Budget"
+				}, {
+					key: "total_spent",
+					label: "Actual"
+				}, {
+					key: "utilization",
+					label: "Utilization (%)"
 				}
-				// {
-				// 	key: "previousTwoMonthsValue",
-				// 	label: "Last Two Months Actual Value"
-				// }, {
-				// 	key: "currentMonthValue",
-				// 	label: "Current Month Value"
-				// }
 			];
 		},
 

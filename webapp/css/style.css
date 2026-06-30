@@ -1795,6 +1795,29 @@
     /* Critical for shrinking text */
 }
 
+.bwKpiLeadText {
+    font-weight: 800;
+    font-size: 0.80rem !important;
+    color: #1f2937;
+    line-height: 1.1 !important;
+    margin-bottom: 0.15rem !important;
+    white-space: normal !important;
+}
+
+.bwKpiLeadAmount {
+    font-size: 0.92rem !important;
+    font-weight: 800 !important;
+    line-height: 1.05 !important;
+    letter-spacing: -0.15px;
+}
+
+.bwKpiLeadUnit {
+    font-size: 0.82rem !important;
+    font-weight: 700 !important;
+    color: #4b5563 !important;
+    white-space: nowrap !important;
+}
+
 .bwKpiBulletList {
     margin-top: 0.15rem;
     border: none !important;
@@ -1820,18 +1843,37 @@
 .bwKpiBulletDot {
     font-size: 1rem !important;
     line-height: 1 !important;
-    color: #374151 !important;
+    color: #0f766e !important;
+    font-weight: 900 !important;
     margin-top: 0.1rem;
 }
 
 .bwKpiBulletText {
-    font-size: 0.8rem !important;
+    font-size: 0.84rem !important;
     line-height: 1.2 !important;
-    color: #1f2937 !important;
+    /*color: #111827 !important;*/
+    color: #5b25f9 !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.2px;
+}
+
+.bwKpiTrendArrow {
+    font-size: 0.95rem !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+    margin-right: 0.15rem;
+}
+
+.bwTrendUp {
+    color: #16a34a !important;
+}
+
+.bwTrendDown {
+    color: #dc2626 !important;
 }
 
 .bwModernTitle {
-    font-weight: 700;
+    font-weight:800;
     font-size: 0.80rem !important;
     color: #1f2937;
     line-height: 1.1 !important;

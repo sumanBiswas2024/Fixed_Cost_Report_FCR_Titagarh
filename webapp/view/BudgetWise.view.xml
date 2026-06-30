@@ -181,6 +181,8 @@
 							<Text text="Utilisation (%)" class="bwModernTitle"/>
 							<HBox alignItems="Baseline" class="bwModernValueLine">
 								<Text text="{ui>/kpi5Value}" class="bwModernValue bwTextBlue"/>
+								<Text text="&#9650;" visible="{= ${ui>/kpi5ValueRaw} &gt; 100 }" class="bwKpiTrendArrow bwTrendUp"/>
+								<Text text="&#9660;" visible="{= ${ui>/kpi5ValueRaw} &lt; 100 }" class="bwKpiTrendArrow bwTrendDown"/>
 								<Text text="%" class="bwModernUnit"/>
 							</HBox>
 						</VBox>
@@ -192,13 +194,25 @@
 						<VBox class="bwModernIconWrap bwIconBgAmber">
 							<core:Icon src="sap-icon://group" class="bwModernIcon bwIconAmber"/>
 						</VBox>
+						<!--<VBox class="bwModernDataWrap">-->
+						<!--	<Text text="{= ${ui>/isGlMode} ? 'Highest Total Budget Cost Centre Group' : 'Highest Total Budget GL Group' }"-->
+						<!--		tooltip="{= ${ui>/isGlMode} ? 'Highest Total Budget Cost Centre Group' : 'Highest Total Budget GL Group' }"-->
+						<!--		class="bwKpiLeadText" wrapping="true"/>-->
+						<!--	<HBox alignItems="Baseline" class="bwModernValueLine">-->
+						<!--		<Text text="{ui>/kpi6Value}" class="bwKpiLeadAmount bwTextGreen"/>-->
+						<!--		<Text text="Lakhs INR" class="bwKpiLeadUnit"/>-->
+						<!--	</HBox>-->
+						<!--	<Text text="{ui>/kpi6Subtext}" class="bwModernSubTextTitle bwSubTextAmber sapUiTinyMarginTop" wrapping="true"/>-->
+						<!--</VBox>-->
 						<VBox class="bwModernDataWrap">
-							<Text text="{= ${ui>/isGlMode} ? 'Highest Total Budget Cost Centre Group' : 'Highest Total Budget GL Group' }" class="bwModernTitle" wrapping="true"/>
-							<HBox alignItems="Baseline" class="bwModernValueLine">
-								<Text text="{ui>/kpi6Value}" class="bwModernValue bwTextGreen"/>
-								<Text text="Lakhs INR" class="bwModernUnit"/>
+							<Text text="{= ${ui>/isGlMode} ? 'Highest Total Budget Cost Centre Group' : 'Highest Total Budget GL Group' }"
+								tooltip="{= ${ui>/isGlMode} ? 'Highest Total Budget Cost Centre Group' : 'Highest Total Budget GL Group' }"
+								class="bwKpiLeadText" wrapping="true"/>
+							<Text text="{ui>/kpi6Subtext}" tooltip="{ui>/kpi6Subtext}" class="fcrModernValue fcrTextBlue fcrGlNameText"/>
+							<HBox alignItems="Baseline" class="fcrModernValueLine">
+								<Text text="{ui>/kpi6Value}" class="bwKpiLeadAmount bwTextGreen"/>
+								<Text text=" Lakhs INR" class="bwKpiLeadUnit"/>
 							</HBox>
-							<Text text="{ui>/kpi6Subtext}" class="bwModernSubTextTitle bwSubTextAmber sapUiTinyMarginTop" wrapping="true"/>
 						</VBox>
 					</HBox>
 					<!-- KPI 7 -->
@@ -207,12 +221,16 @@
 							<core:Icon src="sap-icon://lead" class="bwModernIcon bwIconGreen"/>
 						</VBox>
 						<VBox class="bwModernDataWrap">
-							<Text text="{= ${ui>/isGlMode} ? 'Highest Released Budget Cost Centre Group' : 'Highest Released Budget GL Group' }" class="bwModernTitle" wrapping="true"/>
-							<HBox alignItems="Baseline" class="bwModernValueLine">
-								<Text text="{ui>/kpi7Value}" class="bwModernValue bwTextBlue"/>
-								<Text text="Lakhs INR" class="bwModernUnit"/>
+							<Text text="{= ${ui>/isGlMode} ? 'Highest Released Budget Cost Centre Group' : 'Highest Released Budget GL Group' }"
+								tooltip="{= ${ui>/isGlMode} ? 'Highest Released Budget Cost Centre Group' : 'Highest Released Budget GL Group' }" class="bwKpiLeadText"
+								wrapping="true"/>
+								
+								<Text text="{ui>/kpi7Subtext}" tooltip="{ui>/kpi7Subtext}" class="fcrModernValue fcrTextBlue fcrGlNameText"/>
+							<HBox alignItems="Baseline" class="fcrModernValueLine">
+								<Text text="{ui>/kpi7Value}" class="bwKpiLeadAmount bwTextGreen"/>
+								<Text text=" Lakhs INR" class="bwKpiLeadUnit"/>
 							</HBox>
-							<Text text="{ui>/kpi7Subtext}" class="bwModernSubTextTitle bwSubTextGreen sapUiTinyMarginTop" wrapping="true"/>
+
 						</VBox>
 					</HBox>
 					<!-- KPI 8 -->
@@ -221,7 +239,8 @@
 							<core:Icon src="sap-icon://list" class="bwModernIcon bwIconPurple"/>
 						</VBox>
 						<VBox class="bwModernDataWrap">
-							<Text text="{= ${ui>/isGlMode} ? 'Top 3 Cost Centre Groups by Total Budget' : 'Top 3 GL Groups by Total Budget' }" class="bwModernTitle" wrapping="true"/>
+							<Text text="{= ${ui>/isGlMode} ? 'Top 3 Cost Centre Groups by Total Budget' : 'Top 3 GL Groups by Total Budget' }" class="bwModernTitle"
+								wrapping="true"/>
 							<List class="bwKpiBulletList" items="{ui>/kpi8Bullets}" showSeparators="None" mode="None">
 								<CustomListItem>
 									<HBox class="bwKpiBulletItem" alignItems="Start">
@@ -576,7 +595,6 @@
 																state="{path: 'budget>status', formatter: '.formatUtilizationColor'}"/>
 														</table:template>
 													</table:Column>
-													
 													<!--<table:Column width="13rem" sortProperty="previousTwoMonthsValue" filterProperty="previousTwoMonthsValue" hAlign="End">-->
 													<!--	<table:label><Label text="Last Two Months Actual Value"/></table:label>-->
 													<!--	<table:template><ObjectNumber number="{path: 'budget>previousTwoMonthsValue', formatter: '.formatTableAmount'}"/></table:template>-->
@@ -644,4 +662,3 @@
 		</content>
 	</Page>
 </mvc:View>
-
