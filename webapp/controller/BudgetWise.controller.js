@@ -247,8 +247,8 @@ sap.ui.define([
 			// this._configureBudgetChart("budgetGlChart", "Current Yearly Budget by Cost Center and G/L Group");
 			// this._configureBudgetChart("budgetNonGlChart", "Current Yearly Budget by Cost Center Group");
 
-			this._configureBudgetChart("budgetGlChart", "Current Year Budget by Cost Centre - Cost Centre Group");
-			this._configureBudgetChart("budgetNonGlChart", "Current Year Budget by GL Account - GL Group");
+			this._configureBudgetChart("budgetGlChart", "Total Budget by Cost Centre - Cost Centre Group");
+			this._configureBudgetChart("budgetNonGlChart", "Total Budget by GL Account - GL Group");
 
 			this._configureTop5Charts();
 			this._connectBudgetPopovers();
@@ -1220,6 +1220,7 @@ sap.ui.define([
 					glGroup: oRow.glGroup || "",
 
 					// Measure Fields
+					yearlyBudget: parseFloat(oRow.yearlyBudget || 0),
 					currentYearBudget: parseFloat(oRow.yearlyBudget || 0),
 					lastYearActual: parseFloat(oRow.oldYearlyValue || 0),
 					actualYearlyBudget: parseFloat(oRow.actulaYearlyBudgetValue || 0)
@@ -2440,6 +2441,10 @@ sap.ui.define([
 				// Only set properties once to prevent unnecessary re-rendering
 				if (!oVizFrame.data("configured")) {
 					oVizFrame.setVizProperties({
+						legend: {
+							visible: true,
+							position: "bottom"
+						},
 						plotArea: {
 							dataLabel: {
 								visible: true
@@ -2451,7 +2456,7 @@ sap.ui.define([
 						},
 						legendGroup: {
 							layout: {
-								position: "right"
+								position: "bottom"
 							}
 						},
 						title: {

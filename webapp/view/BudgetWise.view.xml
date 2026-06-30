@@ -458,12 +458,12 @@
 															<viz.data:DimensionDefinition name="Cost Centre Group" value="{budget>coGroup}"/>
 														</viz.data:dimensions>
 														<viz.data:measures>
-															<viz.data:MeasureDefinition name="Current Year Budget" value="{budget>currentYearBudget}"/>
+															<viz.data:MeasureDefinition name="Total Budget" value="{budget>yearlyBudget}"/>
 														</viz.data:measures>
 													</viz.data:FlattenedDataset>
 												</viz:dataset>
 												<viz:feeds>
-													<viz.feeds:FeedItem uid="size" type="Measure" values="Current Year Budget"/>
+													<viz.feeds:FeedItem uid="size" type="Measure" values="Total Budget"/>
 													<viz.feeds:FeedItem uid="color" type="Dimension" values="Cost Centre,Cost Centre Group"/>
 												</viz:feeds>
 												<viz:dependents>
@@ -643,12 +643,12 @@
 															<viz.data:DimensionDefinition name="G/L Group" value="{budget>glGroup}"/>
 														</viz.data:dimensions>
 														<viz.data:measures>
-															<viz.data:MeasureDefinition name="Current Year Budget" value="{budget>currentYearBudget}"/>
+															<viz.data:MeasureDefinition name="Total Budget" value="{budget>yearlyBudget}"/>
 														</viz.data:measures>
 													</viz.data:FlattenedDataset>
 												</viz:dataset>
 												<viz:feeds>
-													<viz.feeds:FeedItem uid="size" type="Measure" values="Current Year Budget"/>
+													<viz.feeds:FeedItem uid="size" type="Measure" values="Total Budget"/>
 													<viz.feeds:FeedItem uid="color" type="Dimension" values="G/L Account,G/L Group"/>
 												</viz:feeds>
 												<viz:dependents>
