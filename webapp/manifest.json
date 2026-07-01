@@ -121,22 +121,22 @@
 				"async": true
 			},
 			"routes": [
-                {
-                    "name": "budgetWise",
-                    "pattern": "",
-                    "target": "budgetWise"
-                },
-                {
-                    "name": "RouteView1",
-                    "pattern": "fcr",
-                    "target": "main"
-                },
-                {
-                    "name": "main",
-                    "pattern": "main",
-                    "target": "main"
-                }
-            ],
+				{
+					"name": "budgetWise",
+					"pattern": "",
+					"target": "budgetWise"
+				},
+				{
+					"name": "RouteView1",
+					"pattern": "fcr",
+					"target": "main"
+				},
+				{
+					"name": "main",
+					"pattern": "main",
+					"target": "main"
+				}
+			],
 			"targets": {
 				"main": {
 					"viewName": "View1"
