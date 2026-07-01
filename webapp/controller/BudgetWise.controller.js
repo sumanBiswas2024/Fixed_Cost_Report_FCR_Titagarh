@@ -1131,7 +1131,7 @@ sap.ui.define([
 				total_spent: fActual,
 				utilization: oRow.Utilisation,
 				utilisation: oRow.Utilisation,
-				status: oRow.Status,
+				status: oRow.I_status || oRow.Status,
 
 				previousTwoMonthsValue: fPreviousTwoMonths,
 				currentMonthValue: fCurrentMonth,
@@ -1179,7 +1179,7 @@ sap.ui.define([
 				total_spent: fActual,
 				utilization: oRow.Utilisation,
 				utilisation: oRow.Utilisation,
-				status: oRow.Status
+				status: oRow.I_status || oRow.Status
 			};
 		},
 

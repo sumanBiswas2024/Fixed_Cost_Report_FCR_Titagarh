@@ -16,12 +16,12 @@
 					</HBox>
 				</HBox>
 				<!--// Input Parameters //-->
-				<VBox class="fcrParamWrap">
-					<HBox class="fcrParamHeader" alignItems="Center" justifyContent="SpaceBetween">
+				<VBox class="fcrParamWrap fcrParamCardModern">
+					<HBox class="fcrParamHeader fcrParamHeaderModern" alignItems="Center" justifyContent="SpaceBetween">
 						<Title text="Report Parameters" level="H4"/>
 					</HBox>
-					<VBox id="paramGrid" class="fcrParamGrid">
-						<HBox class="fcrParamRow" alignItems="End" justifyContent="Start" wrap="NoWrap">
+					<VBox id="paramGrid" class="fcrParamGrid fcrParamGridModern">
+						<HBox class="fcrParamRow fcrParamRowModern fcrParamRowTop" alignItems="End" justifyContent="Start" wrap="NoWrap">
 							<VBox class="fcrField fcrFieldCc">
 								<Label text="Company Code" required="true"/>
 								<ComboBox id="ccComboBox" selectedKey="{filters>/companyCode}" placeholder="Select Company Code" valueState="{ui>/companyCodeState}"
@@ -57,6 +57,24 @@
 									valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onQuarterValueHelp" placeholder="Select Quarter(s)"
 									enabled="{ui>/quarterEnabled}" tooltip="Choose either Period or Quarter. Do not use both together." valueState="{ui>/quarterState}"/>
 							</VBox>
+							<VBox class="fcrField fcrFieldQtr">
+								<Label text="Utilisation Basis" required="false"/>
+								<Select id="budgetCategorySelect" selectedKey="{filters>/budgetCategory}" change=".onBudgetCategoryChange" width="100%">
+									<core:Item key="" text="Select Category"/>
+									<core:Item key="T" text="Total Budget"/>
+									<core:Item key="R" text="Released Budget"/>
+								</Select>
+							</VBox>
+							<VBox class="fcrField fcrFieldQtr">
+								<Label text="Status" required="false"/>
+								<Select id="statusSelect" selectedKey="{filters>/status}" change=".onStatusChange" width="100%">
+									<core:Item key="" text="Select Status"/>
+									<core:Item key="R" text="Red"/>
+									<core:Item key="G" text="Green"/>
+								</Select>
+							</VBox>
+						</HBox>
+						<HBox class="fcrParamRow fcrParamRowModern fcrParamRowBottom" alignItems="End" justifyContent="Start" wrap="Wrap">
 							<!--<VBox class="fcrField fcrFieldPc">-->
 							<!--	<Label text="Cost Center" required="false"/>-->
 							<!--	<Input value="{filters>/costCenter}" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onCostCenterValueHelp"-->
@@ -83,6 +101,12 @@
 									valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onCostCenterValueHelp" placeholder="Select Cost Center"
 									valueState="{ui>/costCenterState}"/>
 							</VBox>
+							<VBox class="fcrField fcrFieldGlg" visible="{ui>/isGlMode}">
+								<Label text="G/L Account" required="false"/>
+								<MultiInput id="glAccountInputBudget" value="{path: 'filters>/glAccount', formatter: '.formatTokenKeys'}" showValueHelp="true"
+									valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onGlAccountValueHelp" placeholder="Select G/L Account"
+									valueState="{ui>/glAccountState}"/>
+							</VBox>
 							<VBox class="fcrField fcrFieldPc" visible="{= !${ui>/isGlMode} }">
 								<Label text="Cost Center Group" required="false"/>
 								<MultiInput id="costCenterGrpInputBudget" value="{path: 'filters>/costCenterGroup', formatter: '.formatTokenKeys'}" showValueHelp="true"
@@ -96,34 +120,13 @@
 									valueState="{ui>/costCenterOwnerState}"/>
 							</VBox>
 							<VBox class="fcrField fcrFieldGlg" visible="{ui>/isGlMode}">
-								<Label text="G/L Account" required="false"/>
-								<MultiInput id="glAccountInputBudget" value="{path: 'filters>/glAccount', formatter: '.formatTokenKeys'}" showValueHelp="true"
-									valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onGlAccountValueHelp" placeholder="Select G/L Account"
-									valueState="{ui>/glAccountState}"/>
-							</VBox>
-							<VBox class="fcrField fcrFieldGlg" visible="{ui>/isGlMode}">
 								<Label text="G/L Group" required="false"/>
 								<MultiInput id="glGroupInputBudget" value="{path: 'filters>/glGroup', formatter: '.formatTokenKeys'}" showValueHelp="true"
 									valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onGlGroupValueHelp" placeholder="Select G/L Group"
 									valueState="{ui>/glGroupState}"/>
 							</VBox>
-							<VBox class="fcrField fcrFieldQtr">
-								<Label text="Utilisation Basis" required="false"/>
-								<Select id="budgetCategorySelect" selectedKey="{filters>/budgetCategory}" change=".onBudgetCategoryChange" width="100%">
-									<core:Item key="" text="Select Category"/>
-									<core:Item key="T" text="Total Budget"/>
-									<core:Item key="R" text="Released Budget"/>
-								</Select>
-							</VBox>
-							<VBox class="fcrField fcrFieldQtr">
-								<Label text="Status" required="false"/>
-								<Select id="statusSelect" selectedKey="{filters>/status}" change=".onStatusChange" width="100%">
-									<core:Item key="" text="Select Status"/>
-									<core:Item key="R" text="Red"/>
-									<core:Item key="G" text="Green"/>
-								</Select>
-							</VBox>
-							<HBox class="fcrActionsContainer" alignItems="Center">
+							
+							<HBox class="fcrActionsContainer fcrParamActionsModern" alignItems="Center">
 								<Button icon="sap-icon://reset" tooltip="Reset" press=".onReset" class="fcrBtnReset"/>
 								<Button text="Run Report" icon="sap-icon://play" type="Emphasized" press=".onSearch" class="fcrBtnRun"/>
 							</HBox>
@@ -171,7 +174,7 @@
 								<CustomListItem>
 									<HBox class="bwKpiBulletItem" alignItems="Start">
 										<Text text="&#8226;" class="bwKpiBulletDot"/>
-										<Text text="{ui>text}" class="bwKpiBulletText" wrapping="true"/>
+										<Text text="{ui>text}" class="bwKpiBulletText bwKpiBulletTextGreen" wrapping="true"/>
 									</HBox>
 								</CustomListItem>
 							</List>
@@ -417,7 +420,7 @@
 													<table:Column width="8rem" sortProperty="status" filterProperty="status" hAlign="Begin">
 														<table:label><Label text="Status"/></table:label>
 														<table:template>
-															<ObjectStatus text="{path: 'budget>status', formatter: '.formatStatusText'}"
+															<ObjectStatus class="fcrStatusBoldText" text="{path: 'budget>status', formatter: '.formatStatusText'}"
 																state="{path: 'budget>status', formatter: '.formatUtilizationColor'}"/>
 														</table:template>
 													</table:Column>
@@ -617,7 +620,7 @@
 													<table:Column width="8rem" sortProperty="status" filterProperty="status" hAlign="Begin">
 														<table:label><Label text="Status"/></table:label>
 														<table:template>
-															<ObjectStatus text="{path: 'budget>status', formatter: '.formatStatusText'}"
+															<ObjectStatus class="fcrStatusBoldText" text="{path: 'budget>status', formatter: '.formatStatusText'}"
 																state="{path: 'budget>status', formatter: '.formatUtilizationColor'}"/>
 														</table:template>
 													</table:Column>
