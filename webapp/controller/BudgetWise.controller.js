@@ -643,17 +643,6 @@ sap.ui.define([
 			var oBudget = this.getView().getModel("budget");
 			var bGlMode = oUi.getProperty("/isGlMode");
 
-			// =========================================================
-			// FOOLPROOF LOCK LOGIC
-			// Checks if this is the very first dual-fetch. If it is, it sets 
-			// the flag to true so it NEVER runs the dual-fetch again until you reload!
-			// =========================================================
-			var bDoDualFetch = false;
-			if (this._bInitialDualFetchDone === false) {
-				bDoDualFetch = true;
-				this._bInitialDualFetchDone = true; // Lock it instantly!
-			}
-
 			var oBusyDialog = this._getBusyDialog();
 			if (oBusyDialog.setText) {
 				oBusyDialog.setText("Fetching budget data...");
@@ -680,7 +669,7 @@ sap.ui.define([
 
 					// STATUS
 					if (oFilters.status) {
-						aCommonFilters.push("I_status eq '" + that._odataLiteral(oFilters.status) + "'");
+						aCommonFilters.push("Status eq '" + that._odataLiteral(oFilters.status) + "'");
 					}
 
 					// PERIOD FIX
@@ -709,95 +698,56 @@ sap.ui.define([
 					var sSelectParams =
 						"Bukrs,Gjahr,Monat,Kostl,Co_grp,Owner,Saknr,Gl_grp,YrValue,YrActual,Util_basis,Total_spent,Utilisation,Status";
 
-					// =========================================================
-					// CONDITION 1: INITIAL LOAD (Uses the new Foolproof Lock)
-					// =========================================================
-					if (bDoDualFetch) {
-						// 1. PREPARE GL
-						var aGlInitFilters = aCommonFilters.slice();
-						var pGlFetch = that._readBudgetOData("/CCR_COGLSet", aGlInitFilters.join(" and "), sSelectParams).then(function(aRawGlData) {
-							var aMappedGlRows = (aRawGlData || []).map(that._mapGlRow.bind(that)).filter(Boolean);
-							oBudget.setProperty("/glRows", aMappedGlRows);
-							oBudget.setProperty("/glChartRows", that._createBudgetChartRows(aMappedGlRows, "GL"));
-							return aMappedGlRows.length;
+					var aGlFilters = aCommonFilters.slice();
+					if (oFilters.glAccount && oFilters.glAccount.length > 0) {
+						var aGlAccOrs = oFilters.glAccount.map(function(oItem) {
+							return "Saknr eq '" + that._odataLiteral(oItem.key) + "'";
 						});
-
-						// 2. PREPARE NON-GL
-						var pNonGlFetch = that._readBudgetOData("/CCR_COGLSet", aCommonFilters.join(" and "), sSelectParams).then(function(
-							aRawNonGlData) {
-							var aMappedNonGlRows = (aRawNonGlData || []).map(that._mapNonGlRow.bind(that)).filter(Boolean);
-							oBudget.setProperty("/nonGlRows", aMappedNonGlRows);
-							oBudget.setProperty("/nonGlChartRows", that._createBudgetChartRows(aMappedNonGlRows, "NONGL"));
-							return aMappedNonGlRows.length;
+						aGlFilters.push(aGlAccOrs.length === 1 ? aGlAccOrs[0] : "(" + aGlAccOrs.join(" or ") + ")");
+					}
+					if (oFilters.glGroup && oFilters.glGroup.length > 0) {
+						var aGlGrpOrs = oFilters.glGroup.map(function(oItem) {
+							return "Gl_grp eq '" + that._odataLiteral(oItem.key) + "'";
 						});
-
-						return Promise.all([pGlFetch, pNonGlFetch]).then(function(aResults) {
-							return bGlMode ? (aResults[0] === 0) : (aResults[1] === 0);
-						});
+						aGlFilters.push(aGlGrpOrs.length === 1 ? aGlGrpOrs[0] : "(" + aGlGrpOrs.join(" or ") + ")");
 					}
 
-					// =========================================================
-					// CONDITION 2: STANDARD RUN (Manual Clicks always go here!)
-					// =========================================================
-					else {
-						if (bGlMode) {
-							// === FETCH GL DATA ONLY ===
-							var aGlFilters = aCommonFilters.slice();
-							if (oFilters.glAccount && oFilters.glAccount.length > 0) {
-								var aGlAccOrs = oFilters.glAccount.map(function(oItem) {
-									return "Saknr eq '" + that._odataLiteral(oItem.key) + "'";
-								});
-								aGlFilters.push(aGlAccOrs.length === 1 ? aGlAccOrs[0] : "(" + aGlAccOrs.join(" or ") + ")");
-							}
-							if (oFilters.glGroup && oFilters.glGroup.length > 0) {
-								var aGlGrpOrs = oFilters.glGroup.map(function(oItem) {
-									return "Gl_grp eq '" + that._odataLiteral(oItem.key) + "'";
-								});
-								aGlFilters.push(aGlGrpOrs.length === 1 ? aGlGrpOrs[0] : "(" + aGlGrpOrs.join(" or ") + ")");
-							}
-
-							return that._readBudgetOData("/CCR_COGLSet", aGlFilters.join(" and "), sSelectParams).then(function(aRawGlData) {
-								var aMappedGlRows = (aRawGlData || []).map(that._mapGlRow.bind(that)).filter(Boolean);
-								oBudget.setProperty("/glRows", aMappedGlRows);
-								oBudget.setProperty("/glChartRows", that._createBudgetChartRows(aMappedGlRows, "GL"));
-								return aMappedGlRows.length === 0;
-							});
-						} else {
-							// === FETCH NON-GL DATA ONLY ===
-							var aCostFilters = aCommonFilters.slice();
-
-							// COST CENTRE
-							if (oFilters.costCenter && oFilters.costCenter.length > 0) {
-								var aCcOrs = oFilters.costCenter.map(function(oItem) {
-									return "Kostl eq '" + that._odataLiteral(oItem.key) + "'";
-								});
-								aCostFilters.push(aCcOrs.length === 1 ? aCcOrs[0] : "(" + aCcOrs.join(" or ") + ")");
-							}
-
-							// COST CENTRE GROUP
-							if (oFilters.costCenterGroup && oFilters.costCenterGroup.length > 0) {
-								var aCcgOrs = oFilters.costCenterGroup.map(function(oItem) {
-									return "Co_grp eq '" + that._odataLiteral(oItem.key) + "'";
-								});
-								aCostFilters.push(aCcgOrs.length === 1 ? aCcgOrs[0] : "(" + aCcgOrs.join(" or ") + ")");
-							}
-
-							// COST CENTRE OWNER
-							if (oFilters.costCenterOwner && oFilters.costCenterOwner.length > 0) {
-								var aCcoOrs = oFilters.costCenterOwner.map(function(oItem) {
-									return "Owner eq '" + that._odataLiteral(oItem.key) + "'";
-								});
-								aCostFilters.push(aCcoOrs.length === 1 ? aCcoOrs[0] : "(" + aCcoOrs.join(" or ") + ")");
-							}
-
-							return that._readBudgetOData("/CCR_COGLSet", aCostFilters.join(" and "), sSelectParams).then(function(aRawNonGlData) {
-								var aMappedNonGlRows = (aRawNonGlData || []).map(that._mapNonGlRow.bind(that)).filter(Boolean);
-								oBudget.setProperty("/nonGlRows", aMappedNonGlRows);
-								oBudget.setProperty("/nonGlChartRows", that._createBudgetChartRows(aMappedNonGlRows, "NONGL"));
-								return aMappedNonGlRows.length === 0;
-							});
-						}
+					var aCostFilters = aCommonFilters.slice();
+					if (oFilters.costCenter && oFilters.costCenter.length > 0) {
+						var aCcOrs = oFilters.costCenter.map(function(oItem) {
+							return "Kostl eq '" + that._odataLiteral(oItem.key) + "'";
+						});
+						aCostFilters.push(aCcOrs.length === 1 ? aCcOrs[0] : "(" + aCcOrs.join(" or ") + ")");
 					}
+					if (oFilters.costCenterGroup && oFilters.costCenterGroup.length > 0) {
+						var aCcgOrs = oFilters.costCenterGroup.map(function(oItem) {
+							return "Co_grp eq '" + that._odataLiteral(oItem.key) + "'";
+						});
+						aCostFilters.push(aCcgOrs.length === 1 ? aCcgOrs[0] : "(" + aCcgOrs.join(" or ") + ")");
+					}
+					if (oFilters.costCenterOwner && oFilters.costCenterOwner.length > 0) {
+						var aCcoOrs = oFilters.costCenterOwner.map(function(oItem) {
+							return "Owner eq '" + that._odataLiteral(oItem.key) + "'";
+						});
+						aCostFilters.push(aCcoOrs.length === 1 ? aCcoOrs[0] : "(" + aCcoOrs.join(" or ") + ")");
+					}
+
+					return Promise.all([
+						that._readBudgetOData("/CCR_COGLSet", aGlFilters.join(" and "), sSelectParams),
+						that._readBudgetOData("/CCR_COGLSet", aCostFilters.join(" and "), sSelectParams)
+					]).then(function(aResults) {
+						var aRawGlData = aResults[0] || [];
+						var aRawNonGlData = aResults[1] || [];
+						var aMappedGlRows = aRawGlData.map(that._mapGlRow.bind(that)).filter(Boolean);
+						var aMappedNonGlRows = aRawNonGlData.map(that._mapNonGlRow.bind(that)).filter(Boolean);
+
+						oBudget.setProperty("/glRows", aMappedGlRows);
+						oBudget.setProperty("/glChartRows", that._createBudgetChartRows(aMappedGlRows, "GL"));
+						oBudget.setProperty("/nonGlRows", aMappedNonGlRows);
+						oBudget.setProperty("/nonGlChartRows", that._createBudgetChartRows(aMappedNonGlRows, "NONGL"));
+
+						return bGlMode ? (aMappedGlRows.length === 0) : (aMappedNonGlRows.length === 0);
+					});
 
 				}).then(function(bActiveEmpty) {
 					// =========================================================
@@ -868,6 +818,58 @@ sap.ui.define([
 				});
 
 			}, 50);
+		},
+
+		_filterBudgetRowsByMode: function(aRows, sMode, oFilters) {
+			var bGlMode = sMode === "GL";
+			var aFiltered = (aRows || []).filter(function(oRow) {
+				if (bGlMode) {
+					if (oFilters.glAccount && oFilters.glAccount.length > 0) {
+						var bGlAccountMatch = oFilters.glAccount.some(function(oItem) {
+							return String(oRow.glAccount || "") === String(oItem.key || oItem);
+						});
+						if (!bGlAccountMatch) {
+							return false;
+						}
+					}
+					if (oFilters.glGroup && oFilters.glGroup.length > 0) {
+						var bGlGroupMatch = oFilters.glGroup.some(function(oItem) {
+							return String(oRow.glGroup || "") === String(oItem.key || oItem);
+						});
+						if (!bGlGroupMatch) {
+							return false;
+						}
+					}
+				} else {
+					if (oFilters.costCenter && oFilters.costCenter.length > 0) {
+						var bCcMatch = oFilters.costCenter.some(function(oItem) {
+							return String(oRow.costCenter || "") === String(oItem.key || oItem);
+						});
+						if (!bCcMatch) {
+							return false;
+						}
+					}
+					if (oFilters.costCenterGroup && oFilters.costCenterGroup.length > 0) {
+						var bCcgMatch = oFilters.costCenterGroup.some(function(oItem) {
+							return String(oRow.costCenterGroup || "") === String(oItem.key || oItem);
+						});
+						if (!bCcgMatch) {
+							return false;
+						}
+					}
+					if (oFilters.costCenterOwner && oFilters.costCenterOwner.length > 0) {
+						var bOwnerMatch = oFilters.costCenterOwner.some(function(oItem) {
+							return String(oRow.owner || "") === String(oItem.key || oItem);
+						});
+						if (!bOwnerMatch) {
+							return false;
+						}
+					}
+				}
+				return true;
+			});
+
+			return aFiltered;
 		},
 
 		_readBudgetOData: function(sPath, sFilterString, sSelectFields) {
@@ -1096,6 +1098,10 @@ sap.ui.define([
 		// 		});
 		// 	}, 50);
 		// },
+
+		_mapBudgetRow: function(oRow) {
+			return this._mapGlRow(oRow);
+		},
 
 		_mapGlRow: function(oRow) {
 			var fLakhs = 100000; // Conversion factor
@@ -1345,15 +1351,14 @@ sap.ui.define([
 			oUi.setProperty("/kpi7Subtext", oHighestReleasedBudgetGroup ? oHighestReleasedBudgetGroup.label : "No Data");
 			var mCostCentreGroups = {};
 			var mGlGroups = {};
+			var aNonGlRows = oBudget.getProperty("/nonGlRows") || [];
+			var aGlRows = oBudget.getProperty("/glRows") || [];
 
-			aRows.forEach(function(oRow) {
+			aNonGlRows.forEach(function(oRow) {
 				var fBudget = Number(oRow.yearlyBudget || 0);
 				var sCostPrimary = String(oRow.costCenter || "").trim();
 				var sCostSecondary = String(oRow.coGroup || "").trim();
 				var sCostKey = [sCostPrimary, sCostSecondary].join("||");
-				var sGlPrimary = String(oRow.glAccount || "").trim();
-				var sGlSecondary = String(oRow.glGroup || "").trim();
-				var sGlKey = [sGlPrimary, sGlSecondary].join("||");
 
 				if (!mCostCentreGroups[sCostKey]) {
 					mCostCentreGroups[sCostKey] = {
@@ -1362,6 +1367,16 @@ sap.ui.define([
 						totalBudget: 0
 					};
 				}
+
+				mCostCentreGroups[sCostKey].totalBudget += fBudget;
+			});
+
+			aGlRows.forEach(function(oRow) {
+				var fBudget = Number(oRow.yearlyBudget || 0);
+				var sGlPrimary = String(oRow.glAccount || "").trim();
+				var sGlSecondary = String(oRow.glGroup || "").trim();
+				var sGlKey = [sGlPrimary, sGlSecondary].join("||");
+
 				if (!mGlGroups[sGlKey]) {
 					mGlGroups[sGlKey] = {
 						primary: sGlPrimary,
@@ -1370,7 +1385,6 @@ sap.ui.define([
 					};
 				}
 
-				mCostCentreGroups[sCostKey].totalBudget += fBudget;
 				mGlGroups[sGlKey].totalBudget += fBudget;
 			});
 
@@ -2887,8 +2901,8 @@ sap.ui.define([
 
 		_getGlColumns: function() {
 			return [{
-				key: "costCenter",
-				label: "Cost Center"
+					key: "costCenter",
+					label: "Cost Center"
 			}, {
 				key: "coGroup",
 				label: "Cost Centre Group"
@@ -2904,6 +2918,9 @@ sap.ui.define([
 			}, {
 				key: "utilization",
 				label: "Utilization (%)"
+			}, {
+				key: "status",
+				label: "Status"
 			}];
 		},
 
@@ -2926,6 +2943,9 @@ sap.ui.define([
 			}, {
 				key: "utilization",
 				label: "Utilization (%)"
+			}, {
+				key: "status",
+				label: "Status"
 			}];
 		},
 
