@@ -66,7 +66,8 @@ sap.ui.define([
 				costCenterGroup: [], // Changed to Array
 				costCenter: [], // Changed to Array
 				costCenterOwner: [], // Changed to Array
-				budgetCategory: ""
+				budgetCategory: "",
+				status: ""
 			}), "filters");
 
 			this.getView().setModel(new JSONModel({
@@ -116,6 +117,9 @@ sap.ui.define([
 				kpi7Value: "0.00",
 				kpi6Subtext: "No Data",
 				kpi7Subtext: "No Data",
+				kpi7Bullets: [{
+					text: "No Data"
+				}],
 				kpi8Bullets: [{
 					text: "No Data"
 				}],
@@ -140,6 +144,13 @@ sap.ui.define([
 			var oFiltersModel = this.getView().getModel("filters");
 
 			if (!this._bIsInitiallyLoaded) {
+				// ========================================================
+				// CRITICAL FIX: INSTANT LOCK (The Race Condition Fix)
+				// Setting this immediately prevents UI5 double-firing events 
+				// from causing the dialog to close, gap, and reopen!
+				// ========================================================
+				this._bIsInitiallyLoaded = true;
+
 				var oNav = oShared && oShared.getProperty("/budgetNavigation");
 
 				// 1. Show Loading Dialog for F4 Parameters
@@ -162,27 +173,17 @@ sap.ui.define([
 						var sNavPeriod = oNav.fromPeriod;
 						if (Array.isArray(sNavPeriod)) sNavPeriod = sNavPeriod[0].key || sNavPeriod[0];
 						else if (typeof sNavPeriod === "object") sNavPeriod = sNavPeriod.key;
-
-						var oMatched = aPeriods.filter(function(p) {
-							return p.key === sNavPeriod;
-						})[0];
-						aInitialPeriod = [{
-							key: sNavPeriod,
-							text: oMatched ? oMatched.text : sNavPeriod
-						}];
+						
+						var oMatched = aPeriods.filter(function(p) { return p.key === sNavPeriod; })[0];
+						aInitialPeriod = [{ key: sNavPeriod, text: oMatched ? oMatched.text : sNavPeriod }];
 					} else {
 						// Fallback Extraction (For Browser Refresh)
-						var sFallback = typeof this._getCurrentFinancialPeriod === "function" ? this._getCurrentFinancialPeriod() : "03";
+						var sFallback = typeof this._getCurrentFinancialPeriod === "function" ? this._getCurrentFinancialPeriod() : "03"; 
 						if (Array.isArray(sFallback)) sFallback = sFallback[0].key || sFallback[0];
 						else if (typeof sFallback === "object") sFallback = sFallback.key;
 
-						var oMatched2 = aPeriods.filter(function(p) {
-							return p.key === sFallback;
-						})[0];
-						aInitialPeriod = [{
-							key: sFallback,
-							text: oMatched2 ? oMatched2.text : String(sFallback)
-						}];
+						var oMatched2 = aPeriods.filter(function(p) { return p.key === sFallback; })[0];
+						aInitialPeriod = [{ key: sFallback, text: oMatched2 ? oMatched2.text : String(sFallback) }];
 					}
 
 					// ========================================================
@@ -191,10 +192,11 @@ sap.ui.define([
 					oFiltersModel.setProperty("/companyCode", (oNav && oNav.companyCode) ? oNav.companyCode : "1100");
 					oFiltersModel.setProperty("/fiscalYear", (oNav && oNav.fiscalYear) ? oNav.fiscalYear : String(new Date().getFullYear()));
 					oFiltersModel.setProperty("/period", aInitialPeriod);
-
+					
 					// Force clear everything else
 					oFiltersModel.setProperty("/quarters", []);
 					oFiltersModel.setProperty("/budgetCategory", "");
+					oFiltersModel.setProperty("/status", "");
 					oFiltersModel.setProperty("/glGroup", []);
 					oFiltersModel.setProperty("/glAccount", []);
 					oFiltersModel.setProperty("/costCenterGroup", []);
@@ -207,30 +209,29 @@ sap.ui.define([
 
 					// Sync UI and Subtitles
 					this._syncModeState(oUi.getProperty("/reportType") || "GL");
-
+					
 					if (typeof this._syncPeriodSelectorState === "function") {
 						this._syncPeriodSelectorState();
 					}
-
+					
 					this._updateSelectedParametersText();
-					this._bIsInitiallyLoaded = true;
-					oBusyDialog.close();
 
 					// ========================================================
-					// 5. CRITICAL FIX: Auto-fetch on ANY fresh load (Nav OR Refresh)
+					// 5. Auto-fetch on ANY fresh load (Nav OR Refresh)
 					// ========================================================
-					// By removing the `if (oNav)` wrapper, this will now execute 
-					// immediately after a browser refresh as well!
+					
+					// Reset our Dual-Fetch lock so it is ready for the initial load
 					this._bInitialDualFetchDone = false; 
 
-					setTimeout(function() {
-						if (typeof this._fetchBudgetData === "function") {
-							// 2. Call the function normally (NO 'true' argument needed!)
-							this._fetchBudgetData(); 
-						}
-					}.bind(this), 100);
+					// Call the fetch immediately. Because we didn't close the 
+					// oBusyDialog, the screen stays perfectly locked without a gap.
+					if (typeof this._fetchBudgetData === "function") {
+						this._fetchBudgetData(); 
+					}
 
 				}.bind(this)).catch(function(oErr) {
+					// Safety Check: If backend fails, unlock it so the user can try again
+					this._bIsInitiallyLoaded = false; 
 					oBusyDialog.close();
 					sap.m.MessageBox.error("Failed to load dropdown parameters.");
 				}.bind(this));
@@ -674,7 +675,12 @@ sap.ui.define([
 
 					// BUDGET CATEGORY
 					if (oFilters.budgetCategory) {
-						aCommonFilters.push("Budcat eq '" + that._odataLiteral(oFilters.budgetCategory) + "'");
+						aCommonFilters.push("Util_basis eq '" + that._odataLiteral(oFilters.budgetCategory) + "'");
+					}
+
+					// STATUS
+					if (oFilters.status) {
+						aCommonFilters.push("I_status eq '" + that._odataLiteral(oFilters.status) + "'");
 					}
 
 					// PERIOD FIX
@@ -700,7 +706,8 @@ sap.ui.define([
 						aCommonFilters.push("(" + aQuarterOrs.join(" or ") + ")");
 					}
 
-					var sSelectParams = "Bukrs,Gjahr,Monat,Kostl,Co_grp,Owner,Saknr,Gl_grp,YrValue,YrActual,Util_basis,Total_spent,Utilisation,Status";
+					var sSelectParams =
+						"Bukrs,Gjahr,Monat,Kostl,Co_grp,Owner,Saknr,Gl_grp,YrValue,YrActual,Util_basis,Total_spent,Utilisation,Status";
 
 					// =========================================================
 					// CONDITION 1: INITIAL LOAD (Uses the new Foolproof Lock)
@@ -1320,10 +1327,9 @@ sap.ui.define([
 			var oHighestReleasedBudgetGroup = aGroupSummaries.slice().sort(function(a, b) {
 				return b.releasedBudget - a.releasedBudget;
 			})[0] || null;
-			var aTop3Groups = aGroupSummaries.slice(0, 3);
 
 			var fAvailableBudget = fTotalReleasedBudget - fTotalSpent;
-			var fUtilisation = fTotalSpent === 0 ? 0 : ( fTotalSpent / fTotalReleasedBudget) * 100;
+			var fUtilisation = fTotalSpent === 0 ? 0 : (fTotalSpent / fTotalReleasedBudget) * 100;
 
 			oUi.setProperty("/kpi1Value", this._formatAmount(fTotalBudget));
 			oUi.setProperty("/kpi2Value", this._formatAmount(fTotalReleasedBudget));
@@ -1337,7 +1343,69 @@ sap.ui.define([
 			oUi.setProperty("/kpi7Value", oHighestReleasedBudgetGroup ? this._formatAmount(oHighestReleasedBudgetGroup.releasedBudget) : "0.00");
 			oUi.setProperty("/kpi6Subtext", oHighestTotalBudgetGroup ? oHighestTotalBudgetGroup.label : "No Data");
 			oUi.setProperty("/kpi7Subtext", oHighestReleasedBudgetGroup ? oHighestReleasedBudgetGroup.label : "No Data");
-			oUi.setProperty("/kpi8Bullets", aTop3Groups.length ? aTop3Groups.map(function(oGroup) {
+			var mCostCentreGroups = {};
+			var mGlGroups = {};
+
+			aRows.forEach(function(oRow) {
+				var fBudget = Number(oRow.yearlyBudget || 0);
+				var sCostPrimary = String(oRow.costCenter || "").trim();
+				var sCostSecondary = String(oRow.coGroup || "").trim();
+				var sCostKey = [sCostPrimary, sCostSecondary].join("||");
+				var sGlPrimary = String(oRow.glAccount || "").trim();
+				var sGlSecondary = String(oRow.glGroup || "").trim();
+				var sGlKey = [sGlPrimary, sGlSecondary].join("||");
+
+				if (!mCostCentreGroups[sCostKey]) {
+					mCostCentreGroups[sCostKey] = {
+						primary: sCostPrimary,
+						secondary: sCostSecondary,
+						totalBudget: 0
+					};
+				}
+				if (!mGlGroups[sGlKey]) {
+					mGlGroups[sGlKey] = {
+						primary: sGlPrimary,
+						secondary: sGlSecondary,
+						totalBudget: 0
+					};
+				}
+
+				mCostCentreGroups[sCostKey].totalBudget += fBudget;
+				mGlGroups[sGlKey].totalBudget += fBudget;
+			});
+
+			var aCostCentreTop3 = Object.keys(mCostCentreGroups).map(function(sKey) {
+				var oGroup = mCostCentreGroups[sKey];
+				var sLabel = [oGroup.primary, oGroup.secondary].filter(Boolean).join(" - ");
+				return {
+					key: sKey,
+					label: sLabel || "Unassigned",
+					totalBudget: oGroup.totalBudget
+				};
+			}).sort(function(a, b) {
+				return b.totalBudget - a.totalBudget;
+			}).slice(0, 3);
+
+			var aGlTop3 = Object.keys(mGlGroups).map(function(sKey) {
+				var oGroup = mGlGroups[sKey];
+				var sLabel = [oGroup.primary, oGroup.secondary].filter(Boolean).join(" - ");
+				return {
+					key: sKey,
+					label: sLabel || "Unassigned",
+					totalBudget: oGroup.totalBudget
+				};
+			}).sort(function(a, b) {
+				return b.totalBudget - a.totalBudget;
+			}).slice(0, 3);
+
+			oUi.setProperty("/kpi7Bullets", aCostCentreTop3.length ? aCostCentreTop3.map(function(oGroup) {
+				return {
+					text: oGroup.label
+				};
+			}) : [{
+				text: "No Data"
+			}]);
+			oUi.setProperty("/kpi8Bullets", aGlTop3.length ? aGlTop3.map(function(oGroup) {
 				return {
 					text: oGroup.label
 				};
@@ -1418,11 +1486,23 @@ sap.ui.define([
 			return sValue + "%";
 		},
 
+		formatStatusText: function(sStatus) {
+			var sValue = String(sStatus || "").trim().toUpperCase();
+			if (sValue === "G" || sValue === "GREEN") {
+				return "Green";
+			}
+			if (sValue === "R" || sValue === "RED") {
+				return "Red";
+			}
+			return sStatus || "";
+		},
+
 		formatUtilizationColor: function(sStatus) {
 			// Returns 'Success' (Green) or 'Error' (Red)
-			if (sStatus === "GREEN") {
+			var sValue = String(sStatus || "").toUpperCase();
+			if (sValue === "GREEN" || sValue === "G") {
 				return "Success";
-			} else if (sStatus === "RED") {
+			} else if (sValue === "RED" || sValue === "R") {
 				return "Error";
 			}
 			return "None";
@@ -1790,6 +1870,10 @@ sap.ui.define([
 			this._updateSelectedParametersText();
 		},
 
+		onStatusChange: function() {
+			this._updateSelectedParametersText();
+		},
+
 		onPeriodChange: function() {
 			this._updateSelectedParametersText();
 		},
@@ -1809,7 +1893,8 @@ sap.ui.define([
 				costCenterGroup: [],
 				costCenter: [],
 				costCenterOwner: [],
-				budgetCategory: ""
+				budgetCategory: "",
+				status: ""
 			});
 
 			this._clearValueStates();
@@ -2216,10 +2301,17 @@ sap.ui.define([
 
 			// FIX: Handle the blank state gracefully
 			var sBudCat = "All Categories";
-			if (oFilters.budgetCategory === "RB") {
+			if (oFilters.budgetCategory === "R") {
 				sBudCat = "Released Budget";
-			} else if (oFilters.budgetCategory === "TB") {
+			} else if (oFilters.budgetCategory === "T") {
 				sBudCat = "Total Budget";
+			}
+
+			var sStatus = "All Statuses";
+			if (oFilters.status === "R") {
+				sStatus = "Red";
+			} else if (oFilters.status === "G") {
+				sStatus = "Green";
 			}
 
 			var sPeriod = "All periods";
@@ -2231,7 +2323,7 @@ sap.ui.define([
 			}
 
 			// 1. Start with the Universal Parameters
-			var aTextParts = [sCompany, sFY, sPeriod, sBudCat];
+			var aTextParts = [sCompany, sFY, sPeriod, sBudCat, sStatus];
 
 			// 2. Add Tab-Specific Parameters
 			if (bGlMode) {
@@ -2795,50 +2887,46 @@ sap.ui.define([
 
 		_getGlColumns: function() {
 			return [{
-					key: "costCenter",
-					label: "Cost Center"
-				},
-				{
-					key: "coGroup",
-					label: "Cost Centre Group"
-				},
-				{
-					key: "actulaYearlyBudgetValue",
-					label: "Released Budget"
-				}, {
-					key: "yearlyBudget",
-					label: "Current Year Budget"
-				}, {
-					key: "total_spent",
-					label: "Actual"
-				}, {
-					key: "utilization",
-					label: "Utilization (%)"
-				}
-			];
+				key: "costCenter",
+				label: "Cost Center"
+			}, {
+				key: "coGroup",
+				label: "Cost Centre Group"
+			}, {
+				key: "actulaYearlyBudgetValue",
+				label: "Released Budget"
+			}, {
+				key: "yearlyBudget",
+				label: "Current Year Budget"
+			}, {
+				key: "total_spent",
+				label: "Actual"
+			}, {
+				key: "utilization",
+				label: "Utilization (%)"
+			}];
 		},
 
 		_getNonGlColumns: function() {
 			return [{
-					key: "gl",
-					label: "G/L Account"
-				}, {
-					key: "glGroup",
-					label: "G/L Group"
-				}, {
-					key: "actulaYearlyBudgetValue",
-					label: "Released Budget"
-				}, {
-					key: "yearlyBudget",
-					label: "Current Year Budget"
-				}, {
-					key: "total_spent",
-					label: "Actual"
-				}, {
-					key: "utilization",
-					label: "Utilization (%)"
-				}
-			];
+				key: "gl",
+				label: "G/L Account"
+			}, {
+				key: "glGroup",
+				label: "G/L Group"
+			}, {
+				key: "actulaYearlyBudgetValue",
+				label: "Released Budget"
+			}, {
+				key: "yearlyBudget",
+				label: "Current Year Budget"
+			}, {
+				key: "total_spent",
+				label: "Actual"
+			}, {
+				key: "utilization",
+				label: "Utilization (%)"
+			}];
 		},
 
 		_toCsv: function(aRows, aColumns) {

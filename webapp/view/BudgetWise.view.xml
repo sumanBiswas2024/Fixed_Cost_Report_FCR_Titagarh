@@ -111,8 +111,16 @@
 								<Label text="Utilisation Basis" required="false"/>
 								<Select id="budgetCategorySelect" selectedKey="{filters>/budgetCategory}" change=".onBudgetCategoryChange" width="100%">
 									<core:Item key="" text="Select Category"/>
-									<core:Item key="TB" text="Total Budget"/>
-									<core:Item key="RB" text="Released Budget"/>
+									<core:Item key="T" text="Total Budget"/>
+									<core:Item key="R" text="Released Budget"/>
+								</Select>
+							</VBox>
+							<VBox class="fcrField fcrFieldQtr">
+								<Label text="Status" required="false"/>
+								<Select id="statusSelect" selectedKey="{filters>/status}" change=".onStatusChange" width="100%">
+									<core:Item key="" text="Select Status"/>
+									<core:Item key="R" text="Red"/>
+									<core:Item key="G" text="Green"/>
 								</Select>
 							</VBox>
 							<HBox class="fcrActionsContainer" alignItems="Center">
@@ -155,17 +163,18 @@
 					<!-- KPI 7 -->
 					<HBox class="bwModernCard bwCardBgGreen" alignItems="Center">
 						<VBox class="bwModernIconWrap bwIconBgGreen">
-							<core:Icon src="sap-icon://lead" class="bwModernIcon bwIconGreen"/>
+							<core:Icon src="sap-icon://group" class="bwModernIcon bwIconGreen"/>
 						</VBox>
 						<VBox class="bwModernDataWrap">
-							<Text text="{= ${ui>/isGlMode} ? 'Highest Released Budget Cost Centre Group' : 'Highest Released Budget GL Group' }"
-								tooltip="{= ${ui>/isGlMode} ? 'Highest Released Budget Cost Centre Group' : 'Highest Released Budget GL Group' }" class="bwKpiLeadText"
-								wrapping="true"/>
-							<Text text="{ui>/kpi7Subtext}" tooltip="{ui>/kpi7Subtext}" class="fcrModernValue fcrTextBlue fcrGlNameText"/>
-							<HBox alignItems="Baseline" class="fcrModernValueLine">
-								<Text text="{ui>/kpi7Value}" class="bwKpiLeadAmount bwTextGreen"/>
-								<Text text=" Lakhs INR" class="bwKpiLeadUnit"/>
-							</HBox>
+							<Text text="Top 3 Cost Centre Groups by Total Budget" class="bwModernTitle" wrapping="true"/>
+							<List class="bwKpiBulletList" items="{ui>/kpi7Bullets}" showSeparators="None" mode="None">
+								<CustomListItem>
+									<HBox class="bwKpiBulletItem" alignItems="Start">
+										<Text text="&#8226;" class="bwKpiBulletDot"/>
+										<Text text="{ui>text}" class="bwKpiBulletText" wrapping="true"/>
+									</HBox>
+								</CustomListItem>
+							</List>
 						</VBox>
 					</HBox>
 					<!-- KPI 8 -->
@@ -174,8 +183,7 @@
 							<core:Icon src="sap-icon://list" class="bwModernIcon bwIconPurple"/>
 						</VBox>
 						<VBox class="bwModernDataWrap">
-							<Text text="{= ${ui>/isGlMode} ? 'Top 3 Cost Centre Groups by Total Budget' : 'Top 3 GL Groups by Total Budget' }" class="bwModernTitle"
-								wrapping="true"/>
+							<Text text="Top 3 GL Groups by Total Budget" class="bwModernTitle" wrapping="true"/>
 							<List class="bwKpiBulletList" items="{ui>/kpi8Bullets}" showSeparators="None" mode="None">
 								<CustomListItem>
 									<HBox class="bwKpiBulletItem" alignItems="Start">
@@ -406,6 +414,13 @@
 																state="{path: 'budget>status', formatter: '.formatUtilizationColor'}"/>
 														</table:template>
 													</table:Column>
+													<table:Column width="8rem" sortProperty="status" filterProperty="status" hAlign="Begin">
+														<table:label><Label text="Status"/></table:label>
+														<table:template>
+															<ObjectStatus text="{path: 'budget>status', formatter: '.formatStatusText'}"
+																state="{path: 'budget>status', formatter: '.formatUtilizationColor'}"/>
+														</table:template>
+													</table:Column>
 													<!--<table:Column width="10rem" sortProperty="utilisation" filterProperty="utilisation" hAlign="Begin">-->
 													<!--	<table:label><Label text="Utilisation"/></table:label>-->
 													<!--	<table:template><ObjectNumber number="{path: 'budget>utilisation', formatter: '.formatTableAmount'}"/></table:template>-->
@@ -596,6 +611,13 @@
 													<table:Column label="Utilization (%)" width="10rem" sortProperty="utilization" filterProperty="utilization" hAlign="Begin">
 														<table:template>
 															<ObjectStatus text="{path: 'budget>utilization', formatter: '.formatUtilizationText'}"
+																state="{path: 'budget>status', formatter: '.formatUtilizationColor'}"/>
+														</table:template>
+													</table:Column>
+													<table:Column width="8rem" sortProperty="status" filterProperty="status" hAlign="Begin">
+														<table:label><Label text="Status"/></table:label>
+														<table:template>
+															<ObjectStatus text="{path: 'budget>status', formatter: '.formatStatusText'}"
 																state="{path: 'budget>status', formatter: '.formatUtilizationColor'}"/>
 														</table:template>
 													</table:Column>
