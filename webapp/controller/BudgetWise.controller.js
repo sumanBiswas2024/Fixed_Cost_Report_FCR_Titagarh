@@ -173,17 +173,27 @@ sap.ui.define([
 						var sNavPeriod = oNav.fromPeriod;
 						if (Array.isArray(sNavPeriod)) sNavPeriod = sNavPeriod[0].key || sNavPeriod[0];
 						else if (typeof sNavPeriod === "object") sNavPeriod = sNavPeriod.key;
-						
-						var oMatched = aPeriods.filter(function(p) { return p.key === sNavPeriod; })[0];
-						aInitialPeriod = [{ key: sNavPeriod, text: oMatched ? oMatched.text : sNavPeriod }];
+
+						var oMatched = aPeriods.filter(function(p) {
+							return p.key === sNavPeriod;
+						})[0];
+						aInitialPeriod = [{
+							key: sNavPeriod,
+							text: oMatched ? oMatched.text : sNavPeriod
+						}];
 					} else {
 						// Fallback Extraction (For Browser Refresh)
-						var sFallback = typeof this._getCurrentFinancialPeriod === "function" ? this._getCurrentFinancialPeriod() : "03"; 
+						var sFallback = typeof this._getCurrentFinancialPeriod === "function" ? this._getCurrentFinancialPeriod() : "03";
 						if (Array.isArray(sFallback)) sFallback = sFallback[0].key || sFallback[0];
 						else if (typeof sFallback === "object") sFallback = sFallback.key;
 
-						var oMatched2 = aPeriods.filter(function(p) { return p.key === sFallback; })[0];
-						aInitialPeriod = [{ key: sFallback, text: oMatched2 ? oMatched2.text : String(sFallback) }];
+						var oMatched2 = aPeriods.filter(function(p) {
+							return p.key === sFallback;
+						})[0];
+						aInitialPeriod = [{
+							key: sFallback,
+							text: oMatched2 ? oMatched2.text : String(sFallback)
+						}];
 					}
 
 					// ========================================================
@@ -192,7 +202,7 @@ sap.ui.define([
 					oFiltersModel.setProperty("/companyCode", (oNav && oNav.companyCode) ? oNav.companyCode : "1100");
 					oFiltersModel.setProperty("/fiscalYear", (oNav && oNav.fiscalYear) ? oNav.fiscalYear : String(new Date().getFullYear()));
 					oFiltersModel.setProperty("/period", aInitialPeriod);
-					
+
 					// Force clear everything else
 					oFiltersModel.setProperty("/quarters", []);
 					oFiltersModel.setProperty("/budgetCategory", "");
@@ -209,29 +219,29 @@ sap.ui.define([
 
 					// Sync UI and Subtitles
 					this._syncModeState(oUi.getProperty("/reportType") || "GL");
-					
+
 					if (typeof this._syncPeriodSelectorState === "function") {
 						this._syncPeriodSelectorState();
 					}
-					
+
 					this._updateSelectedParametersText();
 
 					// ========================================================
 					// 5. Auto-fetch on ANY fresh load (Nav OR Refresh)
 					// ========================================================
-					
+
 					// Reset our Dual-Fetch lock so it is ready for the initial load
-					this._bInitialDualFetchDone = false; 
+					this._bInitialDualFetchDone = false;
 
 					// Call the fetch immediately. Because we didn't close the 
 					// oBusyDialog, the screen stays perfectly locked without a gap.
 					if (typeof this._fetchBudgetData === "function") {
-						this._fetchBudgetData(); 
+						this._fetchBudgetData();
 					}
 
 				}.bind(this)).catch(function(oErr) {
 					// Safety Check: If backend fails, unlock it so the user can try again
-					this._bIsInitiallyLoaded = false; 
+					this._bIsInitiallyLoaded = false;
 					oBusyDialog.close();
 					sap.m.MessageBox.error("Failed to load dropdown parameters.");
 				}.bind(this));
@@ -2509,69 +2519,96 @@ sap.ui.define([
 		// DYNAMIC CHART STYLING (Like View 1)
 		// =========================================================
 
+		// _refreshBudgetChartStyling: function() {
+		// 	["budgetGlChart", "budgetNonGlChart"].forEach(function(sChartId) {
+		// 		var oVizFrame = this.byId(sChartId);
+		// 		if (!oVizFrame) {
+		// 			return;
+		// 		}
+
+		// 		// Only set properties once to prevent unnecessary re-rendering
+		// 		if (!oVizFrame.data("configured")) {
+		// 			oVizFrame.setVizProperties({
+		// 				legend: {
+		// 					visible: true,
+		// 					position: "bottom"
+		// 				},
+		// 				plotArea: {
+		// 					dataLabel: {
+		// 						visible: true
+		// 					},
+		// 					drawingEffect: "glossy"
+		// 						// Notice there is NO colorPalette or rules array here.
+		// 						// This allows SAP Fiori to automatically generate distinct
+		// 						// colors for every slice of the pie based on your dimensions!
+		// 				},
+		// 				legendGroup: {
+		// 					layout: {
+		// 						position: "bottom"
+		// 					}
+		// 				},
+		// 				title: {
+		// 					visible: false
+		// 				}
+		// 			});
+		// 			oVizFrame.data("configured", true);
+		// 		}
+		// 	}.bind(this));
+		// },
+
 		_refreshBudgetChartStyling: function() {
-			// ["budgetGlChart", "budgetNonGlChart"].forEach(function(sChartId) {
-			// 	var oVizFrame = this.byId(sChartId);
-			// 	if (!oVizFrame) {
-			// 		return;
-			// 	}
+			var oGlChart = this.getView().byId("budgetGlChart");
+			var oNonGlChart = this.getView().byId("budgetNonGlChart");
 
-			// 	oVizFrame.setVizProperties({
-			// 		legend: {
-			// 			visible: true,
-			// 			position: "bottom"
-			// 		},
-			// 		plotArea: {
-			// 			drawingEffect: "glossy",
-			// 			// 1. Hardcode two distinct, fresh colors not used elsewhere in the app
-			// 			// Index 0: Current Year Budget (Teal)
-			// 			// Index 1: Last Year Actual (Rose)
-			// 			colorPalette: [
-			// 				"#14b8a6",
-			// 				"#f43f5e"
-			// 			],
-			// 			// 2. CRITICAL: Clear rules so the VizFrame maps the colors to the Measures (Yearly vs Last Year) 
-			// 			// rather than trying to color them by GL Group name.
-			// 			dataPointStyle: {
-			// 				rules: []
-			// 			}
-			// 		}
-			// 	});
-			// }.bind(this));
-			["budgetGlChart", "budgetNonGlChart"].forEach(function(sChartId) {
-				var oVizFrame = this.byId(sChartId);
-				if (!oVizFrame) {
-					return;
-				}
-
-				// Only set properties once to prevent unnecessary re-rendering
-				if (!oVizFrame.data("configured")) {
-					oVizFrame.setVizProperties({
-						legend: {
-							visible: true,
-							position: "bottom"
-						},
-						plotArea: {
-							dataLabel: {
-								visible: true
-							},
-							drawingEffect: "glossy"
-								// Notice there is NO colorPalette or rules array here.
-								// This allows SAP Fiori to automatically generate distinct
-								// colors for every slice of the pie based on your dimensions!
-						},
-						legendGroup: {
-							layout: {
-								position: "bottom"
-							}
-						},
-						title: {
-							visible: false
+			// 1. Apply styling and title for G/L Chart (Cost Centre focus)
+			if (oGlChart) {
+				oGlChart.setVizProperties({
+					legend: {
+						visible: true,
+						isScrollable: true
+					},
+					legendGroup: {
+						layout: {
+							position: "right"
 						}
-					});
-					oVizFrame.data("configured", true);
-				}
-			}.bind(this));
+					},
+					plotArea: {
+						dataLabel: {
+							visible: true,
+							type: "percentage"
+						}
+					},
+					title: {
+						visible: true,
+						text: "Total Budget by Cost Centre - Cost Centre Group"
+					}
+				});
+			}
+
+			// 2. Apply styling and title for Non G/L Chart (G/L Account focus)
+			if (oNonGlChart) {
+				oNonGlChart.setVizProperties({
+					legend: {
+						visible: true,
+						isScrollable: true
+					},
+					legendGroup: {
+						layout: {
+							position: "right"
+						}
+					},
+					plotArea: {
+						dataLabel: {
+							visible: true,
+							type: "percentage"
+						}
+					},
+					title: {
+						visible: true,
+						text: "Total Budget by GL Account - GL Group"
+					}
+				});
+			}
 		},
 
 		// _dataPointRulesForBudgetChart: function(sChartId) {
@@ -2901,8 +2938,8 @@ sap.ui.define([
 
 		_getGlColumns: function() {
 			return [{
-					key: "costCenter",
-					label: "Cost Center"
+				key: "costCenter",
+				label: "Cost Center"
 			}, {
 				key: "coGroup",
 				label: "Cost Centre Group"

@@ -125,7 +125,6 @@
 									valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onGlGroupValueHelp" placeholder="Select G/L Group"
 									valueState="{ui>/glGroupState}"/>
 							</VBox>
-							
 							<HBox class="fcrActionsContainer fcrParamActionsModern" alignItems="Center">
 								<Button icon="sap-icon://reset" tooltip="Reset" press=".onReset" class="fcrBtnReset"/>
 								<Button text="Run Report" icon="sap-icon://play" type="Emphasized" press=".onSearch" class="fcrBtnRun"/>
@@ -660,7 +659,8 @@
 											<!--		<viz:Popover id="budgetNonGlPopover"/>-->
 											<!--	</viz:dependents>-->
 											<!--</viz:VizFrame>-->
-											<viz:VizFrame id="budgetNonGlChart" width="100%" height="380px" vizType="pie" uiConfig="{applicationSet:'fiori'}">
+											<viz:VizFrame id="budgetNonGlChart" width="100%" height="380px" vizType="pie" uiConfig="{applicationSet:'fiori'}"
+												vizProperties="{ legend: { visible: true }, legendGroup: { layout: { position: 'right' } } }">
 												<viz:dataset>
 													<viz.data:FlattenedDataset data="{budget>/nonGlChartRows}">
 														<viz.data:dimensions>
