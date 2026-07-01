@@ -12,13 +12,16 @@
 								<!--<ObjectStatus text="ZFI_FCR" state="Information" icon="sap-icon://business-objects-experience" class="fcrEyebrow"/>-->
 								<!--<Title text="Fixed Cost Report" level="H1" class="fcrTitle"/>-->
 								<HBox alignItems="Center">
+									<Button icon="sap-icon://nav-back" type="Transparent" press=".onOpenBudgetWise" tooltip="Back to Budget View"
+									class="sapUiTinyMarginEnd navBackButton"/>
 									<core:Icon src="sap-icon://expense-report" size="1.5rem" class="sapUiTinyMarginEnd" color="#0a6ed1"/>
 									<Title text="Fixed Cost Report" level="H1" class="fcrTitle"/>
 								</HBox>
 								<!--<Text text="{ui>/periodText}" class="fcrSubtitle"/>-->
 							</VBox>
 							<HBox alignItems="Center">
-								<Button text="Budget Report" icon="sap-icon://money-bills" type="Emphasized" press=".onOpenBudgetWise" class="fcrBtnBudget"/>
+								<!--<Button icon="sap-icon://nav-back" type="Transparent" press=".onOpenBudgetWise" tooltip="Back to Budget View"-->
+								<!--	class="sapUiTinyMarginEnd navBackButton"/>-->
 								<!--<ObjectStatus text="{ui>/lastRunText}" state="Success" icon="sap-icon://sys-enter-2" class="fcrRunStatus"/>-->
 							</HBox>
 						</HBox>

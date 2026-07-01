@@ -6,13 +6,15 @@
 			<VBox class="fcrParamWrap">
 				<HBox class="fcrHeader" alignItems="Center" justifyContent="SpaceBetween" wrap="Wrap">
 					<HBox alignItems="Center">
-						<Button icon="sap-icon://nav-back" type="Transparent" press=".onBack" tooltip="Back" class="sapUiTinyMarginEnd navBackButton"/>
 						<VBox class="fcrHeaderText">
 							<HBox alignItems="Center">
 								<core:Icon src="sap-icon://money-bills" size="1.5rem" class="sapUiTinyMarginEnd" color="#0a6ed1"/>
-								<Title text="Budget Report" level="H1" class="fcrTitle"/>
+								<Title text="Cost Centre Budget Dashboard" level="H1" class="fcrTitle"/>
 							</HBox>
 						</VBox>
+					</HBox>
+					<HBox alignItems="Center">
+						<Button text="Fixed Cost Report" icon="sap-icon://display" type="Emphasized" press=".onNavToView1" class="fcrBtnBudget"/>
 					</HBox>
 				</HBox>
 				<!--// Input Parameters //-->

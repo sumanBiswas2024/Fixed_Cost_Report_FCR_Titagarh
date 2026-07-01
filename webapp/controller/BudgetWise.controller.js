@@ -142,6 +142,8 @@ sap.ui.define([
 			var oShared = this.getOwnerComponent().getModel("shared");
 			var oUi = this.getView().getModel("ui");
 			var oFiltersModel = this.getView().getModel("filters");
+			
+			sap.ui.core.BusyIndicator.hide();
 
 			if (!this._bIsInitiallyLoaded) {
 				// ========================================================
@@ -679,7 +681,7 @@ sap.ui.define([
 
 					// STATUS
 					if (oFilters.status) {
-						aCommonFilters.push("Status eq '" + that._odataLiteral(oFilters.status) + "'");
+						aCommonFilters.push("I_status eq '" + that._odataLiteral(oFilters.status) + "'");
 					}
 
 					// PERIOD FIX
@@ -1938,7 +1940,7 @@ sap.ui.define([
 			MessageToast.show("Reset all parameters");
 		},
 
-		onBack: function() {
+		onNavToView1: function() {
 			this.getOwnerComponent().getRouter().navTo("main");
 		},
 

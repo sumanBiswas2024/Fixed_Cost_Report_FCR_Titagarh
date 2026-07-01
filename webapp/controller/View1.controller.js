@@ -208,7 +208,8 @@ sap.ui.define([
 		},
 
 		onOpenBudgetWise: function() {
-			this._getBusyDialog().open();
+			// this._getBusyDialog().open();
+			sap.ui.core.BusyIndicator.show(0);
 			this.getOwnerComponent().getModel("shared").setData({
 				mainReportType: this.getView().getModel("ui").getProperty("/selectedTab") || "all",
 				budgetNavigation: {
