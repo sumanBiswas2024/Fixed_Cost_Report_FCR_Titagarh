@@ -62,6 +62,7 @@ sap.ui.define([
 				// costCenterGroup: "",
 				// costCenter: ""
 				glGroup: [], // Changed to Array
+				nonGlGlGroup: [],
 				glAccount: [], // Changed to Array
 				costCenterGroup: [], // Changed to Array
 				costCenter: [], // Changed to Array
@@ -101,6 +102,7 @@ sap.ui.define([
 				fiscalYearState: "None",
 				periodState: "None",
 				glGroupState: "None",
+				nonGlGlGroupState: "None",
 				glAccountState: "None",
 				costCenterGroupState: "None",
 				costCenterState: "None",
@@ -743,6 +745,12 @@ sap.ui.define([
 						});
 						aCostFilters.push(aCcoOrs.length === 1 ? aCcoOrs[0] : "(" + aCcoOrs.join(" or ") + ")");
 					}
+					if (oFilters.nonGlGlGroup && oFilters.nonGlGlGroup.length > 0) {
+						var aNonGlGrpOrs = oFilters.nonGlGlGroup.map(function(oItem) {
+							return "Gl_grp eq '" + that._odataLiteral(oItem.key) + "'";
+						});
+						aCostFilters.push(aNonGlGrpOrs.length === 1 ? aNonGlGrpOrs[0] : "(" + aNonGlGrpOrs.join(" or ") + ")");
+					}
 
 					return Promise.all([
 						that._readBudgetOData("/CCR_COGLSet", aGlFilters.join(" and "), sSelectParams),
@@ -874,6 +882,14 @@ sap.ui.define([
 							return String(oRow.owner || "") === String(oItem.key || oItem);
 						});
 						if (!bOwnerMatch) {
+							return false;
+						}
+					}
+					if (oFilters.nonGlGlGroup && oFilters.nonGlGlGroup.length > 0) {
+						var bNonGlGroupMatch = oFilters.nonGlGlGroup.some(function(oItem) {
+							return String(oRow.glGroup || "") === String(oItem.key || oItem);
+						});
+						if (!bNonGlGroupMatch) {
 							return false;
 						}
 					}
@@ -1915,6 +1931,7 @@ sap.ui.define([
 				period: [],
 				quarters: [],
 				glGroup: [],
+				nonGlGlGroup: [],
 				glAccount: [],
 				costCenterGroup: [],
 				costCenter: [],
@@ -1972,6 +1989,13 @@ sap.ui.define([
 			this._initBudgetOData().then(function() {
 				this._getBusyDialog().close();
 				this._openBudgetMultiSelectValueHelp("G/L Group", "glGroups", "glGroup");
+			}.bind(this));
+		},
+		onNonGlGlGroupValueHelp: function() {
+			this._getBusyDialog().open();
+			this._initBudgetOData().then(function() {
+				this._getBusyDialog().close();
+				this._openBudgetMultiSelectValueHelp("G/L Group", "glGroups", "nonGlGlGroup");
 			}.bind(this));
 		},
 		onGlAccountValueHelp: function() {
@@ -2230,6 +2254,7 @@ sap.ui.define([
 				else if (sId.includes("costCenterOwnerInputBudget")) oFiltersModel.setProperty("/costCenterOwner", []);
 				else if (sId.includes("glAccountInputBudget")) oFiltersModel.setProperty("/glAccount", []);
 				else if (sId.includes("glGroupInputBudget")) oFiltersModel.setProperty("/glGroup", []);
+				else if (sId.includes("nonGlGlGroupInputBudget")) oFiltersModel.setProperty("/nonGlGlGroup", []);
 				else if (sId.includes("quarterInputBudget")) oFiltersModel.setProperty("/quarters", []);
 			}
 			this._syncPeriodSelectorState();
@@ -2312,6 +2337,7 @@ sap.ui.define([
 			oUi.setProperty("/fiscalYearState", "None");
 			oUi.setProperty("/periodState", "None");
 			oUi.setProperty("/glGroupState", "None");
+			oUi.setProperty("/nonGlGlGroupState", "None");
 			oUi.setProperty("/glAccountState", "None");
 			oUi.setProperty("/costCenterGroupState", "None");
 			oUi.setProperty("/costCenterState", "None");
@@ -2360,15 +2386,17 @@ sap.ui.define([
 
 				aTextParts.push(sGlAccount, sGlGroup);
 			} else {
-				// Non-GL Mode: Show only Cost Center and Cost Center Group
+				// Non-GL Mode: Show Cost Center fields plus the separate G/L Group picker
 				var sCostCenter = (oFilters.costCenter && oFilters.costCenter.length) ? oFilters.costCenter.length + " Cost Centers" :
 					"All Cost Centers";
 				var sCostCenterGroup = (oFilters.costCenterGroup && oFilters.costCenterGroup.length) ? oFilters.costCenterGroup.length +
 					" Cost Center Groups" : "All Cost Center Groups";
 				var sCostCenterOwner = (oFilters.costCenterOwner && oFilters.costCenterOwner.length) ? oFilters.costCenterOwner.length +
 					" Cost Centre Owners" : "All Cost Centre Owners";
+				var sNonGlGroup = (oFilters.nonGlGlGroup && oFilters.nonGlGlGroup.length) ? oFilters.nonGlGlGroup.length + " G/L Groups" :
+					"All G/L Groups";
 
-				aTextParts.push(sCostCenter, sCostCenterGroup, sCostCenterOwner);
+				aTextParts.push(sCostCenter, sCostCenterGroup, sCostCenterOwner, sNonGlGroup);
 			}
 
 			// 3. Set the final string
@@ -2431,7 +2459,7 @@ sap.ui.define([
 
 			var aProps = this.getView().getModel("ui").getProperty("/isGlMode") ? ["costCenter", "costCenterDesc", "coGroup", "gl",
 				"glAccount", "glDesc", "glGroup", "owner"
-			] : ["coGroup", "costCenter", "costCenterDesc", "gl", "glAccount", "owner"];
+			] : ["coGroup", "costCenter", "costCenterDesc", "gl", "glAccount", "glGroup", "owner"];
 
 			oTable.getBinding("rows").filter(new Filter({
 				filters: aProps.map(function(sProp) {

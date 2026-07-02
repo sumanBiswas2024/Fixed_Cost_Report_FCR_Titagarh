@@ -1806,7 +1806,7 @@
 
 .bwKpiGridSecondary.sapUiRespGrid {
     display: grid !important;
-    grid-template-columns: repeat(3, 1fr) !important;
+    grid-template-columns: repeat(2, 1fr) !important;
     gap: 0.5rem !important;
     margin-top: 0.5rem !important;   /* was 0.5rem */
     padding-top: 0 !important;

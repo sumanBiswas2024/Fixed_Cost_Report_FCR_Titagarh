@@ -127,6 +127,12 @@
 									valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onGlGroupValueHelp" placeholder="Select G/L Group"
 									valueState="{ui>/glGroupState}"/>
 							</VBox>
+							<VBox class="fcrField fcrFieldGlg" visible="{= !${ui>/isGlMode} }">
+								<Label text="G/L Group" required="false"/>
+								<MultiInput id="nonGlGlGroupInputBudget" value="{path: 'filters>/nonGlGlGroup', formatter: '.formatTokenKeys'}" showValueHelp="true"
+									valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onNonGlGlGroupValueHelp" placeholder="Select G/L Group"
+									valueState="{ui>/nonGlGlGroupState}"/>
+							</VBox>
 							<HBox class="fcrActionsContainer fcrParamActionsModern" alignItems="Center">
 								<Button icon="sap-icon://reset" tooltip="Reset" press=".onReset" class="fcrBtnReset"/>
 								<Button text="Run Report" icon="sap-icon://play" type="Emphasized" press=".onSearch" class="fcrBtnRun"/>
@@ -137,37 +143,27 @@
 			</VBox>
 			<!--// KPIs //-->
 			<VBox>
-				<layout:Grid defaultSpan="XL4 L4 M6 S12" class="bwKpiGrid bwKpiGridSecondary">
+				<layout:Grid defaultSpan="XL6 L6 M6 S12" class="bwKpiGrid bwKpiGridSecondary">
 					<!-- KPI 6 -->
-					<HBox class="bwModernCard bwCardBgAmber" alignItems="Center">
+					<!--<HBox class="bwModernCard bwCardBgAmber" alignItems="Center">-->
+					<!--	<VBox class="bwModernIconWrap bwIconBgAmber">-->
+					<!--		<core:Icon src="sap-icon://group" class="bwModernIcon bwIconAmber"/>-->
+					<!--	</VBox>-->
+					<!--	<VBox class="bwModernDataWrap">-->
+					<!--		<Text text="{= ${ui>/isGlMode} ? 'Highest Total Budget Cost Centre Group' : 'Highest Total Budget GL Group' }"-->
+					<!--			tooltip="{= ${ui>/isGlMode} ? 'Highest Total Budget Cost Centre Group' : 'Highest Total Budget GL Group' }" class="bwKpiLeadText"-->
+					<!--			wrapping="true"/>-->
+					<!--		<Text text="{ui>/kpi6Subtext}" tooltip="{ui>/kpi6Subtext}" class="fcrModernValue fcrTextBlue fcrGlNameText"/>-->
+					<!--		<HBox alignItems="Baseline" class="fcrModernValueLine">-->
+					<!--			<Text text="{ui>/kpi6Value}" class="bwKpiLeadAmount bwTextGreen"/>-->
+					<!--			<Text text=" Lakhs INR" class="bwKpiLeadUnit"/>-->
+					<!--		</HBox>-->
+					<!--	</VBox>-->
+					<!--</HBox>-->
+					<!-- KPI 7 -->
+					<HBox width="100%" class="bwModernCard bwCardBgAmber" alignItems="Center">
 						<VBox class="bwModernIconWrap bwIconBgAmber">
 							<core:Icon src="sap-icon://group" class="bwModernIcon bwIconAmber"/>
-						</VBox>
-						<!--<VBox class="bwModernDataWrap">-->
-						<!--	<Text text="{= ${ui>/isGlMode} ? 'Highest Total Budget Cost Centre Group' : 'Highest Total Budget GL Group' }"-->
-						<!--		tooltip="{= ${ui>/isGlMode} ? 'Highest Total Budget Cost Centre Group' : 'Highest Total Budget GL Group' }"-->
-						<!--		class="bwKpiLeadText" wrapping="true"/>-->
-						<!--	<HBox alignItems="Baseline" class="bwModernValueLine">-->
-						<!--		<Text text="{ui>/kpi6Value}" class="bwKpiLeadAmount bwTextGreen"/>-->
-						<!--		<Text text="Lakhs INR" class="bwKpiLeadUnit"/>-->
-						<!--	</HBox>-->
-						<!--	<Text text="{ui>/kpi6Subtext}" class="bwModernSubTextTitle bwSubTextAmber sapUiTinyMarginTop" wrapping="true"/>-->
-						<!--</VBox>-->
-						<VBox class="bwModernDataWrap">
-							<Text text="{= ${ui>/isGlMode} ? 'Highest Total Budget Cost Centre Group' : 'Highest Total Budget GL Group' }"
-								tooltip="{= ${ui>/isGlMode} ? 'Highest Total Budget Cost Centre Group' : 'Highest Total Budget GL Group' }" class="bwKpiLeadText"
-								wrapping="true"/>
-							<Text text="{ui>/kpi6Subtext}" tooltip="{ui>/kpi6Subtext}" class="fcrModernValue fcrTextBlue fcrGlNameText"/>
-							<HBox alignItems="Baseline" class="fcrModernValueLine">
-								<Text text="{ui>/kpi6Value}" class="bwKpiLeadAmount bwTextGreen"/>
-								<Text text=" Lakhs INR" class="bwKpiLeadUnit"/>
-							</HBox>
-						</VBox>
-					</HBox>
-					<!-- KPI 7 -->
-					<HBox class="bwModernCard bwCardBgGreen" alignItems="Center">
-						<VBox class="bwModernIconWrap bwIconBgGreen">
-							<core:Icon src="sap-icon://group" class="bwModernIcon bwIconGreen"/>
 						</VBox>
 						<VBox class="bwModernDataWrap">
 							<Text text="Top 3 Cost Centre Groups by Total Budget" class="bwModernTitle" wrapping="true"/>
@@ -182,7 +178,7 @@
 						</VBox>
 					</HBox>
 					<!-- KPI 8 -->
-					<HBox class="bwModernCard bwCardBgPurple" alignItems="Center">
+					<HBox width="100%" class="bwModernCard bwCardBgPurple" alignItems="Center">
 						<VBox class="bwModernIconWrap bwIconBgPurple">
 							<core:Icon src="sap-icon://list" class="bwModernIcon bwIconPurple"/>
 						</VBox>
@@ -199,7 +195,7 @@
 						</VBox>
 					</HBox>
 				</layout:Grid>
-				<layout:Grid defaultSpan="XL2 L2 M4 S12" class="bwKpiGrid">
+				<layout:Grid defaultSpan="XL6 L6 M6 S12" class="bwKpiGrid">
 					<!-- KPI 1 -->
 					<HBox class="bwModernCard bwCardBgBlue" alignItems="Center">
 						<VBox class="bwModernIconWrap bwIconBgBlue">
@@ -289,10 +285,56 @@
 						<Button icon="sap-icon://excel-attachment" tooltip="Export" class="fcrToolbarExport sapUiTinyMarginBegin" press=".onExport"/>
 					</HBox>
 				</HBox>
-				<HBox alignItems="Center">
-					<Text text="Selected Parameters : " class="fcrSubtitleText"/>
-					<Text text="{ui>/selectedParamsText}" class="fcrSubtitle sapUiTinyMarginBegin"/>
-				</HBox>
+				<!--<HBox alignItems="Center">-->
+				<!--	<Text text="Selected Parameters : " class="fcrSubtitleText"/>-->
+				<!--	<Text text="{ui>/selectedParamsText}" class="fcrSubtitle sapUiTinyMarginBegin"/>-->
+				<!--</HBox>-->
+				<VBox class="fcrBudgetChartSection">
+					<VBox visible="{ui>/isGlMode}">
+						<viz:VizFrame id="budgetGlChart" width="100%" height="350px" vizType="pie" uiConfig="{applicationSet:'fiori'}">
+							<viz:dataset>
+								<viz.data:FlattenedDataset data="{budget>/glChartRows}">
+									<viz.data:dimensions>
+										<viz.data:DimensionDefinition name="Cost Centre" value="{budget>costCentre}"/>
+										<viz.data:DimensionDefinition name="Cost Centre Group" value="{budget>coGroup}"/>
+									</viz.data:dimensions>
+									<viz.data:measures>
+										<viz.data:MeasureDefinition name="Total Budget" value="{budget>yearlyBudget}"/>
+									</viz.data:measures>
+								</viz.data:FlattenedDataset>
+							</viz:dataset>
+							<viz:feeds>
+								<viz.feeds:FeedItem uid="size" type="Measure" values="Total Budget"/>
+								<viz.feeds:FeedItem uid="color" type="Dimension" values="Cost Centre,Cost Centre Group"/>
+							</viz:feeds>
+							<viz:dependents>
+								<viz:Popover id="budgetGlPopover"/>
+							</viz:dependents>
+						</viz:VizFrame>
+					</VBox>
+					<VBox visible="{ui>/isNonGlMode}">
+						<viz:VizFrame id="budgetNonGlChart" width="100%" height="350px" vizType="pie" uiConfig="{applicationSet:'fiori'}">
+							<viz:dataset>
+								<viz.data:FlattenedDataset data="{budget>/nonGlChartRows}">
+									<viz.data:dimensions>
+										<viz.data:DimensionDefinition name="G/L Account" value="{budget>glAccount}"/>
+										<viz.data:DimensionDefinition name="G/L Group" value="{budget>glGroup}"/>
+									</viz.data:dimensions>
+									<viz.data:measures>
+										<viz.data:MeasureDefinition name="Actual Yearly Budget" value="{budget>yearlyBudget}"/>
+									</viz.data:measures>
+								</viz.data:FlattenedDataset>
+							</viz:dataset>
+							<viz:feeds>
+								<viz.feeds:FeedItem uid="size" type="Measure" values="Actual Yearly Budget"/>
+								<viz.feeds:FeedItem uid="color" type="Dimension" values="G/L Account,G/L Group"/>
+							</viz:feeds>
+							<viz:dependents>
+								<viz:Popover id="budgetNonGlPopover"/>
+							</viz:dependents>
+						</viz:VizFrame>
+					</VBox>
+				</VBox>
 			</VBox>
 			<!--// GL Wise //-->
 			<VBox class="fcrContentSection">
@@ -362,7 +404,7 @@
 							</layout:Grid>
 						</content>
 					</Panel>
-					<Panel headerText="" expandable="false" expanded="true" class="fcrOutPanel" visible="true">
+					<Panel headerText="" expandable="false" expanded="true" class="fcrOutPanel" visible="{ui>/isGlMode}">
 						<content>
 							<suite:ChartContainer id="budgetGlChartContainer" showFullScreen="true" showPersonalization="false" autoAdjustHeight="false"
 								showLegendButton="false" title="Cost Centre Wise Details Budget View (Amounts in ₹ Lakhs)" class="fcrChartContainer">
@@ -445,52 +487,6 @@
 											</table:Table>
 										</suite:content>
 									</suite:ChartContainerContent>
-									<suite:ChartContainerContent icon="sap-icon://bar-chart" title="Chart View">
-										<suite:content>
-											<!--<viz:VizFrame id="budgetGlChart" width="100%" height="380px" vizType="column" uiConfig="{applicationSet:'fiori'}">-->
-											<!--	<viz:dataset>-->
-											<!--		<viz.data:FlattenedDataset data="{budget>/glChartRows}">-->
-											<!--			<viz.data:dimensions>-->
-											<!--				<viz.data:DimensionDefinition name="G/L Group" value="{budget>name}"/>-->
-											<!--				<viz.data:DimensionDefinition name="GL Account" value="{budget>glAccount}"/>-->
-											<!--				<viz.data:DimensionDefinition name="GL Group" value="{budget>glGroup}"/>-->
-											<!--			</viz.data:dimensions>-->
-											<!--			<viz.data:measures>-->
-											<!--				<viz.data:MeasureDefinition name="Last Year Actual" value="{budget>lastYearActual}"/>-->
-											<!--				<viz.data:MeasureDefinition name="Current Year Budget" value="{budget>currentYearBudget}"/>-->
-											<!--			</viz.data:measures>-->
-											<!--		</viz.data:FlattenedDataset>-->
-											<!--	</viz:dataset>-->
-											<!--	<viz:feeds>-->
-											<!--		<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Last Year Actual,Current Year Budget"/>-->
-											<!--		<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="GL Account,GL Group"/>-->
-											<!--	</viz:feeds>-->
-											<!--	<viz:dependents>-->
-											<!--		<viz:Popover id="budgetGlPopover"/>-->
-											<!--	</viz:dependents>-->
-											<!--</viz:VizFrame>-->
-											<viz:VizFrame id="budgetGlChart" width="100%" height="380px" vizType="pie" uiConfig="{applicationSet:'fiori'}">
-												<viz:dataset>
-													<viz.data:FlattenedDataset data="{budget>/glChartRows}">
-														<viz.data:dimensions>
-															<viz.data:DimensionDefinition name="Cost Centre" value="{budget>costCentre}"/>
-															<viz.data:DimensionDefinition name="Cost Centre Group" value="{budget>coGroup}"/>
-														</viz.data:dimensions>
-														<viz.data:measures>
-															<viz.data:MeasureDefinition name="Total Budget" value="{budget>yearlyBudget}"/>
-														</viz.data:measures>
-													</viz.data:FlattenedDataset>
-												</viz:dataset>
-												<viz:feeds>
-													<viz.feeds:FeedItem uid="size" type="Measure" values="Total Budget"/>
-													<viz.feeds:FeedItem uid="color" type="Dimension" values="Cost Centre,Cost Centre Group"/>
-												</viz:feeds>
-												<viz:dependents>
-													<viz:Popover id="budgetGlPopover"/>
-												</viz:dependents>
-											</viz:VizFrame>
-										</suite:content>
-									</suite:ChartContainerContent>
 								</suite:content>
 							</suite:ChartContainer>
 						</content>
@@ -562,7 +558,7 @@
 							</layout:Grid>
 						</content>
 					</Panel>
-					<Panel headerText="" expandable="false" expanded="true" class="fcrOutPanel" visible="true">
+					<Panel headerText="" expandable="false" expanded="true" class="fcrOutPanel" visible="{= !${ui>/isGlMode} }">
 						<content>
 							<suite:ChartContainer id="budgetNonGlChartContainer" showFullScreen="true" showPersonalization="false" autoAdjustHeight="false"
 								showLegendButton="false" title="G/L Wise Details Budget View (Amounts in ₹ Lakhs)" class="fcrChartContainer">
@@ -635,53 +631,6 @@
 													<!--</table:Column>-->
 												</table:columns>
 											</table:Table>
-										</suite:content>
-									</suite:ChartContainerContent>
-									<suite:ChartContainerContent icon="sap-icon://bar-chart" title="Chart View">
-										<suite:content>
-											<!--<viz:VizFrame id="budgetNonGlChart" width="100%" height="380px" vizType="column" uiConfig="{applicationSet:'fiori'}">-->
-											<!--	<viz:dataset>-->
-											<!--		<viz.data:FlattenedDataset data="{budget>/nonGlChartRows}">-->
-											<!--			<viz.data:dimensions>-->
-											<!--				<viz.data:DimensionDefinition name="Cost Centre Description" value="{budget>name}"/>-->
-											<!--				<viz.data:DimensionDefinition name="Cost Centre" value="{budget>costCentre}"/>-->
-											<!--				<viz.data:DimensionDefinition name="Cost Centre Description" value="{budget>costCentreDesc}"/>-->
-											<!--			</viz.data:dimensions>-->
-											<!--			<viz.data:measures>-->
-											<!--				<viz.data:MeasureDefinition name="Last Year Actual" value="{budget>lastYearActual}"/>-->
-											<!--				<viz.data:MeasureDefinition name="Current Year Budget" value="{budget>currentYearBudget}"/>-->
-											<!--			</viz.data:measures>-->
-											<!--		</viz.data:FlattenedDataset>-->
-											<!--	</viz:dataset>-->
-											<!--	<viz:feeds>-->
-											<!--		<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Last Year Actual,Current Year Budget"/>-->
-											<!--		<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Cost Centre,Cost Centre Description"/>-->
-											<!--	</viz:feeds>-->
-											<!--	<viz:dependents>-->
-											<!--		<viz:Popover id="budgetNonGlPopover"/>-->
-											<!--	</viz:dependents>-->
-											<!--</viz:VizFrame>-->
-											<viz:VizFrame id="budgetNonGlChart" width="100%" height="380px" vizType="pie" uiConfig="{applicationSet:'fiori'}"
-												vizProperties="{ legend: { visible: true }, legendGroup: { layout: { position: 'right' } } }">
-												<viz:dataset>
-													<viz.data:FlattenedDataset data="{budget>/nonGlChartRows}">
-														<viz.data:dimensions>
-															<viz.data:DimensionDefinition name="G/L Account" value="{budget>glAccount}"/>
-															<viz.data:DimensionDefinition name="G/L Group" value="{budget>glGroup}"/>
-														</viz.data:dimensions>
-														<viz.data:measures>
-															<viz.data:MeasureDefinition name="Total Budget" value="{budget>yearlyBudget}"/>
-														</viz.data:measures>
-													</viz.data:FlattenedDataset>
-												</viz:dataset>
-												<viz:feeds>
-													<viz.feeds:FeedItem uid="size" type="Measure" values="Total Budget"/>
-													<viz.feeds:FeedItem uid="color" type="Dimension" values="G/L Account,G/L Group"/>
-												</viz:feeds>
-												<viz:dependents>
-													<viz:Popover id="budgetNonGlPopover"/>
-												</viz:dependents>
-											</viz:VizFrame>
 										</suite:content>
 									</suite:ChartContainerContent>
 								</suite:content>
