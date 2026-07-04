@@ -709,7 +709,10 @@ sap.ui.define([
 						aCommonFilters.push("(" + aQuarterOrs.join(" or ") + ")");
 					}
 
-					var sSelectParams =
+					var sSelectCostCentreParams =
+						"Bukrs,Gjahr,Monat,Kostl,Co_grp,Ltext,Owner,Saknr,Gl_grp,YrValue,YrActual,Util_basis,Total_spent,Utilisation,Status";
+					
+					var sSelectGLParams =
 						"Bukrs,Gjahr,Monat,Kostl,Co_grp,Owner,Saknr,Gl_grp,YrValue,YrActual,Util_basis,Total_spent,Utilisation,Status";
 
 					var aGlFilters = aCommonFilters.slice();
@@ -753,8 +756,8 @@ sap.ui.define([
 					}
 
 					return Promise.all([
-						that._readBudgetOData("/CCR_COGLSet", aGlFilters.join(" and "), sSelectParams),
-						that._readBudgetOData("/CCR_COGLSet", aCostFilters.join(" and "), sSelectParams)
+						that._readBudgetOData("/CCR_COcenterwiseSet", aGlFilters.join(" and "), sSelectCostCentreParams),
+						that._readBudgetOData("/CCR_GLgroupwiseSet", aCostFilters.join(" and "), sSelectGLParams)
 					]).then(function(aResults) {
 						var aRawGlData = aResults[0] || [];
 						var aRawNonGlData = aResults[1] || [];

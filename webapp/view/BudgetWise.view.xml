@@ -48,7 +48,7 @@
 							<!--		valueState="{ui>/periodState}"/>-->
 							<!--</VBox>-->
 							<VBox class="fcrField fcrFieldQtr">
-								<Label text="Period" required="false"/>
+								<Label text="Upto Period" required="false"/>
 								<MultiInput id="periodInputBudget" value="{path: 'filters>/period', formatter: '.formatTokenKeys'}" showValueHelp="true"
 									valueHelpOnly="true" tokenUpdate=".onBudgetTokenUpdate" valueHelpRequest=".onBudgetPeriodValueHelp" placeholder="Select Period(s)"
 									enabled="{ui>/periodEnabled}" tooltip="Choose either Period or Quarter. Do not use both together." valueState="{ui>/periodState}"/>
@@ -418,14 +418,15 @@
 														<table:label><Label text="Cost Center"/></table:label>
 														<table:template><Text text="{budget>costCenter}"/></table:template>
 													</table:Column>
-													<!--<table:Column width="12rem" sortProperty="costCenterDesc" filterProperty="costCenterDesc">-->
-													<!--	<table:label><Label text="Cost Center Description"/></table:label>-->
-													<!--	<table:template><Text text="{budget>costCenterDesc}"/></table:template>-->
+													<!--<table:Column width="12rem" sortProperty="coGroup" filterProperty="coGroup">-->
+													<!--	<table:label><Label text="Cost Centre Group"/></table:label>-->
+													<!--	<table:template><Text text="{budget>coGroup}"/></table:template>-->
 													<!--</table:Column>-->
-													<table:Column width="12rem" sortProperty="coGroup" filterProperty="coGroup">
-														<table:label><Label text="Cost Centre Group"/></table:label>
-														<table:template><Text text="{budget>coGroup}"/></table:template>
+													<table:Column width="12rem" sortProperty="costCenterDesc" filterProperty="costCenterDesc">
+														<table:label><Label text="Cost Center Name"/></table:label>
+														<table:template><Text text="{budget>costCenterDesc}"/></table:template>
 													</table:Column>
+													
 													<!--<table:Column width="12rem" sortProperty="gl" filterProperty="gl">-->
 													<!--	<table:label><Label text="G/L Account"/></table:label>-->
 													<!--	<table:template><Text text="{budget>gl}"/></table:template>-->
@@ -584,10 +585,10 @@
 													<!--	<table:label><Label text="G/L Account"/></table:label>-->
 													<!--	<table:template><Text text="{budget>gl}"/></table:template>-->
 													<!--</table:Column>-->
-													<table:Column width="12rem" sortProperty="gl" filterProperty="gl">
-														<table:label><Label text="G/L Account"/></table:label>
-														<table:template><Text text="{budget>gl}"/></table:template>
-													</table:Column>
+													<!--<table:Column width="12rem" sortProperty="gl" filterProperty="gl">-->
+													<!--	<table:label><Label text="G/L Account"/></table:label>-->
+													<!--	<table:template><Text text="{budget>gl}"/></table:template>-->
+													<!--</table:Column>-->
 													<table:Column width="12rem" sortProperty="glGroup" filterProperty="glGroup">
 														<table:label><Label text="G/L Group"/></table:label>
 														<table:template><Text text="{budget>glGroup}"/></table:template>

@@ -505,7 +505,7 @@
 }
 
 .fcrParamRowTop {
-    flex-wrap: nowrap !important;
+    /*flex-wrap: nowrap !important;*/
     align-items: flex-end;
 }
 
