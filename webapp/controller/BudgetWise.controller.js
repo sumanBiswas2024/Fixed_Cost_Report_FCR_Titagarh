@@ -151,107 +151,57 @@ sap.ui.define([
 			sap.ui.core.BusyIndicator.hide();
 
 			if (!this._bIsInitiallyLoaded) {
-				// ========================================================
-				// CRITICAL FIX: INSTANT LOCK (The Race Condition Fix)
-				// Setting this immediately prevents UI5 double-firing events 
-				// from causing the dialog to close, gap, and reopen!
-				// ========================================================
 				this._bIsInitiallyLoaded = true;
-
 				var oNav = oShared && oShared.getProperty("/budgetNavigation");
+				var aPeriods = this._mValueHelpData ? this._mValueHelpData.period : this._createBudgetPeriods();
+				var aInitialPeriod = [];
 
-				// 1. Show Loading Dialog for F4 Parameters
-				var oBusyDialog = this._getBusyDialog();
-				if (oBusyDialog.setText) {
-					oBusyDialog.setText("Loading Parameters...");
+				if (oNav && oNav.fromPeriod) {
+					var sNavPeriod = oNav.fromPeriod;
+					if (Array.isArray(sNavPeriod)) sNavPeriod = sNavPeriod[0].key || sNavPeriod[0];
+					else if (typeof sNavPeriod === "object") sNavPeriod = sNavPeriod.key;
+
+					var oMatched = aPeriods.filter(function(p) {
+						return p.key === sNavPeriod;
+					})[0];
+					aInitialPeriod = [{
+						key: sNavPeriod,
+						text: oMatched ? oMatched.text : sNavPeriod
+					}];
+				} else {
+					var sFallback = typeof this._getCurrentFinancialPeriod === "function" ? this._getCurrentFinancialPeriod() : "03";
+					if (Array.isArray(sFallback)) sFallback = sFallback[0].key || sFallback[0];
+					else if (typeof sFallback === "object") sFallback = sFallback.key;
+
+					var oMatched2 = aPeriods.filter(function(p) {
+						return p.key === sFallback;
+					})[0];
+					aInitialPeriod = [{
+						key: sFallback,
+						text: oMatched2 ? oMatched2.text : String(sFallback)
+					}];
 				}
-				oBusyDialog.open();
 
-				// 2. Fetch ONLY the F4 Dropdown lookups from the Backend
-				this._initBudgetOData().then(function() {
+				oFiltersModel.setProperty("/companyCode", (oNav && oNav.companyCode) ? oNav.companyCode : "1100");
+				oFiltersModel.setProperty("/fiscalYear", (oNav && oNav.fiscalYear) ? oNav.fiscalYear : String(new Date().getFullYear()));
+				oFiltersModel.setProperty("/period", aInitialPeriod);
+				oFiltersModel.setProperty("/quarters", []);
+				oFiltersModel.setProperty("/budgetCategory", "");
+				oFiltersModel.setProperty("/status", "");
+				oFiltersModel.setProperty("/glGroup", []);
+				oFiltersModel.setProperty("/glAccount", []);
+				oFiltersModel.setProperty("/costCenterGroup", []);
+				oFiltersModel.setProperty("/costCenter", []);
 
-					// ========================================================
-					// 3. Safe Period Extraction
-					// ========================================================
-					var aInitialPeriod = [];
-					var aPeriods = this._mValueHelpData ? this._mValueHelpData.period : this._createBudgetPeriods();
+				if (oShared) {
+					oShared.setProperty("/budgetNavigation", null);
+				}
 
-					if (oNav && oNav.fromPeriod) {
-						var sNavPeriod = oNav.fromPeriod;
-						if (Array.isArray(sNavPeriod)) sNavPeriod = sNavPeriod[0].key || sNavPeriod[0];
-						else if (typeof sNavPeriod === "object") sNavPeriod = sNavPeriod.key;
-
-						var oMatched = aPeriods.filter(function(p) {
-							return p.key === sNavPeriod;
-						})[0];
-						aInitialPeriod = [{
-							key: sNavPeriod,
-							text: oMatched ? oMatched.text : sNavPeriod
-						}];
-					} else {
-						// Fallback Extraction (For Browser Refresh)
-						var sFallback = typeof this._getCurrentFinancialPeriod === "function" ? this._getCurrentFinancialPeriod() : "03";
-						if (Array.isArray(sFallback)) sFallback = sFallback[0].key || sFallback[0];
-						else if (typeof sFallback === "object") sFallback = sFallback.key;
-
-						var oMatched2 = aPeriods.filter(function(p) {
-							return p.key === sFallback;
-						})[0];
-						aInitialPeriod = [{
-							key: sFallback,
-							text: oMatched2 ? oMatched2.text : String(sFallback)
-						}];
-					}
-
-					// ========================================================
-					// 4. ONLY Take Company Code, Fiscal Year, and Period
-					// ========================================================
-					oFiltersModel.setProperty("/companyCode", (oNav && oNav.companyCode) ? oNav.companyCode : "1100");
-					oFiltersModel.setProperty("/fiscalYear", (oNav && oNav.fiscalYear) ? oNav.fiscalYear : String(new Date().getFullYear()));
-					oFiltersModel.setProperty("/period", aInitialPeriod);
-
-					// Force clear everything else
-					oFiltersModel.setProperty("/quarters", []);
-					oFiltersModel.setProperty("/budgetCategory", "");
-					oFiltersModel.setProperty("/status", "");
-					oFiltersModel.setProperty("/glGroup", []);
-					oFiltersModel.setProperty("/glAccount", []);
-					oFiltersModel.setProperty("/costCenterGroup", []);
-					oFiltersModel.setProperty("/costCenter", []);
-
-					// Clear navigation flag
-					if (oShared) {
-						oShared.setProperty("/budgetNavigation", null);
-					}
-
-					// Sync UI and Subtitles
-					this._syncModeState(oUi.getProperty("/reportType") || "GL");
-
-					if (typeof this._syncPeriodSelectorState === "function") {
-						this._syncPeriodSelectorState();
-					}
-
-					this._updateSelectedParametersText();
-
-					// ========================================================
-					// 5. Auto-fetch on ANY fresh load (Nav OR Refresh)
-					// ========================================================
-
-					// Reset our Dual-Fetch lock so it is ready for the initial load
-					this._bInitialDualFetchDone = false;
-
-					// Call the fetch immediately. Because we didn't close the 
-					// oBusyDialog, the screen stays perfectly locked without a gap.
-					if (typeof this._fetchBudgetData === "function") {
-						this._fetchBudgetData();
-					}
-
-				}.bind(this)).catch(function(oErr) {
-					// Safety Check: If backend fails, unlock it so the user can try again
-					this._bIsInitiallyLoaded = false;
-					oBusyDialog.close();
-					sap.m.MessageBox.error("Failed to load dropdown parameters.");
-				}.bind(this));
+				this._syncModeState(oUi.getProperty("/reportType") || "GL");
+				if (typeof this._syncPeriodSelectorState === "function") {
+					this._syncPeriodSelectorState();
+				}
+				this._updateSelectedParametersText();
 
 			} else {
 				// Navigating Back from a 3rd screen: Just sync UI, don't reload
@@ -823,31 +773,64 @@ sap.ui.define([
 						aMonthCostFilters.push(aMonthNonGlGrpOrs.length === 1 ? aMonthNonGlGrpOrs[0] : "(" + aMonthNonGlGrpOrs.join(" or ") + ")");
 					}
 
-					return Promise.all([
-						that._readBudgetOData("/CCR_COcenterwiseSet", aGlFilters.join(" and "), sSelectCostCentreParams),
-						that._readBudgetOData("/CCR_GLgroupwiseSet", aCostFilters.join(" and "), sSelectGLParams),
-						that._readBudgetOData("/CostCenterMonthWiseSet", aMonthGlFilters.join(" and "), sSelectMonthParams),
-						that._readBudgetOData("/CostCenterMonthWiseSet", aMonthCostFilters.join(" and "), sSelectMonthParams)
-					]).then(function(aResults) {
-						var aRawGlData = aResults[0] || [];
-						var aRawNonGlData = aResults[1] || [];
-						var aRawMonthGlData = aResults[2] || [];
-						var aRawMonthNonGlData = aResults[3] || [];
-						var aMappedGlRows = aRawGlData.map(that._mapGlRow.bind(that)).filter(Boolean);
-						var aMappedNonGlRows = aRawNonGlData.map(that._mapNonGlRow.bind(that)).filter(Boolean);
+					var aRequests = bGlMode ? [
+						{
+							name: "CCR_COcenterwiseSet",
+							promise: that._readBudgetOData("/CCR_COcenterwiseSet", aGlFilters.join(" and "), sSelectCostCentreParams)
+						},
+						{
+							name: "CostCenterMonthWiseSet",
+							promise: that._readBudgetOData("/CostCenterMonthWiseSet", aMonthGlFilters.join(" and "), sSelectMonthParams)
+						}
+					] : [
+						{
+							name: "CCR_GLgroupwiseSet",
+							promise: that._readBudgetOData("/CCR_GLgroupwiseSet", aCostFilters.join(" and "), sSelectGLParams)
+						},
+						{
+							name: "CostCenterMonthWiseSet",
+							promise: that._readBudgetOData("/CostCenterMonthWiseSet", aMonthCostFilters.join(" and "), sSelectMonthParams)
+						}
+					];
 
-						oBudget.setProperty("/glRows", aMappedGlRows);
-						oBudget.setProperty("/glChartRows", that._createBudgetChartRows(aMappedGlRows, "GL"));
-						oBudget.setProperty("/nonGlRows", aMappedNonGlRows);
-						oBudget.setProperty("/nonGlChartRows", that._createBudgetChartRows(aMappedNonGlRows, "NONGL"));
-						oBudget.setProperty("/monthTrendDataGl", that._buildMonthlyTrendData(aRawMonthGlData, "GL"));
-						oBudget.setProperty("/monthTrendDataNonGl", that._buildMonthlyTrendData(aRawMonthNonGlData, "NONGL"));
-						oBudget.setProperty("/monthTrendData", that._buildMonthlyTrendData(bGlMode ? aRawMonthGlData : aRawMonthNonGlData, bGlMode ? "GL" : "NONGL"));
+					return Promise.allSettled(aRequests.map(function(oReq) {
+						return oReq.promise;
+					})).then(function(aResults) {
+						var aFailures = aResults.map(function(oResult, iIndex) {
+							if (oResult.status === "fulfilled") {
+								return null;
+							}
+							return {
+								name: aRequests[iIndex].name,
+								message: (oResult.reason && oResult.reason.message) ? oResult.reason.message : String(oResult.reason || "Unknown error")
+							};
+						}).filter(Boolean);
 
-						return bGlMode ? (aMappedGlRows.length === 0) : (aMappedNonGlRows.length === 0);
+						var aActiveData = aResults[0] && aResults[0].status === "fulfilled" ? (aResults[0].value || []) : [];
+						var aActiveMonthData = aResults[1] && aResults[1].status === "fulfilled" ? (aResults[1].value || []) : [];
+						var aMappedActiveRows = bGlMode ? aActiveData.map(that._mapGlRow.bind(that)).filter(Boolean) : aActiveData.map(that._mapNonGlRow.bind(that)).filter(Boolean);
+
+						if (bGlMode) {
+							oBudget.setProperty("/glRows", aMappedActiveRows);
+							oBudget.setProperty("/glChartRows", that._createBudgetChartRows(aMappedActiveRows, "GL"));
+							oBudget.setProperty("/monthTrendDataGl", that._buildMonthlyTrendData(aActiveMonthData));
+							oBudget.setProperty("/monthTrendData", that._buildMonthlyTrendData(aActiveMonthData));
+						} else {
+							oBudget.setProperty("/nonGlRows", aMappedActiveRows);
+							oBudget.setProperty("/nonGlChartRows", that._createBudgetChartRows(aMappedActiveRows, "NONGL"));
+							oBudget.setProperty("/monthTrendDataNonGl", that._buildMonthlyTrendData(aActiveMonthData));
+							oBudget.setProperty("/monthTrendData", that._buildMonthlyTrendData(aActiveMonthData));
+						}
+
+						return {
+							bActiveEmpty: aMappedActiveRows.length === 0,
+							aFailures: aFailures
+						};
 					});
 
-				}).then(function(bActiveEmpty) {
+				}).then(function(oResult) {
+					var bActiveEmpty = oResult && oResult.bActiveEmpty;
+					var aFailures = oResult && oResult.aFailures ? oResult.aFailures : [];
 					// =========================================================
 					// MODERN CUSTOM "NO DATA" DIALOG
 					// =========================================================
@@ -894,6 +877,14 @@ sap.ui.define([
 						that.getView().addDependent(that._oNoDataDialog);
 						that._oNoDataDialog.open();
 					}
+
+					// if (aFailures.length) {
+					// 	sap.m.MessageBox.error("One or more backend calls failed, but the remaining data was loaded.", {
+					// 		details: aFailures.map(function(oFail) {
+					// 			return oFail.name + ": " + oFail.message;
+					// 		}).join("\n")
+					// 	});
+					// }
 
 					// Update UI Elements
 					that._applySearch(oUi.getProperty("/globalSearch") || "");
@@ -1985,46 +1976,22 @@ sap.ui.define([
 		},
 
 		onGlGroupValueHelp: function() {
-			this._getBusyDialog().open();
-			this._initBudgetOData().then(function() {
-				this._getBusyDialog().close();
-				this._openBudgetMultiSelectValueHelp("G/L Group", "glGroups", "glGroup");
-			}.bind(this));
+			this._openBudgetLookupValueHelp("G/L Group", "glGroups", "glGroup");
 		},
 		onNonGlGlGroupValueHelp: function() {
-			this._getBusyDialog().open();
-			this._initBudgetOData().then(function() {
-				this._getBusyDialog().close();
-				this._openBudgetMultiSelectValueHelp("G/L Group", "glGroups", "nonGlGlGroup");
-			}.bind(this));
+			this._openBudgetLookupValueHelp("G/L Group", "glGroups", "nonGlGlGroup");
 		},
 		onGlAccountValueHelp: function() {
-			this._getBusyDialog().open();
-			this._initBudgetOData().then(function() {
-				this._getBusyDialog().close();
-				this._openBudgetMultiSelectValueHelp("G/L Account", "glAccounts", "glAccount");
-			}.bind(this));
+			this._openBudgetLookupValueHelp("G/L Account", "glAccounts", "glAccount");
 		},
 		onCostCenterGroupValueHelp: function() {
-			this._getBusyDialog().open();
-			this._initBudgetOData().then(function() {
-				this._getBusyDialog().close();
-				this._openBudgetMultiSelectValueHelp("CO Group", "costCenterGroups", "costCenterGroup");
-			}.bind(this));
+			this._openBudgetLookupValueHelp("CO Group", "costCenterGroups", "costCenterGroup");
 		},
 		onCostCenterOwnerValueHelp: function() {
-			this._getBusyDialog().open();
-			this._initBudgetOData().then(function() {
-				this._getBusyDialog().close();
-				this._openBudgetMultiSelectValueHelp("Cost Centre Owner", "costCenterOwners", "costCenterOwner");
-			}.bind(this));
+			this._openBudgetLookupValueHelp("Cost Centre Owner", "costCenterOwners", "costCenterOwner");
 		},
 		onCostCenterValueHelp: function() {
-			this._getBusyDialog().open();
-			this._initBudgetOData().then(function() {
-				this._getBusyDialog().close();
-				this._openBudgetMultiSelectValueHelp("Cost Center", "costCenters", "costCenter");
-			}.bind(this));
+			this._openBudgetLookupValueHelp("Cost Center", "costCenters", "costCenter");
 		},
 
 		onPeriodValueHelp: function() {
@@ -2124,6 +2091,21 @@ sap.ui.define([
 		// =========================================================
 		// ISOLATED BUDGET MULTI-SELECT (Completely Separate from View1)
 		// =========================================================
+		_openBudgetLookupValueHelp: function(sTitle, sLookupPath, sFilterPath) {
+			var oBusyDialog = this._getBusyDialog();
+			oBusyDialog.open();
+
+			return this._initBudgetOData().then(function() {
+				oBusyDialog.close();
+				this._openBudgetMultiSelectValueHelp(sTitle, sLookupPath, sFilterPath);
+			}.bind(this)).catch(function(oErr) {
+				oBusyDialog.close();
+				sap.m.MessageBox.error("Failed to load F4 values.", {
+					details: (oErr && oErr.message) ? oErr.message : String(oErr || "")
+				});
+			});
+		},
+
 		_openBudgetMultiSelectValueHelp: function(sTitle, sLookupPath, sFilterPath) {
 			var oView = this.getView();
 			var oFiltersModel = oView.getModel("filters");
@@ -2307,22 +2289,38 @@ sap.ui.define([
 				oUi.setProperty("/quarterState", "None");
 			}
 
-			// =======================================================
-			// NEW: Mutually Exclusive Mandatory Fields
-			// =======================================================
-			// if (bGlMode) {
-			// 	var aGlAccount = oFilters.glAccount;
-			// 	if (!aGlAccount || (Array.isArray(aGlAccount) && aGlAccount.length === 0)) {
-			// 		aMissing.push("G/L Account");
-			// 		bOk = false;
-			// 	}
-			// } else {
-			// 	var aCostCenter = oFilters.costCenter;
-			// 	if (!aCostCenter || (Array.isArray(aCostCenter) && aCostCenter.length === 0)) {
-			// 		aMissing.push("Cost Centre");
-			// 		bOk = false;
-			// 	}
-			// }
+			var bHasGlAccount = oFilters.glAccount && oFilters.glAccount.length > 0;
+			var bHasGlGroup = oFilters.glGroup && oFilters.glGroup.length > 0;
+			var bHasCostCenter = oFilters.costCenter && oFilters.costCenter.length > 0;
+			var bHasCostCenterGroup = oFilters.costCenterGroup && oFilters.costCenterGroup.length > 0;
+			var bHasCostCenterOwner = oFilters.costCenterOwner && oFilters.costCenterOwner.length > 0;
+			var bHasNonGlGroup = oFilters.nonGlGlGroup && oFilters.nonGlGlGroup.length > 0;
+
+			if (bGlMode) {
+				if (!bHasGlAccount && !bHasGlGroup) {
+					oUi.setProperty("/glAccountState", "Error");
+					oUi.setProperty("/glGroupState", "Error");
+					aMissing.push("G/L Account OR G/L Group");
+					bOk = false;
+				} else {
+					oUi.setProperty("/glAccountState", "None");
+					oUi.setProperty("/glGroupState", "None");
+				}
+			} else {
+				if (!bHasCostCenter && !bHasCostCenterGroup && !bHasCostCenterOwner && !bHasNonGlGroup) {
+					oUi.setProperty("/costCenterState", "Error");
+					oUi.setProperty("/costCenterGroupState", "Error");
+					oUi.setProperty("/costCenterOwnerState", "Error");
+					oUi.setProperty("/nonGlGlGroupState", "Error");
+					aMissing.push("Cost Center OR Cost Center Group OR Cost Centre Owner OR G/L Group");
+					bOk = false;
+				} else {
+					oUi.setProperty("/costCenterState", "None");
+					oUi.setProperty("/costCenterGroupState", "None");
+					oUi.setProperty("/costCenterOwnerState", "None");
+					oUi.setProperty("/nonGlGlGroupState", "None");
+				}
+			}
 
 			if (!bOk) {
 				sap.m.MessageBox.error("Please provide mandatory parameters:\n\n" + aMissing.join("\n"));
