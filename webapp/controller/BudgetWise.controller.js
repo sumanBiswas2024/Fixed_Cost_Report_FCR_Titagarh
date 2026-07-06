@@ -265,7 +265,7 @@ sap.ui.define([
 			// this._configureBudgetChart("budgetGlChart", "Current Yearly Budget by Cost Center and G/L Group");
 			// this._configureBudgetChart("budgetNonGlChart", "Current Yearly Budget by Cost Center Group");
 
-			this._configureBudgetChart("budgetGlChart", "Total Budget by Cost Centre Group");
+			this._configureBudgetChart("budgetGlChart", "Total Budget by Cost Centre Name");
 			this._configureBudgetChart("budgetNonGlChart", "Total Budget by GL Group");
 			this._configureMonthlyTrendChart();
 
@@ -1406,7 +1406,7 @@ sap.ui.define([
 			oUi.setProperty("/kpi5ValueRaw", fUtilisation);
 			oUi.setProperty("/recordCount", this._oIntegerFormat.format(aRows.length));
 
-			var aCostCentreTop3 = this._buildGroupedTop3(aCostCentreRows, "coGroup", "yearlyBudget");
+			var aCostCentreTop3 = this._buildGroupedTop3(aCostCentreRows, "costCenterDesc", "yearlyBudget");
 			var aGlTop3 = this._buildGroupedTop3(aGlGroupRows, "glGroup", "yearlyBudget");
 
 			oUi.setProperty("/kpi7Bullets", aCostCentreTop3.length ? aCostCentreTop3.map(function(oGroup) {
@@ -2590,7 +2590,7 @@ sap.ui.define([
 			var oGlChart = this.getView().byId("budgetGlChart");
 			var oNonGlChart = this.getView().byId("budgetNonGlChart");
 
-			// 1. Apply styling and title for G/L Chart (Cost Centre focus)
+			// 1. Apply styling and title for G/L Chart (Cost Centre name focus)
 			if (oGlChart) {
 				oGlChart.setVizProperties({
 					legend: {
@@ -2610,7 +2610,7 @@ sap.ui.define([
 					},
 					title: {
 						visible: true,
-						text: "Total Budget by Cost Centre Group"
+						text: "Total Budget by Cost Centre Name"
 					}
 				});
 			}
