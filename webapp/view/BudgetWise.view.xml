@@ -13,7 +13,7 @@
 							</HBox>
 						</VBox>
 					</HBox>
-					<HBox alignItems="Center">
+					<HBox alignItems="Center" visible="false" >
 						<Button text="Fixed Cost Report" icon="sap-icon://display" type="Emphasized" press=".onNavToView1" class="fcrBtnBudget"/>
 					</HBox>
 				</HBox>

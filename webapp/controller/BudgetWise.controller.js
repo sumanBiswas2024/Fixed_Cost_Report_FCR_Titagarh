@@ -2657,7 +2657,7 @@ sap.ui.define([
 				},
 				plotArea: {
 					dataLabel: {
-						visible: false
+						visible: true
 					},
 					lineStyle: {
 						visible: true
