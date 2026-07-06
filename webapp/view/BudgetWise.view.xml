@@ -418,10 +418,10 @@
 														<table:label><Label text="Cost Center"/></table:label>
 														<table:template><Text text="{budget>costCenter}"/></table:template>
 													</table:Column>
-													<!--<table:Column width="12rem" sortProperty="coGroup" filterProperty="coGroup">-->
-													<!--	<table:label><Label text="Cost Centre Group"/></table:label>-->
-													<!--	<table:template><Text text="{budget>coGroup}"/></table:template>-->
-													<!--</table:Column>-->
+													<table:Column width="12rem" sortProperty="coGroup" filterProperty="coGroup">
+														<table:label><Label text="Cost Centre Group"/></table:label>
+														<table:template><Text text="{budget>coGroup}"/></table:template>
+													</table:Column>
 													<table:Column width="12rem" sortProperty="costCenterDesc" filterProperty="costCenterDesc">
 														<table:label><Label text="Cost Center Name"/></table:label>
 														<table:template><Text text="{budget>costCenterDesc}"/></table:template>
