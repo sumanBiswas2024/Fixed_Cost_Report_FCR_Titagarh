@@ -13,7 +13,7 @@
 							</HBox>
 						</VBox>
 					</HBox>
-					<HBox alignItems="Center" visible="false" >
+					<HBox alignItems="Center" visible="false">
 						<Button text="Fixed Cost Report" icon="sap-icon://display" type="Emphasized" press=".onNavToView1" class="fcrBtnBudget"/>
 					</HBox>
 				</HBox>
@@ -281,7 +281,7 @@
 						</VBox>
 					</HBox>
 					<HBox alignItems="End">
-						<SearchField width="18rem" placeholder="Search..." liveChange=".onUniversalSearch" class="fcrToolbarSearch"/>
+						<!--<SearchField width="18rem" placeholder="Search..." liveChange=".onUniversalSearch" class="fcrToolbarSearch"/>-->
 						<Button icon="sap-icon://excel-attachment" tooltip="Export" class="fcrToolbarExport sapUiTinyMarginBegin" press=".onExport"/>
 					</HBox>
 				</HBox>
@@ -289,71 +289,88 @@
 				<!--	<Text text="Selected Parameters : " class="fcrSubtitleText"/>-->
 				<!--	<Text text="{ui>/selectedParamsText}" class="fcrSubtitle sapUiTinyMarginBegin"/>-->
 				<!--</HBox>-->
-				<VBox class="fcrBudgetChartSection">
-					<VBox visible="{ui>/isGlMode}">
-						<viz:VizFrame id="budgetGlChart" width="100%" height="350px" vizType="pie" uiConfig="{applicationSet:'fiori'}">
-							<viz:dataset>
-								<viz.data:FlattenedDataset data="{budget>/glChartRows}">
-									<viz.data:dimensions>
-										<viz.data:DimensionDefinition name="Cost Centre Name" value="{budget>costCentreDesc}"/>
-									</viz.data:dimensions>
-									<viz.data:measures>
-										<viz.data:MeasureDefinition name="Total Budget" value="{budget>yearlyBudget}"/>
-									</viz.data:measures>
-								</viz.data:FlattenedDataset>
-							</viz:dataset>
-							<viz:feeds>
-								<viz.feeds:FeedItem uid="size" type="Measure" values="Total Budget"/>
-								<viz.feeds:FeedItem uid="color" type="Dimension" values="Cost Centre Name"/>
-							</viz:feeds>
-							<viz:dependents>
-								<viz:Popover id="budgetGlPopover"/>
-							</viz:dependents>
-						</viz:VizFrame>
+				<layout:Grid defaultSpan="L6 M6 S12" hSpacing="1" vSpacing="1" class="fcrBudgetChartSection">
+					<VBox>
+						<VBox visible="{ui>/isGlMode}">
+							<Panel headerText="Cost Centre Wise Total Budget View (Amounts in ₹ Lakhs)" expandable="false" expanded="true"
+								class="fcrOutPanel sapUiSmallMarginBottom" visible="true">
+								<content>
+									<viz:VizFrame id="budgetGlChart" width="100%" height="350px" vizType="pie" uiConfig="{applicationSet:'fiori'}">
+										<viz:dataset>
+											<viz.data:FlattenedDataset data="{budget>/glChartRows}">
+												<viz.data:dimensions>
+													<viz.data:DimensionDefinition name="Cost Centre Name" value="{budget>costCentreDesc}"/>
+												</viz.data:dimensions>
+												<viz.data:measures>
+													<viz.data:MeasureDefinition name="Total Budget" value="{budget>yearlyBudget}"/>
+												</viz.data:measures>
+											</viz.data:FlattenedDataset>
+										</viz:dataset>
+										<viz:feeds>
+											<viz.feeds:FeedItem uid="size" type="Measure" values="Total Budget"/>
+											<viz.feeds:FeedItem uid="color" type="Dimension" values="Cost Centre Name"/>
+										</viz:feeds>
+										<viz:dependents>
+											<viz:Popover id="budgetGlPopover"/>
+										</viz:dependents>
+									</viz:VizFrame>
+								</content>
+							</Panel>
+						</VBox>
+						<VBox visible="{ui>/isNonGlMode}">
+							<Panel headerText="GL Group Wise Total Budget View (Amounts in ₹ Lakhs)" expandable="false" expanded="true"
+								class="fcrOutPanel sapUiSmallMarginBottom" visible="true">
+								<content>
+									<viz:VizFrame id="budgetNonGlChart" width="100%" height="350px" vizType="pie" uiConfig="{applicationSet:'fiori'}">
+										<viz:dataset>
+											<viz.data:FlattenedDataset data="{budget>/nonGlChartRows}">
+												<viz.data:dimensions>
+													<viz.data:DimensionDefinition name="G/L Group" value="{budget>glGroup}"/>
+												</viz.data:dimensions>
+												<viz.data:measures>
+													<viz.data:MeasureDefinition name="Actual Yearly Budget" value="{budget>yearlyBudget}"/>
+												</viz.data:measures>
+											</viz.data:FlattenedDataset>
+										</viz:dataset>
+										<viz:feeds>
+											<viz.feeds:FeedItem uid="size" type="Measure" values="Actual Yearly Budget"/>
+											<viz.feeds:FeedItem uid="color" type="Dimension" values="G/L Group"/>
+										</viz:feeds>
+										<viz:dependents>
+											<viz:Popover id="budgetNonGlPopover"/>
+										</viz:dependents>
+									</viz:VizFrame>
+								</content>
+							</Panel>
+						</VBox>
 					</VBox>
-					<VBox visible="{ui>/isNonGlMode}">
-						<viz:VizFrame id="budgetNonGlChart" width="100%" height="350px" vizType="pie" uiConfig="{applicationSet:'fiori'}">
-							<viz:dataset>
-								<viz.data:FlattenedDataset data="{budget>/nonGlChartRows}">
-									<viz.data:dimensions>
-										<viz.data:DimensionDefinition name="G/L Group" value="{budget>glGroup}"/>
-									</viz.data:dimensions>
-									<viz.data:measures>
-										<viz.data:MeasureDefinition name="Actual Yearly Budget" value="{budget>yearlyBudget}"/>
-									</viz.data:measures>
-								</viz.data:FlattenedDataset>
-							</viz:dataset>
-							<viz:feeds>
-								<viz.feeds:FeedItem uid="size" type="Measure" values="Actual Yearly Budget"/>
-								<viz.feeds:FeedItem uid="color" type="Dimension" values="G/L Group"/>
-							</viz:feeds>
-							<viz:dependents>
-								<viz:Popover id="budgetNonGlPopover"/>
-							</viz:dependents>
-						</viz:VizFrame>
+					<VBox>
+						<Panel headerText="Monthly Trend (Amounts in ₹ Lakhs)" expandable="false" expanded="true"
+							class="fcrOutPanel sapUiSmallMarginBottom" visible="true">
+							<content>
+								<viz:VizFrame id="budgetMonthlyTrendChart" width="100%" height="350px" vizType="line" uiConfig="{applicationSet:'fiori'}">
+									<viz:dataset>
+										<viz.data:FlattenedDataset data="{budget>/monthTrendData}">
+											<viz.data:dimensions>
+												<viz.data:DimensionDefinition name="Month" value="{budget>monthLabel}"/>
+											</viz.data:dimensions>
+											<viz.data:measures>
+												<viz.data:MeasureDefinition name="Monthly Spend" value="{budget>monthlyValue}"/>
+											</viz.data:measures>
+										</viz.data:FlattenedDataset>
+									</viz:dataset>
+									<viz:feeds>
+										<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Month"/>
+										<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Monthly Spend"/>
+									</viz:feeds>
+									<viz:dependents>
+										<viz:Popover id="budgetMonthlyTrendPopover"/>
+									</viz:dependents>
+								</viz:VizFrame>
+							</content>
+						</Panel>
 					</VBox>
-					<VBox class="sapUiSmallMarginTop">
-						<viz:VizFrame id="budgetMonthlyTrendChart" width="100%" height="250px" vizType="line" uiConfig="{applicationSet:'fiori'}">
-							<viz:dataset>
-								<viz.data:FlattenedDataset data="{budget>/monthTrendData}">
-									<viz.data:dimensions>
-										<viz.data:DimensionDefinition name="Month" value="{budget>monthLabel}"/>
-									</viz.data:dimensions>
-									<viz.data:measures>
-										<viz.data:MeasureDefinition name="Monthly Spend" value="{budget>monthlyValue}"/>
-									</viz.data:measures>
-								</viz.data:FlattenedDataset>
-							</viz:dataset>
-							<viz:feeds>
-								<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Month"/>
-								<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Monthly Spend"/>
-							</viz:feeds>
-							<viz:dependents>
-								<viz:Popover id="budgetMonthlyTrendPopover"/>
-							</viz:dependents>
-						</viz:VizFrame>
-					</VBox>
-				</VBox>
+				</layout:Grid>
 			</VBox>
 			<!--// GL Wise //-->
 			<VBox class="fcrContentSection">
@@ -371,7 +388,7 @@
 													<viz:dataset>
 														<viz.data:FlattenedDataset data="{budget>/top5ColumnData}">
 															<viz.data:dimensions>
-												<viz.data:DimensionDefinition name="Cost Centre Name" value="{budget>costCentreDesc}"/>
+																<viz.data:DimensionDefinition name="Cost Centre Name" value="{budget>costCentreDesc}"/>
 															</viz.data:dimensions>
 															<viz.data:measures>
 																<viz.data:MeasureDefinition name="Current Year Budget" value="{budget>columnValue}"/>
@@ -431,19 +448,18 @@
 											<table:Table id="budgetGlTable" rows="{budget>/glRows}" visibleRowCount="10" fixedColumnCount="0" selectionMode="None"
 												enableColumnReordering="true" enableCellFilter="true" noDataText="Run report to display G/L budget rows" class="fcrUiTable">
 												<table:columns>
-													<table:Column width="12rem" sortProperty="costCenter" filterProperty="costCenter">
+													<table:Column width="10rem" sortProperty="costCenter" filterProperty="costCenter">
 														<table:label><Label text="Cost Center"/></table:label>
 														<table:template><Text text="{budget>costCenter}"/></table:template>
 													</table:Column>
-													<table:Column width="12rem" sortProperty="coGroup" filterProperty="coGroup">
+													<table:Column width="10rem" sortProperty="coGroup" filterProperty="coGroup">
 														<table:label><Label text="Cost Centre Group"/></table:label>
 														<table:template><Text text="{budget>coGroup}"/></table:template>
 													</table:Column>
-													<table:Column width="12rem" sortProperty="costCenterDesc" filterProperty="costCenterDesc">
+													<table:Column width="10rem" sortProperty="costCenterDesc" filterProperty="costCenterDesc">
 														<table:label><Label text="Cost Center Name"/></table:label>
 														<table:template><Text text="{budget>costCenterDesc}"/></table:template>
 													</table:Column>
-													
 													<!--<table:Column width="12rem" sortProperty="gl" filterProperty="gl">-->
 													<!--	<table:label><Label text="G/L Account"/></table:label>-->
 													<!--	<table:template><Text text="{budget>gl}"/></table:template>-->
@@ -468,7 +484,7 @@
 														<table:label><Label text="Released Budget"/></table:label>
 														<table:template><ObjectNumber number="{path: 'budget>actulaYearlyBudgetValue', formatter: '.formatTableAmount'}"/></table:template>
 													</table:Column>
-													<table:Column width="10rem" sortProperty="total_spent" filterProperty="total_spent" hAlign="Begin">
+													<table:Column width="8rem" sortProperty="total_spent" filterProperty="total_spent" hAlign="Begin">
 														<table:label><Label text="Actual"/></table:label>
 														<table:template><ObjectNumber number="{path: 'budget>total_spent', formatter: '.formatTableAmount'}"/></table:template>
 													</table:Column>
