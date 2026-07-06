@@ -1370,6 +1370,7 @@ sap.ui.define([
 		_updateKpisFromActiveMode: function() {
 			var oUi = this.getView().getModel("ui");
 			var oBudget = this.getView().getModel("budget");
+			var oFilters = this.getView().getModel("filters").getData();
 			// NOTE: The backend result arrays are named opposite to the entity focus:
 			// /glRows comes from the cost-centre-wise set, and /nonGlRows comes from the GL-group-wise set.
 			var aCostCentreRows = oBudget.getProperty("/glRows") || [];
@@ -1387,7 +1388,8 @@ sap.ui.define([
 			});
 
 			var fAvailableBudget = fTotalReleasedBudget - fTotalSpent;
-			var fUtilisation = fTotalSpent === 0 ? 0 : (fTotalSpent / fTotalReleasedBudget) * 100;
+			var fUtilBase = oFilters.budgetCategory === "T" ? fTotalBudget : fTotalReleasedBudget;
+			var fUtilisation = fTotalSpent === 0 || fUtilBase === 0 ? 0 : (fTotalSpent / fUtilBase) * 100;
 
 			oUi.setProperty("/kpi1Value", this._formatAmount(fTotalBudget));
 			oUi.setProperty("/kpi2Value", this._formatAmount(fTotalReleasedBudget));
