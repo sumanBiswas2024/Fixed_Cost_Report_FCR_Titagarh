@@ -23,7 +23,7 @@
 						<Title text="Report Parameters" level="H4"/>
 					</HBox>
 					<VBox id="paramGrid" class="fcrParamGrid fcrParamGridModern">
-						<HBox class="fcrParamRow fcrParamRowModern fcrParamRowTop" alignItems="End" justifyContent="Start" wrap="NoWrap">
+						<HBox class="fcrParamRow fcrParamRowModern fcrParamRowTop" alignItems="End" justifyContent="Start" wrap="Wrap">
 							<VBox class="fcrField fcrFieldCc">
 								<Label text="Company Code" required="true"/>
 								<ComboBox id="ccComboBox" selectedKey="{filters>/companyCode}" placeholder="Select Company Code" valueState="{ui>/companyCodeState}"
@@ -97,42 +97,38 @@
 							<!--	<Input value="{filters>/glGroup}" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onGlGroupValueHelp"-->
 							<!--		placeholder="Select G/L Group" valueState="{ui>/glGroupState}"/>-->
 							<!--</VBox>-->
-							<VBox class="fcrField fcrFieldPc" visible="{= !${ui>/isGlMode} }">
-								<Label text="Cost Center" required="false"/>
-								<MultiInput id="costCenterInputBudget" value="{path: 'filters>/costCenter', formatter: '.formatTokenKeys'}" showValueHelp="true"
-									valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onCostCenterValueHelp" placeholder="Select Cost Center"
-									valueState="{ui>/costCenterState}"/>
-							</VBox>
-							<VBox class="fcrField fcrFieldGlg" visible="{ui>/isGlMode}">
+							
+							<VBox class="fcrField fcrFieldGlg">
 								<Label text="G/L Account" required="false"/>
 								<MultiInput id="glAccountInputBudget" value="{path: 'filters>/glAccount', formatter: '.formatTokenKeys'}" showValueHelp="true"
 									valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onGlAccountValueHelp" placeholder="Select G/L Account"
 									valueState="{ui>/glAccountState}"/>
 							</VBox>
-							<VBox class="fcrField fcrFieldPc" visible="{= !${ui>/isGlMode} }">
-								<Label text="Cost Center Group" required="false"/>
-								<MultiInput id="costCenterGrpInputBudget" value="{path: 'filters>/costCenterGroup', formatter: '.formatTokenKeys'}" showValueHelp="true"
-									valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onCostCenterGroupValueHelp" placeholder="Select Cost Center Group"
-									valueState="{ui>/costCenterGroupState}"/>
-							</VBox>
-							<VBox class="fcrField fcrFieldPc" visible="{= !${ui>/isGlMode} }">
-								<Label text="Cost Centre Owner" required="false"/>
-								<MultiInput id="costCenterOwnerInputBudget" value="{path: 'filters>/costCenterOwner', formatter: '.formatTokenKeys'}" showValueHelp="true"
-									valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onCostCenterOwnerValueHelp" placeholder="Select Cost Centre Owner"
-									valueState="{ui>/costCenterOwnerState}"/>
-							</VBox>
-							<VBox class="fcrField fcrFieldGlg" visible="{ui>/isGlMode}">
+							<VBox class="fcrField fcrFieldGlg">
 								<Label text="G/L Group" required="false"/>
 								<MultiInput id="glGroupInputBudget" value="{path: 'filters>/glGroup', formatter: '.formatTokenKeys'}" showValueHelp="true"
 									valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onGlGroupValueHelp" placeholder="Select G/L Group"
 									valueState="{ui>/glGroupState}"/>
 							</VBox>
-							<VBox class="fcrField fcrFieldGlg" visible="{= !${ui>/isGlMode} }">
-								<Label text="G/L Group" required="false"/>
-								<MultiInput id="nonGlGlGroupInputBudget" value="{path: 'filters>/nonGlGlGroup', formatter: '.formatTokenKeys'}" showValueHelp="true"
-									valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onNonGlGlGroupValueHelp" placeholder="Select G/L Group"
-									valueState="{ui>/nonGlGlGroupState}"/>
+							<VBox class="fcrField fcrFieldPc">
+								<Label text="Cost Center" required="false"/>
+								<MultiInput id="costCenterInputBudget" value="{path: 'filters>/costCenter', formatter: '.formatTokenKeys'}" showValueHelp="true"
+									valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onCostCenterValueHelp" placeholder="Select Cost Center"
+									valueState="{ui>/costCenterState}"/>
 							</VBox>
+							<VBox class="fcrField fcrFieldPc">
+								<Label text="Cost Center Group" required="false"/>
+								<MultiInput id="costCenterGrpInputBudget" value="{path: 'filters>/costCenterGroup', formatter: '.formatTokenKeys'}" showValueHelp="true"
+									valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onCostCenterGroupValueHelp" placeholder="Select Cost Center Group"
+									valueState="{ui>/costCenterGroupState}"/>
+							</VBox>
+							<VBox class="fcrField fcrFieldPc">
+								<Label text="Cost Centre Owner" required="false"/>
+								<MultiInput id="costCenterOwnerInputBudget" value="{path: 'filters>/costCenterOwner', formatter: '.formatTokenKeys'}" showValueHelp="true"
+									valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onCostCenterOwnerValueHelp" placeholder="Select Cost Centre Owner"
+									valueState="{ui>/costCenterOwnerState}"/>
+							</VBox>
+							
 							<HBox class="fcrActionsContainer fcrParamActionsModern" alignItems="Center">
 								<Button icon="sap-icon://reset" tooltip="Reset" press=".onReset" class="fcrBtnReset"/>
 								<Button text="Run Report" icon="sap-icon://play" type="Emphasized" press=".onSearch" class="fcrBtnRun"/>

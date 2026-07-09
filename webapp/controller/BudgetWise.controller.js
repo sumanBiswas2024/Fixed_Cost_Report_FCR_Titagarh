@@ -61,8 +61,7 @@ sap.ui.define([
 				// glAccount: "",
 				// costCenterGroup: "",
 				// costCenter: ""
-				glGroup: [], // Changed to Array
-				nonGlGlGroup: [],
+				glGroup: [], // Shared G/L group filter
 				glAccount: [], // Changed to Array
 				costCenterGroup: [], // Changed to Array
 				costCenter: [], // Changed to Array
@@ -105,7 +104,6 @@ sap.ui.define([
 				fiscalYearState: "None",
 				periodState: "None",
 				glGroupState: "None",
-				nonGlGlGroupState: "None",
 				glAccountState: "None",
 				costCenterGroupState: "None",
 				costCenterState: "None",
@@ -139,6 +137,19 @@ sap.ui.define([
 			this._syncModeState("GL");
 			this._syncPeriodSelectorState();
 			this._updateSelectedParametersText();
+			var oStartupBusy = this._getBusyDialog();
+			if (oStartupBusy.setText) {
+				oStartupBusy.setText("Loading metadata and F4 values...");
+			}
+			oStartupBusy.open();
+			this._initBudgetOData().then(function() {
+				oStartupBusy.close();
+			}).catch(function(oErr) {
+				oStartupBusy.close();
+				MessageBox.error("Unable to preload F4 values.", {
+					details: (oErr && oErr.message) ? oErr.message : String(oErr || "")
+				});
+			});
 
 			this.getOwnerComponent().getRouter().getRoute("budgetWise").attachPatternMatched(this._onBudgetRouteMatched, this);
 		},
@@ -610,6 +621,17 @@ sap.ui.define([
 			var oUi = this.getView().getModel("ui");
 			var oBudget = this.getView().getModel("budget");
 			var bGlMode = oUi.getProperty("/isGlMode");
+			var addTokenFilter = function(aTargetFilters, aValues, sField) {
+				if (!aValues || !aValues.length) {
+					return;
+				}
+
+				var aOrs = aValues.map(function(oItem) {
+					return sField + " eq '" + that._odataLiteral(oItem.key) + "'";
+				});
+
+				aTargetFilters.push(aOrs.length === 1 ? aOrs[0] : "(" + aOrs.join(" or ") + ")");
+			};
 
 			var oBusyDialog = this._getBusyDialog();
 			if (oBusyDialog.setText) {
@@ -672,45 +694,12 @@ sap.ui.define([
 					var sSelectMonthParams =
 						"Guid,Bukrs,Gjahr,Monat,Kostl,Co_grp,Saknr,Gl_grp,April,May,June,July,August,September,October,November,December,January,February,March";
 
-					var aGlFilters = aCommonFilters.slice();
-					if (oFilters.glAccount && oFilters.glAccount.length > 0) {
-						var aGlAccOrs = oFilters.glAccount.map(function(oItem) {
-							return "Saknr eq '" + that._odataLiteral(oItem.key) + "'";
-						});
-						aGlFilters.push(aGlAccOrs.length === 1 ? aGlAccOrs[0] : "(" + aGlAccOrs.join(" or ") + ")");
-					}
-					if (oFilters.glGroup && oFilters.glGroup.length > 0) {
-						var aGlGrpOrs = oFilters.glGroup.map(function(oItem) {
-							return "Gl_grp eq '" + that._odataLiteral(oItem.key) + "'";
-						});
-						aGlFilters.push(aGlGrpOrs.length === 1 ? aGlGrpOrs[0] : "(" + aGlGrpOrs.join(" or ") + ")");
-					}
-
-					var aCostFilters = aCommonFilters.slice();
-					if (oFilters.costCenter && oFilters.costCenter.length > 0) {
-						var aCcOrs = oFilters.costCenter.map(function(oItem) {
-							return "Kostl eq '" + that._odataLiteral(oItem.key) + "'";
-						});
-						aCostFilters.push(aCcOrs.length === 1 ? aCcOrs[0] : "(" + aCcOrs.join(" or ") + ")");
-					}
-					if (oFilters.costCenterGroup && oFilters.costCenterGroup.length > 0) {
-						var aCcgOrs = oFilters.costCenterGroup.map(function(oItem) {
-							return "Co_grp eq '" + that._odataLiteral(oItem.key) + "'";
-						});
-						aCostFilters.push(aCcgOrs.length === 1 ? aCcgOrs[0] : "(" + aCcgOrs.join(" or ") + ")");
-					}
-					if (oFilters.costCenterOwner && oFilters.costCenterOwner.length > 0) {
-						var aCcoOrs = oFilters.costCenterOwner.map(function(oItem) {
-							return "Owner eq '" + that._odataLiteral(oItem.key) + "'";
-						});
-						aCostFilters.push(aCcoOrs.length === 1 ? aCcoOrs[0] : "(" + aCcoOrs.join(" or ") + ")");
-					}
-					if (oFilters.nonGlGlGroup && oFilters.nonGlGlGroup.length > 0) {
-						var aNonGlGrpOrs = oFilters.nonGlGlGroup.map(function(oItem) {
-							return "Gl_grp eq '" + that._odataLiteral(oItem.key) + "'";
-						});
-						aCostFilters.push(aNonGlGrpOrs.length === 1 ? aNonGlGrpOrs[0] : "(" + aNonGlGrpOrs.join(" or ") + ")");
-					}
+					var aAllFilters = aCommonFilters.slice();
+					addTokenFilter(aAllFilters, oFilters.glAccount, "Saknr");
+					addTokenFilter(aAllFilters, oFilters.glGroup, "Gl_grp");
+					addTokenFilter(aAllFilters, oFilters.costCenter, "Kostl");
+					addTokenFilter(aAllFilters, oFilters.costCenterGroup, "Co_grp");
+					addTokenFilter(aAllFilters, oFilters.costCenterOwner, "Owner");
 
 					var aMonthCommonFilters = [];
 					if (oFilters.companyCode) {
@@ -739,59 +728,26 @@ sap.ui.define([
 						aMonthCommonFilters.push("(" + aMonthQuarterOrs.join(" or ") + ")");
 					}
 
-					var aMonthGlFilters = aMonthCommonFilters.slice();
-					if (oFilters.glAccount && oFilters.glAccount.length > 0) {
-						var aMonthGlAccOrs = oFilters.glAccount.map(function(oItem) {
-							return "Saknr eq '" + that._odataLiteral(oItem.key) + "'";
-						});
-						aMonthGlFilters.push(aMonthGlAccOrs.length === 1 ? aMonthGlAccOrs[0] : "(" + aMonthGlAccOrs.join(" or ") + ")");
-					}
-					if (oFilters.glGroup && oFilters.glGroup.length > 0) {
-						var aMonthGlGrpOrs = oFilters.glGroup.map(function(oItem) {
-							return "Gl_grp eq '" + that._odataLiteral(oItem.key) + "'";
-						});
-						aMonthGlFilters.push(aMonthGlGrpOrs.length === 1 ? aMonthGlGrpOrs[0] : "(" + aMonthGlGrpOrs.join(" or ") + ")");
-					}
+					var aMonthAllFilters = aMonthCommonFilters.slice();
+					addTokenFilter(aMonthAllFilters, oFilters.glAccount, "Saknr");
+					addTokenFilter(aMonthAllFilters, oFilters.glGroup, "Gl_grp");
+					addTokenFilter(aMonthAllFilters, oFilters.costCenter, "Kostl");
+					addTokenFilter(aMonthAllFilters, oFilters.costCenterGroup, "Co_grp");
+					addTokenFilter(aMonthAllFilters, oFilters.costCenterOwner, "Owner");
 
-					var aMonthCostFilters = aMonthCommonFilters.slice();
-					if (oFilters.costCenter && oFilters.costCenter.length > 0) {
-						var aMonthCcOrs = oFilters.costCenter.map(function(oItem) {
-							return "Kostl eq '" + that._odataLiteral(oItem.key) + "'";
-						});
-						aMonthCostFilters.push(aMonthCcOrs.length === 1 ? aMonthCcOrs[0] : "(" + aMonthCcOrs.join(" or ") + ")");
-					}
-					if (oFilters.costCenterGroup && oFilters.costCenterGroup.length > 0) {
-						var aMonthCcgOrs = oFilters.costCenterGroup.map(function(oItem) {
-							return "Co_grp eq '" + that._odataLiteral(oItem.key) + "'";
-						});
-						aMonthCostFilters.push(aMonthCcgOrs.length === 1 ? aMonthCcgOrs[0] : "(" + aMonthCcgOrs.join(" or ") + ")");
-					}
-					if (oFilters.nonGlGlGroup && oFilters.nonGlGlGroup.length > 0) {
-						var aMonthNonGlGrpOrs = oFilters.nonGlGlGroup.map(function(oItem) {
-							return "Gl_grp eq '" + that._odataLiteral(oItem.key) + "'";
-						});
-						aMonthCostFilters.push(aMonthNonGlGrpOrs.length === 1 ? aMonthNonGlGrpOrs[0] : "(" + aMonthNonGlGrpOrs.join(" or ") + ")");
-					}
-
-					var aRequests = bGlMode ? [
-						{
-							name: "CCR_COcenterwiseSet",
-							promise: that._readBudgetOData("/CCR_COcenterwiseSet", aGlFilters.join(" and "), sSelectCostCentreParams)
-						},
-						{
-							name: "CostCenterMonthWiseSet",
-							promise: that._readBudgetOData("/CostCenterMonthWiseSet", aMonthGlFilters.join(" and "), sSelectMonthParams)
-						}
-					] : [
-						{
-							name: "CCR_GLgroupwiseSet",
-							promise: that._readBudgetOData("/CCR_GLgroupwiseSet", aCostFilters.join(" and "), sSelectGLParams)
-						},
-						{
-							name: "CostCenterMonthWiseSet",
-							promise: that._readBudgetOData("/CostCenterMonthWiseSet", aMonthCostFilters.join(" and "), sSelectMonthParams)
-						}
-					];
+					var aRequests = [{
+						name: "CCR_COcenterwiseSet",
+						promise: that._readBudgetOData("/CCR_COcenterwiseSet", aAllFilters.join(" and "), sSelectCostCentreParams)
+					}, {
+						name: "CostCenterMonthWiseSet",
+						promise: that._readBudgetOData("/CostCenterMonthWiseSet", aMonthAllFilters.join(" and "), sSelectMonthParams)
+					}, {
+						name: "CCR_GLgroupwiseSet",
+						promise: that._readBudgetOData("/CCR_GLgroupwiseSet", aAllFilters.join(" and "), sSelectGLParams)
+					}, {
+						name: "CostCenterMonthWiseSet",
+						promise: that._readBudgetOData("/CostCenterMonthWiseSet", aMonthAllFilters.join(" and "), sSelectMonthParams)
+					}];
 
 					return Promise.allSettled(aRequests.map(function(oReq) {
 						return oReq.promise;
@@ -806,24 +762,34 @@ sap.ui.define([
 							};
 						}).filter(Boolean);
 
-						var aActiveData = aResults[0] && aResults[0].status === "fulfilled" ? (aResults[0].value || []) : [];
-						var aActiveMonthData = aResults[1] && aResults[1].status === "fulfilled" ? (aResults[1].value || []) : [];
-						var aMappedActiveRows = bGlMode ? aActiveData.map(that._mapGlRow.bind(that)).filter(Boolean) : aActiveData.map(that._mapNonGlRow.bind(that)).filter(Boolean);
+						var mResults = {};
+						aRequests.forEach(function(oReq, iIndex) {
+							if (aResults[iIndex] && aResults[iIndex].status === "fulfilled") {
+								mResults[oReq.name] = aResults[iIndex].value || [];
+							}
+						});
 
-						if (bGlMode) {
-							oBudget.setProperty("/glRows", aMappedActiveRows);
-							oBudget.setProperty("/glChartRows", that._createBudgetChartRows(aMappedActiveRows, "GL"));
-							oBudget.setProperty("/monthTrendDataGl", that._buildMonthlyTrendData(aActiveMonthData));
-							oBudget.setProperty("/monthTrendData", that._buildMonthlyTrendData(aActiveMonthData));
-						} else {
-							oBudget.setProperty("/nonGlRows", aMappedActiveRows);
-							oBudget.setProperty("/nonGlChartRows", that._createBudgetChartRows(aMappedActiveRows, "NONGL"));
-							oBudget.setProperty("/monthTrendDataNonGl", that._buildMonthlyTrendData(aActiveMonthData));
-							oBudget.setProperty("/monthTrendData", that._buildMonthlyTrendData(aActiveMonthData));
-						}
+						var aCostCentreData = mResults.CCR_COcenterwiseSet || [];
+						var aCostCentreMonthData = mResults.CostCenterMonthWiseSet || [];
+						var aGlGroupData = mResults.CCR_GLgroupwiseSet || [];
+						var aGlGroupMonthData = mResults.CostCenterMonthWiseSet || [];
+						var aMappedGlRows = aCostCentreData.map(that._mapGlRow.bind(that)).filter(Boolean);
+						var aMappedNonGlRows = aGlGroupData.map(that._mapNonGlRow.bind(that)).filter(Boolean);
+						var aCostCentreTrend = that._buildMonthlyTrendData(aCostCentreMonthData);
+						var aGlGroupTrend = that._buildMonthlyTrendData(aGlGroupMonthData);
+
+						oBudget.setProperty("/glRows", aMappedGlRows);
+						oBudget.setProperty("/glChartRows", that._createBudgetChartRows(aMappedGlRows, "GL"));
+						oBudget.setProperty("/monthTrendDataGl", aCostCentreTrend);
+
+						oBudget.setProperty("/nonGlRows", aMappedNonGlRows);
+						oBudget.setProperty("/nonGlChartRows", that._createBudgetChartRows(aMappedNonGlRows, "NONGL"));
+						oBudget.setProperty("/monthTrendDataNonGl", aGlGroupTrend);
+
+						oBudget.setProperty("/monthTrendData", bGlMode ? aCostCentreTrend : aGlGroupTrend);
 
 						return {
-							bActiveEmpty: aMappedActiveRows.length === 0,
+							bActiveEmpty: (bGlMode ? aMappedGlRows : aMappedNonGlRows).length === 0,
 							aFailures: aFailures
 						};
 					});
@@ -951,14 +917,6 @@ sap.ui.define([
 							return String(oRow.owner || "") === String(oItem.key || oItem);
 						});
 						if (!bOwnerMatch) {
-							return false;
-						}
-					}
-					if (oFilters.nonGlGlGroup && oFilters.nonGlGlGroup.length > 0) {
-						var bNonGlGroupMatch = oFilters.nonGlGlGroup.some(function(oItem) {
-							return String(oRow.glGroup || "") === String(oItem.key || oItem);
-						});
-						if (!bNonGlGroupMatch) {
 							return false;
 						}
 					}
@@ -1899,6 +1857,7 @@ sap.ui.define([
 
 		onBudgetCategoryChange: function() {
 			this._updateSelectedParametersText();
+			this._updateKpisFromActiveMode();
 		},
 
 		onStatusChange: function() {
@@ -1920,7 +1879,6 @@ sap.ui.define([
 				period: [],
 				quarters: [],
 				glGroup: [],
-				nonGlGlGroup: [],
 				glAccount: [],
 				costCenterGroup: [],
 				costCenter: [],
@@ -1979,9 +1937,6 @@ sap.ui.define([
 
 		onGlGroupValueHelp: function() {
 			this._openBudgetLookupValueHelp("G/L Group", "glGroups", "glGroup");
-		},
-		onNonGlGlGroupValueHelp: function() {
-			this._openBudgetLookupValueHelp("G/L Group", "glGroups", "nonGlGlGroup");
 		},
 		onGlAccountValueHelp: function() {
 			this._openBudgetLookupValueHelp("G/L Account", "glAccounts", "glAccount");
@@ -2238,7 +2193,6 @@ sap.ui.define([
 				else if (sId.includes("costCenterOwnerInputBudget")) oFiltersModel.setProperty("/costCenterOwner", []);
 				else if (sId.includes("glAccountInputBudget")) oFiltersModel.setProperty("/glAccount", []);
 				else if (sId.includes("glGroupInputBudget")) oFiltersModel.setProperty("/glGroup", []);
-				else if (sId.includes("nonGlGlGroupInputBudget")) oFiltersModel.setProperty("/nonGlGlGroup", []);
 				else if (sId.includes("quarterInputBudget")) oFiltersModel.setProperty("/quarters", []);
 			}
 			this._syncPeriodSelectorState();
@@ -2248,7 +2202,6 @@ sap.ui.define([
 		_validateMandatory: function() {
 			var oFilters = this.getView().getModel("filters").getData();
 			var oUi = this.getView().getModel("ui");
-			var bGlMode = oUi.getProperty("/isGlMode");
 			var bOk = true;
 			var aMissing = [];
 
@@ -2291,37 +2244,26 @@ sap.ui.define([
 				oUi.setProperty("/quarterState", "None");
 			}
 
-			var bHasGlAccount = oFilters.glAccount && oFilters.glAccount.length > 0;
-			var bHasGlGroup = oFilters.glGroup && oFilters.glGroup.length > 0;
-			var bHasCostCenter = oFilters.costCenter && oFilters.costCenter.length > 0;
-			var bHasCostCenterGroup = oFilters.costCenterGroup && oFilters.costCenterGroup.length > 0;
-			var bHasCostCenterOwner = oFilters.costCenterOwner && oFilters.costCenterOwner.length > 0;
-			var bHasNonGlGroup = oFilters.nonGlGlGroup && oFilters.nonGlGlGroup.length > 0;
+			var bHasAnyDimension = (oFilters.glAccount && oFilters.glAccount.length > 0) ||
+				(oFilters.glGroup && oFilters.glGroup.length > 0) ||
+				(oFilters.costCenter && oFilters.costCenter.length > 0) ||
+				(oFilters.costCenterGroup && oFilters.costCenterGroup.length > 0) ||
+				(oFilters.costCenterOwner && oFilters.costCenterOwner.length > 0);
 
-			if (bGlMode) {
-				if (!bHasGlAccount && !bHasGlGroup) {
-					oUi.setProperty("/glAccountState", "Error");
-					oUi.setProperty("/glGroupState", "Error");
-					aMissing.push("G/L Account OR G/L Group");
-					bOk = false;
-				} else {
-					oUi.setProperty("/glAccountState", "None");
-					oUi.setProperty("/glGroupState", "None");
-				}
+			if (!bHasAnyDimension) {
+				oUi.setProperty("/glAccountState", "Error");
+				oUi.setProperty("/glGroupState", "Error");
+				oUi.setProperty("/costCenterState", "Error");
+				oUi.setProperty("/costCenterGroupState", "Error");
+				oUi.setProperty("/costCenterOwnerState", "Error");
+				aMissing.push("At least one dimension filter");
+				bOk = false;
 			} else {
-				if (!bHasCostCenter && !bHasCostCenterGroup && !bHasCostCenterOwner && !bHasNonGlGroup) {
-					oUi.setProperty("/costCenterState", "Error");
-					oUi.setProperty("/costCenterGroupState", "Error");
-					oUi.setProperty("/costCenterOwnerState", "Error");
-					oUi.setProperty("/nonGlGlGroupState", "Error");
-					aMissing.push("Cost Center OR Cost Center Group OR Cost Centre Owner OR G/L Group");
-					bOk = false;
-				} else {
-					oUi.setProperty("/costCenterState", "None");
-					oUi.setProperty("/costCenterGroupState", "None");
-					oUi.setProperty("/costCenterOwnerState", "None");
-					oUi.setProperty("/nonGlGlGroupState", "None");
-				}
+				oUi.setProperty("/glAccountState", "None");
+				oUi.setProperty("/glGroupState", "None");
+				oUi.setProperty("/costCenterState", "None");
+				oUi.setProperty("/costCenterGroupState", "None");
+				oUi.setProperty("/costCenterOwnerState", "None");
 			}
 
 			if (!bOk) {
@@ -2337,7 +2279,6 @@ sap.ui.define([
 			oUi.setProperty("/fiscalYearState", "None");
 			oUi.setProperty("/periodState", "None");
 			oUi.setProperty("/glGroupState", "None");
-			oUi.setProperty("/nonGlGlGroupState", "None");
 			oUi.setProperty("/glAccountState", "None");
 			oUi.setProperty("/costCenterGroupState", "None");
 			oUi.setProperty("/costCenterState", "None");
@@ -2346,7 +2287,6 @@ sap.ui.define([
 
 		_updateSelectedParametersText: function() {
 			var oFilters = this.getView().getModel("filters").getData();
-			var bGlMode = this.getView().getModel("ui").getProperty("/isGlMode");
 
 			var sCompany = "Company " + (oFilters.companyCode || "-");
 			var sFY = "FY " + (oFilters.fiscalYear || "-");
@@ -2374,30 +2314,17 @@ sap.ui.define([
 					" Quarters";
 			}
 
-			// 1. Start with the Universal Parameters
-			var aTextParts = [sCompany, sFY, sPeriod, sBudCat, sStatus];
+			var sGlAccount = (oFilters.glAccount && oFilters.glAccount.length) ? oFilters.glAccount.length + " G/L Accounts" :
+				"All G/L Accounts";
+			var sGlGroup = (oFilters.glGroup && oFilters.glGroup.length) ? oFilters.glGroup.length + " G/L Groups" : "All G/L Groups";
+			var sCostCenter = (oFilters.costCenter && oFilters.costCenter.length) ? oFilters.costCenter.length + " Cost Centers" :
+				"All Cost Centers";
+			var sCostCenterGroup = (oFilters.costCenterGroup && oFilters.costCenterGroup.length) ? oFilters.costCenterGroup.length +
+				" Cost Center Groups" : "All Cost Center Groups";
+			var sCostCenterOwner = (oFilters.costCenterOwner && oFilters.costCenterOwner.length) ? oFilters.costCenterOwner.length +
+				" Cost Centre Owners" : "All Cost Centre Owners";
 
-			// 2. Add Tab-Specific Parameters
-			if (bGlMode) {
-				// GL Mode: Show only GL Account and GL Group
-				var sGlAccount = (oFilters.glAccount && oFilters.glAccount.length) ? oFilters.glAccount.length + " G/L Accounts" :
-					"All G/L Accounts";
-				var sGlGroup = (oFilters.glGroup && oFilters.glGroup.length) ? oFilters.glGroup.length + " G/L Groups" : "All G/L Groups";
-
-				aTextParts.push(sGlAccount, sGlGroup);
-			} else {
-				// Non-GL Mode: Show Cost Center fields plus the separate G/L Group picker
-				var sCostCenter = (oFilters.costCenter && oFilters.costCenter.length) ? oFilters.costCenter.length + " Cost Centers" :
-					"All Cost Centers";
-				var sCostCenterGroup = (oFilters.costCenterGroup && oFilters.costCenterGroup.length) ? oFilters.costCenterGroup.length +
-					" Cost Center Groups" : "All Cost Center Groups";
-				var sCostCenterOwner = (oFilters.costCenterOwner && oFilters.costCenterOwner.length) ? oFilters.costCenterOwner.length +
-					" Cost Centre Owners" : "All Cost Centre Owners";
-				var sNonGlGroup = (oFilters.nonGlGlGroup && oFilters.nonGlGlGroup.length) ? oFilters.nonGlGlGroup.length + " G/L Groups" :
-					"All G/L Groups";
-
-				aTextParts.push(sCostCenter, sCostCenterGroup, sCostCenterOwner, sNonGlGroup);
-			}
+			var aTextParts = [sCompany, sFY, sPeriod, sBudCat, sStatus, sGlAccount, sGlGroup, sCostCenter, sCostCenterGroup, sCostCenterOwner];
 
 			// 3. Set the final string
 			this.getView().getModel("ui").setProperty("/selectedParamsText", aTextParts.join(" | "));
