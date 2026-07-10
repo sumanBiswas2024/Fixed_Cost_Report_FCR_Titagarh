@@ -1944,6 +1944,20 @@
     font-weight: 800 !important;
 }
 
+.sapUiTableRowHighlightError .sapMText,
+.sapUiTableRowHighlightError .sapMObjectNumber,
+.sapUiTableRowHighlightError .sapMObjectNumberText,
+.sapUiTableRowHighlightError .sapMObjStatusText,
+.sapUiTableRowHighlightError .sapUiIcon,
+.sapUiTableRowHighlightError .sapMLabel {
+    color: #dc2626 !important;
+    font-weight: 800 !important;
+}
+
+.sapUiTableRowHighlightError .sapMObjStatusText {
+    color: #dc2626 !important;
+}
+
 .bwKpiTrendArrow {
     font-size: 0.95rem !important;
     font-weight: 900 !important;

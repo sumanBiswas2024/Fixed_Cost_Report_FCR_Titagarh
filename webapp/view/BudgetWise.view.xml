@@ -97,7 +97,6 @@
 							<!--	<Input value="{filters>/glGroup}" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onGlGroupValueHelp"-->
 							<!--		placeholder="Select G/L Group" valueState="{ui>/glGroupState}"/>-->
 							<!--</VBox>-->
-							
 							<VBox class="fcrField fcrFieldGlg">
 								<Label text="G/L Account" required="false"/>
 								<MultiInput id="glAccountInputBudget" value="{path: 'filters>/glAccount', formatter: '.formatTokenKeys'}" showValueHelp="true"
@@ -128,7 +127,6 @@
 									valueHelpOnly="true" tokenUpdate=".onTokenUpdate" valueHelpRequest=".onCostCenterOwnerValueHelp" placeholder="Select Cost Centre Owner"
 									valueState="{ui>/costCenterOwnerState}"/>
 							</VBox>
-							
 							<HBox class="fcrActionsContainer fcrParamActionsModern" alignItems="Center">
 								<Button icon="sap-icon://reset" tooltip="Reset" press=".onReset" class="fcrBtnReset"/>
 								<Button text="Run Report" icon="sap-icon://play" type="Emphasized" press=".onSearch" class="fcrBtnRun"/>
@@ -270,8 +268,8 @@
 							<Label text="Report Type"/>
 							<SegmentedButton selectedKey="{ui>/reportType}" selectionChange=".onReportTypeChange" class="fcrViewSwitch">
 								<items>
-									<SegmentedButtonItem key="GL" text="G/L Parameters" icon="sap-icon://detail-view"/>
-									<SegmentedButtonItem key="NONGL" text="Cost Centre Parameters" icon="sap-icon://money-bills"/>
+									<SegmentedButtonItem key="GL" text="Cost Centre Wise Details" icon="sap-icon://detail-view"/>
+									<SegmentedButtonItem key="NONGL" text="GL Wise Details" icon="sap-icon://money-bills"/>
 								</items>
 							</SegmentedButton>
 						</VBox>
@@ -288,83 +286,110 @@
 				<layout:Grid defaultSpan="L6 M6 S12" hSpacing="1" vSpacing="1" class="fcrBudgetChartSection">
 					<VBox>
 						<VBox visible="{ui>/isGlMode}">
-							<Panel headerText="Cost Centre Wise Total Budget View (Amounts in ₹ Lakhs)" expandable="false" expanded="true"
-								class="fcrOutPanel sapUiSmallMarginBottom" visible="true">
-								<content>
-									<viz:VizFrame id="budgetGlChart" width="100%" height="350px" vizType="pie" uiConfig="{applicationSet:'fiori'}">
-										<viz:dataset>
-											<viz.data:FlattenedDataset data="{budget>/glChartRows}">
-												<viz.data:dimensions>
-													<viz.data:DimensionDefinition name="Cost Centre Name" value="{budget>costCentreDesc}"/>
-												</viz.data:dimensions>
-												<viz.data:measures>
-													<viz.data:MeasureDefinition name="Total Budget" value="{budget>yearlyBudget}"/>
-												</viz.data:measures>
-											</viz.data:FlattenedDataset>
-										</viz:dataset>
-										<viz:feeds>
-											<viz.feeds:FeedItem uid="size" type="Measure" values="Total Budget"/>
-											<viz.feeds:FeedItem uid="color" type="Dimension" values="Cost Centre Name"/>
-										</viz:feeds>
-										<viz:dependents>
-											<viz:Popover id="budgetGlPopover"/>
-										</viz:dependents>
-									</viz:VizFrame>
-								</content>
-							</Panel>
+							<!--<Panel headerText="Cost Centre Wise Total Budget View (Amounts in ₹ Lakhs)" expandable="false" expanded="true"-->
+							<!--	class="fcrOutPanel sapUiSmallMarginBottom" visible="true">-->
+							<!--	<content>-->
+							<suite:ChartContainer id="ccCostCentreGraph" title="Cost Centre Total Budget View (Amounts in ₹ Lakhs)" showFullScreen="true"
+								showPersonalization="false" autoAdjustHeight="false" showLegendButton="false">
+								<suite:content>
+									<suite:ChartContainerContent icon="sap-icon://bar-chart" title="Column Chart View">
+										<suite:content>
+											<viz:VizFrame id="budgetGlChart" width="100%" height="350px" vizType="pie" uiConfig="{applicationSet:'fiori'}">
+												<viz:dataset>
+													<viz.data:FlattenedDataset data="{budget>/glChartRows}">
+														<viz.data:dimensions>
+															<viz.data:DimensionDefinition name="Cost Centre Name" value="{budget>costCentreDesc}"/>
+														</viz.data:dimensions>
+														<viz.data:measures>
+															<viz.data:MeasureDefinition name="Total Budget" value="{budget>yearlyBudget}"/>
+														</viz.data:measures>
+													</viz.data:FlattenedDataset>
+												</viz:dataset>
+												<viz:feeds>
+													<viz.feeds:FeedItem uid="size" type="Measure" values="Total Budget"/>
+													<viz.feeds:FeedItem uid="color" type="Dimension" values="Cost Centre Name"/>
+												</viz:feeds>
+												<viz:dependents>
+													<viz:Popover id="budgetGlPopover"/>
+												</viz:dependents>
+											</viz:VizFrame>
+										</suite:content>
+									</suite:ChartContainerContent>
+								</suite:content>
+							</suite:ChartContainer>
+							<!--	</content>-->
+							<!--</Panel>-->
 						</VBox>
 						<VBox visible="{ui>/isNonGlMode}">
-							<Panel headerText="GL Group Wise Total Budget View (Amounts in ₹ Lakhs)" expandable="false" expanded="true"
-								class="fcrOutPanel sapUiSmallMarginBottom" visible="true">
-								<content>
-									<viz:VizFrame id="budgetNonGlChart" width="100%" height="350px" vizType="pie" uiConfig="{applicationSet:'fiori'}">
-										<viz:dataset>
-											<viz.data:FlattenedDataset data="{budget>/nonGlChartRows}">
-												<viz.data:dimensions>
-													<viz.data:DimensionDefinition name="G/L Group" value="{budget>glGroup}"/>
-												</viz.data:dimensions>
-												<viz.data:measures>
-													<viz.data:MeasureDefinition name="Actual Yearly Budget" value="{budget>yearlyBudget}"/>
-												</viz.data:measures>
-											</viz.data:FlattenedDataset>
-										</viz:dataset>
-										<viz:feeds>
-											<viz.feeds:FeedItem uid="size" type="Measure" values="Actual Yearly Budget"/>
-											<viz.feeds:FeedItem uid="color" type="Dimension" values="G/L Group"/>
-										</viz:feeds>
-										<viz:dependents>
-											<viz:Popover id="budgetNonGlPopover"/>
-										</viz:dependents>
-									</viz:VizFrame>
-								</content>
-							</Panel>
+							<!--<Panel headerText="GL Group Wise Total Budget View (Amounts in ₹ Lakhs)" expandable="false" expanded="true"-->
+							<!--	class="fcrOutPanel sapUiSmallMarginBottom" visible="true">-->
+							<!--	<content>-->
+							<suite:ChartContainer id="ccGLGraph" title="GL Group Total Budget View (Amounts in ₹ Lakhs)" showFullScreen="true"
+								showPersonalization="false" autoAdjustHeight="false" showLegendButton="false">
+								<suite:content>
+									<suite:ChartContainerContent icon="sap-icon://bar-chart" title="Column Chart View">
+										<suite:content>
+											<viz:VizFrame id="budgetNonGlChart" width="100%" height="350px" vizType="pie" uiConfig="{applicationSet:'fiori'}">
+												<viz:dataset>
+													<viz.data:FlattenedDataset data="{budget>/nonGlChartRows}">
+														<viz.data:dimensions>
+															<viz.data:DimensionDefinition name="G/L Group" value="{budget>glGroup}"/>
+														</viz.data:dimensions>
+														<viz.data:measures>
+															<viz.data:MeasureDefinition name="Actual Yearly Budget" value="{budget>yearlyBudget}"/>
+														</viz.data:measures>
+													</viz.data:FlattenedDataset>
+												</viz:dataset>
+												<viz:feeds>
+													<viz.feeds:FeedItem uid="size" type="Measure" values="Actual Yearly Budget"/>
+													<viz.feeds:FeedItem uid="color" type="Dimension" values="G/L Group"/>
+												</viz:feeds>
+												<viz:dependents>
+													<viz:Popover id="budgetNonGlPopover"/>
+												</viz:dependents>
+											</viz:VizFrame>
+										</suite:content>
+									</suite:ChartContainerContent>
+								</suite:content>
+							</suite:ChartContainer>
+							<!--	</content>-->
+							<!--</Panel>-->
 						</VBox>
 					</VBox>
 					<VBox>
-						<Panel headerText="Monthly Trend (Amounts in ₹ Lakhs)" expandable="false" expanded="true"
-							class="fcrOutPanel sapUiSmallMarginBottom" visible="true">
-							<content>
-								<viz:VizFrame id="budgetMonthlyTrendChart" width="100%" height="350px" vizType="line" uiConfig="{applicationSet:'fiori'}">
-									<viz:dataset>
-										<viz.data:FlattenedDataset data="{budget>/monthTrendData}">
-											<viz.data:dimensions>
-												<viz.data:DimensionDefinition name="Month" value="{budget>monthLabel}"/>
-											</viz.data:dimensions>
-											<viz.data:measures>
-												<viz.data:MeasureDefinition name="Monthly Spend" value="{budget>monthlyValue}"/>
-											</viz.data:measures>
-										</viz.data:FlattenedDataset>
-									</viz:dataset>
-									<viz:feeds>
-										<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Month"/>
-										<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Monthly Spend"/>
-									</viz:feeds>
-									<viz:dependents>
-										<viz:Popover id="budgetMonthlyTrendPopover"/>
-									</viz:dependents>
-								</viz:VizFrame>
-							</content>
-						</Panel>
+						<!--<Panel headerText="Monthly Trend (Amounts in ₹ Lakhs)" expandable="false" expanded="true" class="fcrOutPanel sapUiSmallMarginBottom"-->
+						<!--	visible="true">-->
+						<!--	<content>-->
+						<suite:ChartContainer id="ccMonthlyTrend" title="Monthly Trend (Amounts in ₹ Lakhs)" showFullScreen="true" showPersonalization="false"
+							autoAdjustHeight="false" showLegendButton="false">
+							<suite:content>
+								<suite:ChartContainerContent icon="sap-icon://line-chart" title="Line Chart View">
+									<suite:content>
+										<viz:VizFrame id="budgetMonthlyTrendChart" width="100%" height="350px" vizType="line" uiConfig="{applicationSet:'fiori'}">
+											<viz:dataset>
+												<viz.data:FlattenedDataset data="{budget>/monthTrendData}">
+													<viz.data:dimensions>
+														<viz.data:DimensionDefinition name="Month" value="{budget>monthLabel}"/>
+													</viz.data:dimensions>
+													<viz.data:measures>
+														<viz.data:MeasureDefinition name="Monthly Spend" value="{budget>monthlyValue}"/>
+													</viz.data:measures>
+												</viz.data:FlattenedDataset>
+											</viz:dataset>
+											<viz:feeds>
+												<viz.feeds:FeedItem uid="categoryAxis" type="Dimension" values="Month"/>
+												<viz.feeds:FeedItem uid="valueAxis" type="Measure" values="Monthly Spend"/>
+											</viz:feeds>
+											<viz:dependents>
+												<viz:Popover id="budgetMonthlyTrendPopover"/>
+											</viz:dependents>
+										</viz:VizFrame>
+									</suite:content>
+								</suite:ChartContainerContent>
+							</suite:content>
+						</suite:ChartContainer>
+						<!--	</content>-->
+						<!--</Panel>-->
 					</VBox>
 				</layout:Grid>
 			</VBox>
@@ -443,6 +468,9 @@
 										<suite:content>
 											<table:Table id="budgetGlTable" rows="{budget>/glRows}" visibleRowCount="10" fixedColumnCount="0" selectionMode="None"
 												enableColumnReordering="true" enableCellFilter="true" noDataText="Run report to display G/L budget rows" class="fcrUiTable">
+												<table:rowSettingsTemplate>
+													<table:RowSettings highlight="{path: 'budget>status', formatter: '.formatRowHighlight'}"/>
+												</table:rowSettingsTemplate>
 												<table:columns>
 													<table:Column width="10rem" sortProperty="costCenter" filterProperty="costCenter">
 														<table:label><Label text="Cost Center"/></table:label>
@@ -493,7 +521,7 @@
 													<table:Column width="8rem" sortProperty="status" filterProperty="status" hAlign="Begin">
 														<table:label><Label text="Status"/></table:label>
 														<table:template>
-															<ObjectStatus class="fcrStatusBoldText" text="{path: 'budget>status', formatter: '.formatStatusText'}"
+															<ObjectStatus text="{path: 'budget>status', formatter: '.formatStatusText'}"
 																state="{path: 'budget>status', formatter: '.formatUtilizationColor'}"/>
 														</table:template>
 													</table:Column>
@@ -595,6 +623,9 @@
 										<suite:content>
 											<table:Table id="budgetNonGlTable" rows="{budget>/nonGlRows}" visibleRowCount="10" fixedColumnCount="0" selectionMode="None"
 												enableColumnReordering="true" enableCellFilter="true" noDataText="Run report to display non G/L budget rows" class="fcrUiTable">
+												<table:rowSettingsTemplate>
+													<table:RowSettings highlight="{path: 'budget>status', formatter: '.formatRowHighlight'}"/>
+												</table:rowSettingsTemplate>
 												<table:columns>
 													<!--<table:Column width="10rem" sortProperty="coGroup" filterProperty="coGroup">-->
 													<!--	<table:label><Label text="Cost Centre Group"/></table:label>-->
@@ -645,7 +676,7 @@
 													<table:Column width="8rem" sortProperty="status" filterProperty="status" hAlign="Begin">
 														<table:label><Label text="Status"/></table:label>
 														<table:template>
-															<ObjectStatus class="fcrStatusBoldText" text="{path: 'budget>status', formatter: '.formatStatusText'}"
+															<ObjectStatus text="{path: 'budget>status', formatter: '.formatStatusText'}"
 																state="{path: 'budget>status', formatter: '.formatUtilizationColor'}"/>
 														</table:template>
 													</table:Column>

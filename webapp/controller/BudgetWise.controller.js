@@ -1486,6 +1486,11 @@ sap.ui.define([
 			return sStatus || "";
 		},
 
+		formatRowHighlight: function(sStatus) {
+			var sValue = String(sStatus || "").trim().toUpperCase();
+			return (sValue === "R" || sValue === "RED") ? "Error" : "None";
+		},
+
 		formatUtilizationColor: function(sStatus) {
 			// Returns 'Success' (Green) or 'Error' (Red)
 			var sValue = String(sStatus || "").toUpperCase();
