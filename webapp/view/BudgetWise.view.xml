@@ -514,11 +514,11 @@
 													</table:Column>
 													<table:Column label="Utilization (%)" width="10rem" sortProperty="utilization" filterProperty="utilization" hAlign="Begin">
 														<table:template>
-															<ObjectStatus text="{path: 'budget>utilization', formatter: '.formatUtilizationText'}"
-																state="{path: 'budget>status', formatter: '.formatUtilizationColor'}"/>
+															<ObjectNumber number="{path: 'budget>utilization', formatter: '.formatUtilizationText'}"/>
 														</table:template>
 													</table:Column>
-													<table:Column width="8rem" sortProperty="status" filterProperty="status" hAlign="Begin">
+													<table:Column width="8rem" sortProperty="status" filterProperty="status" hAlign="Begin"
+														visible="{= ${filters>/status} === 'R' || ${filters>/status} === 'G' }">
 														<table:label><Label text="Status"/></table:label>
 														<table:template>
 															<ObjectStatus text="{path: 'budget>status', formatter: '.formatStatusText'}"
@@ -669,11 +669,11 @@
 													</table:Column>
 													<table:Column label="Utilization (%)" width="10rem" sortProperty="utilization" filterProperty="utilization" hAlign="Begin">
 														<table:template>
-															<ObjectStatus text="{path: 'budget>utilization', formatter: '.formatUtilizationText'}"
-																state="{path: 'budget>status', formatter: '.formatUtilizationColor'}"/>
+															<ObjectNumber number="{path: 'budget>utilization', formatter: '.formatUtilizationText'}"/>
 														</table:template>
 													</table:Column>
-													<table:Column width="8rem" sortProperty="status" filterProperty="status" hAlign="Begin">
+													<table:Column width="8rem" sortProperty="status" filterProperty="status" hAlign="Begin"
+														visible="{= ${filters>/status} === 'R' || ${filters>/status} === 'G' }">
 														<table:label><Label text="Status"/></table:label>
 														<table:template>
 															<ObjectStatus text="{path: 'budget>status', formatter: '.formatStatusText'}"
